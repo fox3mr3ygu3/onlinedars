@@ -5,7 +5,7 @@ import { CheckCircle2, Clock, Loader2, RotateCcw, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Price } from '@/features/catalog/price';
 import { errorMessageKey, isApiError } from '@/lib/api/client';
@@ -46,8 +46,12 @@ export function CheckoutResult({
   const [attempt, setAttempt] = useState(0);
 
   const retry = useCallback(() => setAttempt((n) => n + 1), []);
+  // Keep the router out of the polling effect's deps so a new router object never restarts polling.
+  const routerRef = useRef(router);
+  routerRef.current = router;
 
   useEffect(() => {
+    const router = routerRef.current;
     if (!orderId) return;
     const controller = new AbortController();
     setView((v) => ({ kind: 'checking', order: 'order' in v ? v.order : null }));
@@ -78,7 +82,7 @@ export function CheckoutResult({
         setView({ kind: 'error', messageKey: errorMessageKey(e) });
       });
     return () => controller.abort();
-  }, [orderId, intervalMs, timeoutMs, attempt, router]);
+  }, [orderId, intervalMs, timeoutMs, attempt]);
 
   if (!orderId) {
     return <StatusBlock tone="error" title={t('missingOrder')} />;
