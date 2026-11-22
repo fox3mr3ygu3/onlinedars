@@ -92,6 +92,9 @@
     "EXAM_LOCKED": "Imtihon barcha darslar tugagandan so'ng ochiladi",
     "EXAM_TIME_OVER": "Imtihon vaqti tugadi",
     "ORDER_NOT_FOUND": "Buyurtma topilmadi",
-    "ALREADY_ENROLLED": "Siz bu kursga allaqachon yozilgansiz"
+    "ALREADY_ENROLLED": "Siz bu kursga allaqachon yozilgansiz",
+    "COURSE_NOT_PURCHASABLE": "Bu kursni hozircha sotib olib bo'lmaydi",
+    "PAYMENT_PROVIDER_UNAVAILABLE": "Bu to'lov usuli hozircha ishlamayapti. Boshqa usulni tanlang.",
+    "INVALID_STATUS_TRANSITION": "To'lov holatini bunday o'zgartirib bo'lmaydi"
   }
 }
