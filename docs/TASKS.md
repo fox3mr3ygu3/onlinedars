@@ -124,17 +124,17 @@ the OpenAPI stubs — they don't need finished backend logic.
 **Owns:** `.github/`, `infra/` (shared with architect in Phase 0), `docs/GIT_WORKFLOW.md`, `docs/DEPLOYMENT.md`, `CHANGELOG.md`
 Starts in Phase 0 together with architect; continues through launch and maintenance.
 
-- [ ] GitHub repo (private), branch protection on `main`, PR template, CODEOWNERS, Dependabot
-- [ ] `ci.yml`: install, lint, typecheck, unit, API e2e with Postgres/Redis services, migrate check, build, Playwright smoke
-- [ ] Production Dockerfiles (web, api, worker), multi-stage, non-root
-- [ ] `infra/docker-compose.prod.yml` + Caddy config (HTTPS)
-- [ ] `deploy.yml`: build → GHCR → staging on merge to `main`; production on tag `v*` with manual approval; health check; rollback by tag
+- [ ] GitHub repo (private), branch protection on `main`, PR template, CODEOWNERS, Dependabot — template, CODEOWNERS, Dependabot done; branch protection waits on the user (`docs/USER_ACTIONS.md`)
+- [x] `ci.yml`: install, lint, typecheck, unit, API e2e with Postgres/Redis services, migrate check, build, Playwright smoke
+- [x] Production Dockerfiles (web, api, worker), multi-stage, non-root
+- [x] `infra/docker-compose.prod.yml` + Caddy config (HTTPS)
+- [x] `deploy.yml`: build → GHCR → staging on merge to `main`; production on tag `v*` with manual approval; health check; rollback by tag
 - [ ] GitHub Environments `staging` / `production` with secrets
-- [ ] Server hardening script (firewall, SSH keys, fail2ban, unattended upgrades)
+- [x] Server hardening script (firewall, SSH keys, fail2ban, unattended upgrades)
 - [ ] Backups: nightly DB + MinIO off-server, pre-deploy backup, documented restore test
 - [ ] Monitoring: Sentry releases, uptime checks → Telegram alerts, server metrics, log rotation
-- [ ] k6 load test scripts (catalog browsing, exam submit spike, payment callbacks)
-- [ ] Release process: changelog, semantic version tags
+- [x] k6 load test scripts (catalog browsing, exam submit spike, payment callbacks)
+- [x] Release process: changelog, semantic version tags
 
 ---
 
@@ -146,3 +146,9 @@ Starts in Phase 0 together with architect; continues through launch and maintena
 - architect → frontend-public / frontend-student / frontend-admin: `apps/web/src/middleware.ts` (role redirects) is not written yet and has no owner in this file. The refresh cookie is httpOnly and scoped to `/api/v1/auth`, so middleware cannot read it; options: a non-sensitive `od_role` hint cookie set by the web after login, or client-side guards. The API enforces access regardless. Please decide who owns it.
 - architect → qa: Phase 0 added `apps/api/test/auth.e2e-spec.ts` + `test/setup-e2e.ts` (your path) for register/login/me/refresh/logout, 401/403 and the DB 4×6 triggers. They are yours from now on.
 - architect → all backend agents: use `AppException` (`apps/api/src/common/errors`) with codes from `packages/shared/src/errors.ts`; add new codes there **and** an `errors.<CODE>` entry in `apps/web/messages/uz.json` (a web unit test checks every code has a message).
+- (done in Phase 0) devops → architect: root `package.json` needs `"packageManager": "pnpm@9.15.9"` (CI's pnpm/action-setup reads it; no version is pinned in the workflow).
+- (done in Phase 0) devops → architect: `apps/web/next.config.*` needs `output: "standalone"` and `outputFileTracingRoot: path.join(__dirname, "../..")` (monorepo root) for `infra/docker/web.Dockerfile`; keep an `apps/web/public/` folder (copied into the image).
+- (done in Phase 0) devops → architect: api build must emit `apps/api/dist/main.js` and `apps/api/dist/worker.js` (keep `prisma/seed.ts` out of the Nest tsconfig `include`, or the output moves to `dist/src/`). `prisma` must be a devDependency of apps/api (CI runs `pnpm --filter ./apps/api exec prisma migrate diff`). `pnpm db:generate` must work without `DATABASE_URL`.
+- (done in Phase 0) devops → architect: add `S3_PUBLIC_URL` (public base URL for presigned links, e.g. `https://files.onlinedars.uz`) to `.env.example` and the config schema; the api should trust `X-Forwarded-For` from the proxy only (`app.set("trust proxy", 1)`).
+- devops → backend-learning: launch Puppeteer with `executablePath: process.env.PUPPETEER_EXECUTABLE_PATH` and args `--no-sandbox --disable-dev-shm-usage` (worker image, non-root).
+- devops → qa: put Playwright in `e2e/playwright.config.ts` with a `webServer` that starts web + api, and tag the smoke subset `@smoke` (CI runs `--grep @smoke`).

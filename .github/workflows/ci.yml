@@ -1,0 +1,222 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+    tags-ignore: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+# A new push to the same branch/PR cancels the run it supersedes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: '1'
+  NEXT_TELEMETRY_DISABLED: '1'
+  # Dummy values so config validation passes in jobs that don't touch real services.
+  JWT_ACCESS_SECRET: ci-access-secret-not-for-production
+  JWT_REFRESH_SECRET: ci-refresh-secret-not-for-production
+  S3_ENDPOINT: http://localhost:9000
+  S3_ACCESS_KEY: ci
+  S3_SECRET_KEY: ci-secret
+  S3_BUCKET: onlinedars-ci
+  WEB_URL: http://localhost:3000
+  API_URL: http://localhost:4000/api/v1
+  NEXT_PUBLIC_API_URL: /api/v1
+
+jobs:
+  lint:
+    name: Lint + typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Generate Prisma client (types for typecheck)
+        run: pnpm db:generate
+      - run: pnpm lint
+      - run: pnpm typecheck
+
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: pnpm db:generate
+      - run: pnpm test
+
+  api-e2e:
+    name: API e2e + migrations
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: onlinedars_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/onlinedars_test?schema=public
+      SHADOW_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/onlinedars_shadow?schema=public
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: pnpm db:generate
+      - name: Apply migrations to a fresh database
+        run: pnpm db:migrate:deploy
+      - name: Check schema.prisma has no un-migrated changes
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -c 'CREATE DATABASE onlinedars_shadow;'
+          pnpm --filter ./apps/api exec prisma migrate diff \
+            --from-migrations prisma/migrations \
+            --to-schema-datamodel prisma/schema.prisma \
+            --shadow-database-url "$SHADOW_DATABASE_URL" \
+            --exit-code
+      - name: Seed runs cleanly
+        run: pnpm db:seed
+      - run: pnpm test:e2e
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - run: pnpm db:generate
+      - run: pnpm build
+
+  playwright:
+    name: Playwright smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [build]
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: onlinedars_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/onlinedars_test?schema=public
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - uses: actions/checkout@v4
+      # hashFiles() is not allowed in a job-level "if", so detect the suite in a step.
+      - name: Detect Playwright suite
+        id: detect
+        run: |
+          if [ -f e2e/playwright.config.ts ] || [ -f e2e/playwright.config.js ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No e2e/playwright.config.* yet - Playwright job skipped."
+          fi
+      - if: steps.detect.outputs.present == 'true' && hashFiles('e2e/**') != ''
+        uses: ./.github/actions/setup
+      - if: steps.detect.outputs.present == 'true'
+        name: Prepare database
+        run: |
+          pnpm db:generate
+          pnpm db:migrate:deploy
+          pnpm db:seed
+      - if: steps.detect.outputs.present == 'true'
+        run: pnpm build
+      - if: steps.detect.outputs.present == 'true'
+        name: Install browsers
+        run: pnpm exec playwright install --with-deps chromium
+      - if: steps.detect.outputs.present == 'true'
+        name: Run smoke tests (full suite on the nightly schedule later)
+        # playwright.config.* is expected to start web + api through its webServer option.
+        run: pnpm exec playwright test --config e2e/playwright.config.* --grep @smoke --pass-with-no-tests
+      - if: always() && steps.detect.outputs.present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  docker:
+    name: Docker image (${{ matrix.image }})
+    # On main the deploy workflow builds and pushes; here we only check the Dockerfiles build.
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: web
+            dockerfile: infra/docker/web.Dockerfile
+            target: runner
+          - image: api
+            dockerfile: infra/docker/api.Dockerfile
+            target: api
+          - image: worker
+            dockerfile: infra/docker/api.Dockerfile
+            target: worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          target: ${{ matrix.target }}
+          push: false
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,scope=${{ matrix.image }},mode=max
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Reported, not blocking: a fresh advisory should not stop unrelated PRs.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          install: 'false'
+      - run: pnpm audit --prod --audit-level=high
