@@ -178,7 +178,7 @@ jobs:
           if-no-files-found: ignore
 
   docker:
-    name: Docker images build
+    name: Docker image (${{ matrix.image }})
     # On main the deploy workflow builds and pushes; here we only check the Dockerfiles build.
     if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest

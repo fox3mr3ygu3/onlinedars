@@ -13,34 +13,55 @@ Staging and production are separate servers (or at least separate databases, sto
 - **Data residency:** Uzbek law is understood to require personal data of Uzbek citizens to be stored on servers in Uzbekistan. **Confirm this with legal counsel**, then pick a local cloud or data-center provider for production.
 - Start with **one Linux VPS** (Ubuntu LTS, 4–8 vCPU, 8–16 GB RAM, SSD) per environment.
 - Run everything with **Docker Compose**: `caddy` (HTTPS reverse proxy, automatic Let's Encrypt), `web`, `api`, `worker` (BullMQ jobs), `postgres`, `redis`, `minio`.
-- DNS: `onlinedars.uz` → web, `api.onlinedars.uz` → api (or `/api` behind the same proxy).
+- DNS: `onlinedars.uz` → the server. Caddy serves web and API on the **same origin** (`/api/*` → api container), and `files.onlinedars.uz` → MinIO for presigned downloads. Same-origin keeps auth cookies first-party and lets one web image serve staging and production (`NEXT_PUBLIC_API_URL=/api/v1`).
 - Payme/Click callbacks need a public HTTPS URL. Register the staging and production callback URLs in each merchant cabinet.
 
 ## CI (GitHub Actions — `.github/workflows/ci.yml`)
-Runs on every push and PR:
-1. `pnpm install --frozen-lockfile` (cached)
-2. lint + typecheck
-3. unit tests (Vitest)
-4. API e2e (Supertest against Postgres + Redis service containers)
-5. `prisma migrate deploy` on a fresh database (checks that migrations apply)
-6. build web + api
-7. Playwright smoke tests (full suite nightly)
+Runs on every push and PR (a newer push cancels the older run). Jobs run in parallel:
+| Job | What |
+|---|---|
+| Lint + typecheck | `pnpm install --frozen-lockfile` (pnpm store cached), `db:generate`, `lint`, `typecheck` |
+| Unit tests | `pnpm test` (Vitest, no DB) |
+| API e2e + migrations | Postgres 16 + Redis 7 service containers; `db:migrate:deploy` on a fresh DB, `prisma migrate diff --exit-code` (schema has no un-migrated changes), `db:seed`, `test:e2e` |
+| Build | `pnpm build` |
+| Playwright smoke | only when `e2e/playwright.config.*` exists; runs tests tagged `@smoke` (full suite nightly, later) |
+| Docker images build | builds web/api/worker images without pushing (not on `main`, where deploy builds them) |
+| Dependency audit | `pnpm audit --prod --audit-level=high`, reported but not blocking |
+
+Shared setup lives in `.github/actions/setup` (pnpm version comes from `packageManager` in the root `package.json`).
 
 Branch protection on `main`: require CI green and 1 review (self-review is fine when solo), and no direct pushes.
 
 ## CD (`.github/workflows/deploy.yml`)
 ```
 merge to main ─► build Docker images (web, api, worker)
-              ─► push to GHCR (ghcr.io/<owner>/onlinedars-*:sha)
+              ─► push to GHCR (ghcr.io/<owner>/onlinedars-{web,api,worker}:<full sha> and :main)
               ─► SSH to staging ─► docker compose pull ─► prisma migrate deploy ─► up -d ─► health check
 
-push tag v* ──► same images re-tagged :v1.2.0
+push tag v* ──► images built from the tagged commit, tagged :<sha>, :v1.2.0, :v1.2
               ─► GitHub Environment "production" (manual approval)
               ─► SSH to production ─► backup DB ─► migrate ─► up -d ─► health check ─► notify
 ```
-- **Secrets** come from GitHub Environments (`staging`, `production`): SSH key, `.env` contents, registry token.
-- **Health check:** `GET /health` must return 200 within 60 s, otherwise the job fails and the previous version keeps running.
-- **Rollback:** re-run deploy with the previous tag (`IMAGE_TAG=v1.1.0`). Migrations must be **backward-compatible** (expand → migrate data → contract in a later release), so old code still runs on the new schema.
+- The workflow uploads `infra/docker-compose.prod.yml`, `infra/caddy/Caddyfile` and `infra/scripts/{deploy,rollback,backup-db}.sh` to `/opt/onlinedars`, writes `/opt/onlinedars/.env` from the `ENV_FILE` secret, logs in to GHCR with the run's own token, and runs `scripts/deploy.sh <tag>` (`.github/actions/ssh-deploy`).
+- **Health check:** api `GET /api/v1/health` and web `/` must be healthy within 90 s (container healthchecks), then the public URL is checked through Caddy. If not healthy, `deploy.sh` starts the previous tag again and the job fails.
+- **Rollback:** Actions → Deploy → *Run workflow* → environment + `image_tag` (e.g. `v1.1.0` or a commit sha). On the server: `./scripts/rollback.sh [tag]`. Rollbacks never run migrations. Migrations must be **backward-compatible** (expand → migrate data → contract in a later release), so old code still runs on the new schema.
+- **Worker** image = api image + Chromium (Puppeteer certificate PDFs); runs `node dist/worker.js`.
+
+### Turning on deploys (once a server exists)
+Deploy jobs are **skipped** until the repo variable for that environment exists, so CI stays green before there are servers.
+1. Prepare the server: `infra/scripts/server-setup.sh` (see its header). Point DNS for `SITE_DOMAIN` and `FILES_DOMAIN` at it.
+2. Repo → Settings → Secrets and variables → Actions → **Variables** (repository level, not secret):
+   `STAGING_HOST`, `STAGING_URL` (e.g. `https://staging.onlinedars.uz`), later `PRODUCTION_HOST`, `PRODUCTION_URL`.
+3. Repo → Settings → Environments → `staging` and `production`, each with **secrets**:
+   | Secret | Value |
+   |---|---|
+   | `SSH_PRIVATE_KEY` | private key of the server's `deploy` user (ed25519, made for this purpose only) |
+   | `SSH_KNOWN_HOSTS` | output of `ssh-keyscan -t ed25519 <host>` |
+   | `ENV_FILE` | the whole server `.env` (template: `infra/docker/prod.env.example`) |
+   | `SSH_USER`, `SSH_PORT` | optional, default `deploy` / `22` |
+   | `GHCR_USER`, `GHCR_TOKEN` | optional; default is the run's `GITHUB_TOKEN` |
+   | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | optional deploy notifications |
+4. `production` environment: add yourself as **required reviewer** and restrict deployment to tags `v*`.
 
 ## Backups
 - Nightly `pg_dump` (compressed) plus MinIO bucket sync, copied **off-server** (a second provider or location). Keep 7 daily, 4 weekly and 6 monthly copies.

@@ -30,6 +30,16 @@
 
 **Releases:** tag `main` as `vMAJOR.MINOR.PATCH` (e.g. `v1.2.0`). Pushing the tag deploys to **production** after manual approval.
 
+## Release process
+1. Make sure `main` is green and staging has been checked (it auto-deploys on every merge).
+2. Pick the version (SemVer): breaking change → MAJOR, new feature → MINOR, fixes only → PATCH.
+3. In a `chore/release-vX.Y.Z` PR, move the `CHANGELOG.md` "Unreleased" items under `## [X.Y.Z] - YYYY-MM-DD`. Squash-merge it.
+4. Tag the merge commit and push the tag (needs the user's explicit yes):
+   `git switch main && git pull && git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z`
+5. Approve the `production` deployment in GitHub Actions. Check the site and `/api/v1/health`.
+6. Hotfix: branch `hotfix/<short>` from the release tag, PR into `main`, then tag `vX.Y.Z+1`.
+7. Rollback: Actions → Deploy → *Run workflow* with the previous tag (see `docs/DEPLOYMENT.md`).
+
 ## Commits
 - Use Conventional Commits: `feat(lessons): enforce 4x6 before publish`, `fix(payme): reject amount mismatch`.
 - Each commit should build. Never commit `.env`, keys, database dumps or `node_modules`.
@@ -38,6 +48,8 @@
 - One PR per task or feature, kept small (ideally under 400 changed lines).
 - The PR description says what changed, how it was tested, and any schema migration or env var it adds.
 - To merge, CI must be green: lint, typecheck, unit, API e2e, build, and Playwright smoke.
+  Required status checks for branch protection (job names in `.github/workflows/ci.yml`):
+  `Lint + typecheck`, `Unit tests`, `API e2e + migrations`, `Build`, `Playwright smoke`, `Docker image (web)`, `Docker image (api)`, `Docker image (worker)`.
 - Merge by squash.
 
 ## Parallel agents
