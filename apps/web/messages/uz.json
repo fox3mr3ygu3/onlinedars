@@ -1,0 +1,97 @@
+{
+  "common": {
+    "appName": "OnlineDars",
+    "loading": "Yuklanmoqda...",
+    "save": "Saqlash",
+    "cancel": "Bekor qilish",
+    "close": "Yopish",
+    "back": "Orqaga",
+    "som": "so'm",
+    "free": "Bepul"
+  },
+  "meta": {
+    "title": "OnlineDars — onlayn ta'lim platformasi",
+    "description": "Kurslarni o'rganing, amaliyot bajaring, imtihon topshiring va sertifikat oling."
+  },
+  "nav": {
+    "home": "Bosh sahifa",
+    "courses": "Kurslar",
+    "directions": "Yo'nalishlar",
+    "teachers": "O'qituvchilar",
+    "faq": "Savol-javob",
+    "login": "Kirish",
+    "register": "Ro'yxatdan o'tish",
+    "cabinet": "Kabinet",
+    "admin": "Boshqaruv paneli",
+    "logout": "Chiqish"
+  },
+  "home": {
+    "heroTitle": "Bilimingizni OnlineDars bilan oshiring",
+    "heroSubtitle": "Darslar, interaktiv amaliyotlar va tasdiqlangan sertifikat — barchasi bir joyda.",
+    "browseCourses": "Kurslarni ko'rish"
+  },
+  "auth": {
+    "loginTitle": "Tizimga kirish",
+    "loginPlaceholder": "Email yoki telefon raqam",
+    "password": "Parol",
+    "submitLogin": "Kirish"
+  },
+  "cabinet": {
+    "title": "Shaxsiy kabinet"
+  },
+  "admin": {
+    "title": "Boshqaruv paneli"
+  },
+  "validation": {
+    "required": "Majburiy maydon",
+    "email": "Email noto'g'ri",
+    "phone": "Telefon raqam noto'g'ri (+998 XX XXX XX XX)",
+    "login": "Email yoki telefon raqamni kiriting",
+    "emailOrPhone": "Email yoki telefon raqam kiriting",
+    "otp": "Kod 6 ta raqamdan iborat",
+    "otpRequired": "SMS kodni kiriting",
+    "passwordMin": "Parol kamida 8 ta belgidan iborat bo'lsin",
+    "passwordMax": "Parol juda uzun",
+    "slug": "Faqat kichik lotin harflari, raqamlar va chiziqcha",
+    "empty": "Hech narsa o'zgartirilmadi",
+    "freeCoursePrice": "Bepul kursning narxi 0 bo'lishi kerak",
+    "paidCoursePrice": "Pullik kurs narxini kiriting",
+    "imageRequired": "Rasm majburiy",
+    "minOptions": "Kamida 2 ta variant kerak",
+    "noCorrectOption": "Kamida bitta to'g'ri javobni belgilang",
+    "singleCorrectOnly": "Faqat bitta to'g'ri javob bo'lishi mumkin",
+    "trueFalseOptions": "To'g'ri/Noto'g'ri savolida 2 ta variant va 1 ta to'g'ri javob bo'ladi",
+    "noBlanks": "Matnda '{{0}}' kabi bo'sh joy belgisi yo'q",
+    "blankWithoutAnswer": "Har bir bo'sh joy uchun javob kiriting",
+    "blankIndex": "Javob mavjud bo'sh joyga tegishli emas"
+  },
+  "errors": {
+    "INTERNAL_ERROR": "Kutilmagan xatolik. Birozdan so'ng qayta urinib ko'ring.",
+    "VALIDATION_FAILED": "Ma'lumotlar noto'g'ri kiritilgan",
+    "NOT_FOUND": "Topilmadi",
+    "CONFLICT": "Ziddiyat: ma'lumot allaqachon mavjud",
+    "TOO_MANY_REQUESTS": "Juda ko'p urinish. Birozdan so'ng qayta urinib ko'ring.",
+    "UNAUTHORIZED": "Iltimos, tizimga kiring",
+    "FORBIDDEN": "Sizda bu amal uchun ruxsat yo'q",
+    "INVALID_CREDENTIALS": "Login yoki parol noto'g'ri",
+    "ACCOUNT_DISABLED": "Hisobingiz bloklangan",
+    "EMAIL_TAKEN": "Bu email bilan hisob mavjud",
+    "PHONE_TAKEN": "Bu telefon raqam bilan hisob mavjud",
+    "REFRESH_TOKEN_INVALID": "Sessiya tugadi. Qaytadan kiring.",
+    "REFRESH_TOKEN_REUSED": "Xavfsizlik uchun sessiya yopildi. Qaytadan kiring.",
+    "OTP_INVALID": "SMS kod noto'g'ri",
+    "OTP_EXPIRED": "SMS kod muddati tugagan",
+    "OTP_TOO_MANY_ATTEMPTS": "Urinishlar soni tugadi. Yangi kod so'rang.",
+    "OTP_RESEND_TOO_SOON": "Yangi kodni biroz kutib so'rang",
+    "WRONG_PASSWORD": "Joriy parol noto'g'ri",
+    "NOT_ENROLLED": "Siz bu kursga yozilmagansiz",
+    "LESSON_PRACTICE_LIMIT": "Darsda faqat 4 ta amaliyot bo'lishi mumkin",
+    "PRACTICE_QUESTION_LIMIT": "Amaliyotda faqat 6 ta savol bo'lishi mumkin",
+    "LESSON_INCOMPLETE": "Darsni nashr qilish uchun 4 ta amaliyot × 6 ta savol to'liq bo'lishi kerak",
+    "LESSON_LOCKED": "Bu dars hali ochilmagan",
+    "EXAM_LOCKED": "Imtihon barcha darslar tugagandan so'ng ochiladi",
+    "EXAM_TIME_OVER": "Imtihon vaqti tugadi",
+    "ORDER_NOT_FOUND": "Buyurtma topilmadi",
+    "ALREADY_ENROLLED": "Siz bu kursga allaqachon yozilgansiz"
+  }
+}
