@@ -1,6 +1,5 @@
-import { getTranslations } from 'next-intl/server';
+import { AdminDashboard } from '@/features/admin/dashboard/AdminDashboard';
 
-export default async function AdminDashboardPage() {
-  const t = await getTranslations('admin');
-  return <h1 className="text-2xl font-semibold">{t('title')}</h1>;
+export default function AdminDashboardPage() {
+  return <AdminDashboard />;
 }

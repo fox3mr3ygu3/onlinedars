@@ -1,6 +1,14 @@
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
+import { AdminShell } from '@/features/admin/layout/AdminShell';
 
-/** Admin panel shell (/admin/*). frontend-admin adds the sidebar. The API enforces roles. */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('admin');
+  return { title: t('title'), robots: { index: false, follow: false } };
+}
+
+/** Admin panel shell (/admin/*): sidebar + role-aware menu. The API enforces roles on every call. */
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return <div className="flex min-h-dvh w-full flex-col px-4 py-6">{children}</div>;
+  return <AdminShell>{children}</AdminShell>;
 }
