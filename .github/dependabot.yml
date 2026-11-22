@@ -1,0 +1,52 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Asia/Tashkent
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: chore(deps)
+    groups:
+      nestjs:
+        patterns: ["@nestjs/*"]
+      nextjs-react:
+        patterns: ["next", "react", "react-dom", "@types/react*", "eslint-config-next"]
+      prisma:
+        patterns: ["prisma", "@prisma/*"]
+      # Groups match in order: framework families above, then all other minor/patch updates
+      # in one weekly PR. Majors outside these groups stay as separate PRs for review.
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directories: ["/infra/docker"]
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore(docker)
+    groups:
+      base-images:
+        patterns: ["*"]
+
+  - package-ecosystem: docker-compose
+    directories: ["/infra"]
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore(docker)

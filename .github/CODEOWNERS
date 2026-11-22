@@ -1,0 +1,9 @@
+# Default owner for everything. Branch protection can require a code-owner review.
+* @fox3mr3ygu3
+
+# Sensitive areas (same owner for now; split when the team grows)
+/.github/                         @fox3mr3ygu3
+/infra/                           @fox3mr3ygu3
+/apps/api/prisma/                 @fox3mr3ygu3
+/apps/api/src/modules/payments/   @fox3mr3ygu3
+/apps/api/src/modules/auth/       @fox3mr3ygu3

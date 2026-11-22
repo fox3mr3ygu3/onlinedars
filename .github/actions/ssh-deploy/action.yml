@@ -1,0 +1,166 @@
+name: SSH deploy
+description: >-
+  Copy the compose stack to a server over SSH, write its .env from a secret, then run
+  infra/scripts/deploy.sh there (pull -> backup -> migrate -> up -> health check, auto-rollback on failure).
+
+inputs:
+  environment:
+    description: staging | production (used in messages only)
+    required: true
+  host:
+    description: Server hostname or IP
+    required: true
+  user:
+    description: SSH user (default "deploy")
+    required: false
+    default: ""
+  port:
+    description: SSH port (default 22)
+    required: false
+    default: ""
+  ssh-private-key:
+    description: Private key (ed25519) of the deploy user
+    required: true
+  ssh-known-hosts:
+    description: Output of `ssh-keyscan -t ed25519 <host>`, pins the server key
+    required: true
+  env-file:
+    description: Full contents of the server .env (see infra/docker/prod.env.example)
+    required: true
+  registry-user:
+    description: GHCR user. Empty = github.actor with the workflow token.
+    required: false
+    default: ""
+  registry-token:
+    description: GHCR token with read:packages. Empty = this run's GITHUB_TOKEN.
+    required: false
+    default: ""
+  image-tag:
+    description: Image tag to deploy
+    required: true
+  health-url:
+    description: Public base URL checked after deploy (e.g. https://staging.onlinedars.uz)
+    required: false
+    default: ""
+  backup:
+    description: Take a pg_dump before migrating
+    required: false
+    default: "false"
+  deploy-dir:
+    description: Directory on the server
+    required: false
+    default: /opt/onlinedars
+  telegram-bot-token:
+    description: Optional, for deploy notifications
+    required: false
+    default: ""
+  telegram-chat-id:
+    description: Optional, for deploy notifications
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Check required secrets
+      shell: bash
+      env:
+        SSH_KEY: ${{ inputs.ssh-private-key }}
+        KNOWN: ${{ inputs.ssh-known-hosts }}
+        ENV_FILE: ${{ inputs.env-file }}
+      run: |
+        missing=()
+        [ -n "$SSH_KEY" ]  || missing+=(SSH_PRIVATE_KEY)
+        [ -n "$KNOWN" ]    || missing+=(SSH_KNOWN_HOSTS)
+        [ -n "$ENV_FILE" ] || missing+=(ENV_FILE)
+        if [ ${#missing[@]} -gt 0 ]; then
+          echo "::error::Environment '${{ inputs.environment }}' is missing secrets: ${missing[*]} (see docs/DEPLOYMENT.md)"
+          exit 1
+        fi
+
+    - name: Configure SSH
+      shell: bash
+      env:
+        SSH_KEY: ${{ inputs.ssh-private-key }}
+        KNOWN: ${{ inputs.ssh-known-hosts }}
+        HOST: ${{ inputs.host }}
+        USER_IN: ${{ inputs.user }}
+        PORT_IN: ${{ inputs.port }}
+      run: |
+        install -m 700 -d ~/.ssh
+        printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        printf '%s\n' "$KNOWN" > ~/.ssh/known_hosts
+        cat > ~/.ssh/config <<EOF
+        Host target
+          HostName ${HOST}
+          User ${USER_IN:-deploy}
+          Port ${PORT_IN:-22}
+          IdentityFile ~/.ssh/deploy_key
+          IdentitiesOnly yes
+          StrictHostKeyChecking yes
+          ServerAliveInterval 30
+        EOF
+        ssh target 'echo connected to $(hostname)'
+
+    - name: Upload stack files and .env
+      shell: bash
+      env:
+        ENV_FILE: ${{ inputs.env-file }}
+        DIR: ${{ inputs.deploy-dir }}
+      run: |
+        ssh target "mkdir -p '$DIR/caddy' '$DIR/scripts' '$DIR/backups'"
+        scp -q infra/docker-compose.prod.yml target:"$DIR/docker-compose.prod.yml"
+        scp -q infra/caddy/Caddyfile target:"$DIR/caddy/Caddyfile"
+        scp -q infra/scripts/deploy.sh infra/scripts/rollback.sh infra/scripts/backup-db.sh target:"$DIR/scripts/"
+        ssh target "chmod +x '$DIR'/scripts/*.sh"
+        # .env goes through stdin so it never appears in a command line or log.
+        printf '%s\n' "$ENV_FILE" | ssh target "umask 077 && cat > '$DIR/.env'"
+
+    - name: Run deploy.sh on the server
+      shell: bash
+      env:
+        DIR: ${{ inputs.deploy-dir }}
+        TAG: ${{ inputs.image-tag }}
+        BACKUP: ${{ inputs.backup }}
+        REG_USER: ${{ inputs.registry-user || github.actor }}
+        REG_TOKEN: ${{ inputs.registry-token || github.token }}
+      run: |
+        prefix="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/onlinedars"
+        printf '%s\n' "$REG_TOKEN" | ssh target "docker login ghcr.io -u '$REG_USER' --password-stdin >/dev/null"
+        set +e
+        ssh target "cd '$DIR' && IMAGE_PREFIX='$prefix' BACKUP_BEFORE_DEPLOY='$BACKUP' ./scripts/deploy.sh '$TAG'"
+        rc=$?
+        ssh target "docker logout ghcr.io >/dev/null" || true
+        exit $rc
+
+    - name: Public health check
+      if: inputs.health-url != ''
+      shell: bash
+      env:
+        URL: ${{ inputs.health-url }}
+      run: |
+        for i in $(seq 1 12); do
+          if curl -fsS --max-time 5 "$URL/api/v1/health" >/dev/null && curl -fsS --max-time 10 -o /dev/null "$URL/"; then
+            echo "healthy: $URL"; exit 0
+          fi
+          echo "waiting for $URL ($i/12)"; sleep 5
+        done
+        echo "::error::$URL did not become healthy through the public proxy"
+        exit 1
+
+    - name: Notify Telegram
+      if: always() && inputs.telegram-bot-token != '' && inputs.telegram-chat-id != ''
+      shell: bash
+      env:
+        BOT: ${{ inputs.telegram-bot-token }}
+        CHAT: ${{ inputs.telegram-chat-id }}
+        TEXT: "OnlineDars ${{ inputs.environment }} deploy of ${{ inputs.image-tag }}: ${{ job.status }} (${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+      run: |
+        curl -fsS --max-time 10 "https://api.telegram.org/bot${BOT}/sendMessage" \
+          --data-urlencode "chat_id=${CHAT}" --data-urlencode "text=${TEXT}" >/dev/null || true
+
+    - name: Clean up SSH key
+      if: always()
+      shell: bash
+      run: rm -f ~/.ssh/deploy_key
