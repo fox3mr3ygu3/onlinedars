@@ -3,6 +3,10 @@
 Agents add items here when something needs a human decision, a credential, or an admin action.
 They keep working on everything else and mock or stub what's blocked. Tick an item when it's done.
 
+## Merges waiting for you
+
+- [ ] **Merge PR #1** (Phase 0 foundation + CI/CD) into `main`: https://github.com/fox3mr3ygu3/onlinedars/pull/1. CI is fully green (run 45069204297). Use "Create a merge commit" (not squash) so the Phase 1 branches merge cleanly. The overnight agent was not permitted to merge into `main`.
+
 ## Credentials & accounts (agents use mocks/test stubs until these exist)
 
 - [ ] **Payme** merchant ID + test key (sandbox), then live key → GitHub Environment secrets, never in files
