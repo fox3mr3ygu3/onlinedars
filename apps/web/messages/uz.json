@@ -91,6 +91,12 @@
     "LESSON_LOCKED": "Bu dars hali ochilmagan",
     "EXAM_LOCKED": "Imtihon barcha darslar tugagandan so'ng ochiladi",
     "EXAM_TIME_OVER": "Imtihon vaqti tugadi",
+    "EXAM_NOT_AVAILABLE": "Bu kurs uchun imtihon hozircha mavjud emas",
+    "EXAM_ATTEMPTS_EXHAUSTED": "Imtihon topshirish urinishlari tugagan",
+    "EXAM_ALREADY_PASSED": "Siz bu imtihondan allaqachon o'tgansiz",
+    "EXAM_ATTEMPT_CLOSED": "Bu imtihon urinishi yakunlangan",
+    "CERTIFICATE_NOT_FOUND": "Sertifikat topilmadi",
+    "CERTIFICATE_PDF_PENDING": "Sertifikat PDF fayli tayyorlanmoqda. Birozdan so'ng qayta urinib ko'ring.",
     "ORDER_NOT_FOUND": "Buyurtma topilmadi",
     "ALREADY_ENROLLED": "Siz bu kursga allaqachon yozilgansiz"
   }
