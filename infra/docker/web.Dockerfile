@@ -35,8 +35,9 @@ ARG APP_VERSION=dev
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
     NEXT_PUBLIC_APP_VERSION=${APP_VERSION} \
     NODE_ENV=production
-# Builds apps/web and every workspace package it depends on, in dependency order.
-RUN pnpm --filter "./apps/web..." run build
+# Turbo builds every workspace dependency first (build dependsOn ^build), e.g. packages/shared
+# whose dist/ is excluded from the build context.
+RUN pnpm turbo run build --filter=@onlinedars/web
 
 # ---------- runner: only the standalone output ----------
 FROM ${NODE_IMAGE} AS runner
