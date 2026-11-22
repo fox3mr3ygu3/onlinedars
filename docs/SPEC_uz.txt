@@ -1,0 +1,289 @@
+
+TEXNIK TOPSHIRIQ
+OnlineDarsplatformasi
+Mohirdev.uz platformasi tajribasi asosida
+Hujjat ma’lumoti
+Qiymat
+Loyiha
+OnlineDars — onlayn ta’lim platformasi
+Hujjat turi
+Dasturiy ta’minot uchun texnik topshiriq
+Asosiy namuna
+mohirdev.uz
+Versiya
+1.0
+Asosiy til
+O‘zbek tili
+
+Maqsad: o‘quvchini ro‘yxatdan o‘tishdan boshlab darslarni yakunlash,imtihon topshirish va sertifikat olishgacha bo‘lgan jarayonni avtomatlashtirish.
+
+1. Loyiha haqida
+OnlineDars — foydalanuvchilarga onlayn kurslarni tanlash, dars materiallarini o‘rganish, interaktiv mashqlarni bajarish, yakuniy imtihon topshirish va natijaga ko‘ra sertifikat olish imkonini beruvchi ta’lim platformasi.
+Platforma Mohirdev.uz saytidagi kurslar katalogi, kurs sahifasi va shaxsiy kabinet kabi foydalanuvchi tajribalarini namuna sifatida oladi. Biroq asosiy o‘quv birligi video emas, balki matn, rasm, fayl, interaktiv element va boshqa materiallardan tashkil topishi mumkin bo‘lgan “Dars” hisoblanadi.
+2. Loyiha maqsadi va chegarasi
+Asosiy maqsad — ta’lim jarayonini sodda, tushunarli va maksimal darajada avtomatlashtirilgan shaklda tashkil etish.
+Platformada quyidagi uchta asosiy qism bo‘ladi:
+Qism
+Vazifasi
+Public Panel
+Ochiq sayt: platforma va kurslar haqida ma’lumot, ro‘yxatdan o‘tish, kirish va xarid.
+Student Panel
+O‘quvchi kabineti: kurslar, darslar, mashqlar, imtihon, natijalar va sertifikat.
+Admin Panel
+Kontent va jarayonlarni boshqarish: kurslar, darslar, savollar, o‘quvchilar, to‘lovlar va hisobotlar.
+
+Loyiha doirasiga HR, umumiy ERP, ombor, ish haqi yoki boshqa ta’lim jarayoniga bevosita aloqador bo‘lmagan boshqaruv modullari kiritilmaydi.
+3. Public Panel — ochiq sayt
+Public Panel tizimga kirmagan foydalanuvchilar uchun ochiq bo‘ladi.
+Sahifa
+Funksional talablar
+Bosh sahifa
+Platforma taqdimoti, asosiy yo‘nalishlar, tavsiya etilgan kurslar va harakatga chaqiruvchi tugmalar.
+Kurslar katalogi
+Barcha kurslarni ko‘rish, qidirish va mavjud mezonlar bo‘yicha filtrlash.
+Yo‘nalishlar
+Fanlar yoki ta’lim yo‘nalishlari bo‘yicha kurslarni guruhlash.
+Kurs haqida
+Kurs nomi, tavsifi, maqsadi, dasturi, modullari, darslar soni, narxi va xarid/boshlash tugmasi.
+Ustozlar
+Ustozlar haqida qisqa ma’lumot va tajriba.
+FAQ
+Ko‘p so‘raladigan savollar va javoblar.
+Kirish / Ro‘yxatdan o‘tish
+Telefon yoki email orqali akkaunt yaratish va tizimga kirish.
+To‘lov
+Tanlangan kurs uchun mavjud to‘lov usuli orqali to‘lovni amalga oshirish.
+
+Kurs kartasida kamida kurs nomi, qisqacha tavsif, darslar soni, narxi va kurs sahifasiga o‘tish imkoniyati ko‘rsatiladi.
+4. Student Panel — o‘quvchi kabineti
+Bo‘lim
+Funksional talablar
+Dashboard
+O‘quvchining kurslari, umumiy progressi va oxirgi faolligini ko‘rsatish.
+Mening kurslarim
+O‘quvchiga biriktirilgan yoki xarid qilingan kurslar ro‘yxati.
+Darslar
+Kurs modullari va darslarini ko‘rish hamda o‘rganish.
+Interactive Practice
+Har bir darsga tegishli interaktiv mashqlarni bajarish.
+Imtihon
+Kurs yakunidagi nazorat imtihonini topshirish.
+Natijalar
+Mashqlar va imtihon natijalarini ko‘rish.
+Sertifikatlar
+Berilgan sertifikatlarni ko‘rish va PDF shaklida yuklab olish.
+Profil
+Shaxsiy ma’lumotlarni ko‘rish va ruxsat etilganlarini tahrirlash.
+
+5. Kurs va darslarning ichki strukturasi
+Kurs quyidagi ierarxiya asosida tashkil etiladi:
+Daraja
+Tavsif
+Kurs
+Mustaqil ta’lim mahsuloti.
+Modul
+Kurs tarkibidagi mavzular yoki bo‘limlar guruhi.
+Dars
+O‘quvchi o‘rganadigan asosiy kontent birligi.
+Interactive Practice
+Darsni mustahkamlash uchun interaktiv mashq.
+Savol
+Har bir mashq ichidagi alohida topshiriq.
+
+5.1. Har bir dars tarkibi
+Element
+Miqdor / talab
+Dars materiali
+1 ta dars. Video bilan cheklanmaydi; matn, rasm, fayl va boshqa materiallarni qo‘llab-quvvatlaydi.
+Interactive Practice
+Har bir darsda 4 ta.
+Har bir Practice ichidagi savollar
+6 tadan.
+Jami savollar
+Har bir dars uchun 24 ta interaktiv savol.
+
+Muhim: 4 ta Interactive Practice — 4 ta alohida mashq. Har bir mashq ichida 6 tadan savol bo‘ladi. Bu ko‘rsatkichlar admin panelda dars kontentini yaratish va tekshirishda aniq aks etishi kerak.
+5.2. Savol turlari
+Birinchi versiyada quyidagi savol formatlari qo‘llab-quvvatlanadi:
+Multiple Choice — bir yoki bir nechta javob variantidan tanlash.
+True / False — to‘g‘ri yoki noto‘g‘ri.
+Matching — mos juftliklarni topish.
+Fill in the Blank — bo‘sh joyni to‘ldirish.
+Rasm yoki diagramma asosidagi savol.
+6. O‘quv jarayoni va progress logikasi
+O‘quvchi kursni ochadi va mavjud modullar ro‘yxatini ko‘radi.
+O‘quvchi modul ichidan darsni tanlaydi va dars materialini o‘rganadi.
+Darsga biriktirilgan 4 ta Interactive Practice ketma-ket yoki belgilangan tartibda bajariladi.
+Har bir mashq javoblari va natijasi tizimda saqlanadi.
+Dars tugallanishi uchun dars materiali ko‘rilishi/o‘rganilishi va talab qilingan mashqlar bajarilishi shartlari qo‘llanadi.
+Dars tugallangach, keyingi dars yoki modul ochilishi mumkin. Bu qoida admin tomonidan kurs sozlamasida belgilanadi.
+Kursdagi barcha majburiy darslar tugatilgach, yakuniy imtihon ochiladi.
+7. Yakuniy imtihon va sertifikat
+7.1. Imtihon
+Imtihon kurs yakunida avtomatik ochiladi.
+Imtihon savollari va javob variantlari admin panel orqali yaratiladi.
+Savollar soni, vaqt chegarasi va o‘tish bali admin tomonidan sozlanadi.
+Tizim javoblarni avtomatik tekshiradi va natijani hisoblaydi.
+Imtihon natijasi o‘quvchi kabinetida saqlanadi va ko‘rsatiladi.
+7.2. Sertifikat
+O‘quvchi imtihonda belgilangan minimal o‘tish balini to‘plasa, sertifikat avtomatik yaratiladi.
+Sertifikat PDF formatida bo‘ladi.
+Sertifikatda o‘quvchi F.I.Sh., kurs nomi, berilgan sana va unikal sertifikat ID raqami ko‘rsatiladi.
+Sertifikatni tekshirish uchun ommaviy tekshiruv sahifasi yoki unikal havola taqdim etiladi.
+Sertifikat shabloni admin tomonidan boshqariladi.
+8. Admin Panel — boshqaruv
+Modul
+Funksional talablar
+Dashboard
+O‘quvchilar soni, faol kurslar, tugallangan darslar, imtihonlar va umumiy natijalar.
+Kurslar
+Kurs yaratish, tahrirlash, nashr qilish, vaqtincha yashirish va arxivlash.
+Modullar
+Kurs modullarini yaratish, nomlash va tartibini belgilash.
+Darslar
+Dars yaratish, tahrirlash, material yuklash va modulga biriktirish.
+Practice
+Har bir dars uchun 4 ta mashq yaratish va har biriga 6 tadan savol biriktirish.
+Savollar
+Savol matni, javob variantlari, to‘g‘ri javob va izohni kiritish.
+Imtihonlar
+Yakuniy imtihon, savollar, vaqt va o‘tish balini sozlash.
+Sertifikatlar
+Sertifikat dizayni/shabloni va avtomatik berish qoidalarini boshqarish.
+O‘quvchilar
+O‘quvchi profili, kursga kirish huquqi, progress va natijalarni ko‘rish.
+To‘lovlar
+To‘lovlar tarixi, holati va kursga kirish huquqi bilan bog‘lash.
+Hisobotlar
+Kurslar kesimida o‘zlashtirish, imtihon natijalari va faollik.
+Sozlamalar
+Platforma nomi, umumiy parametrlar va ruxsatlarni boshqarish.
+
+9. Rollar va ruxsatlar
+Rol
+Ruxsat
+Administrator
+Barcha modullar va tizim sozlamalarini boshqarish.
+Kontent menejer
+Kurs, modul, dars, practice va savollarni boshqarish.
+O‘quvchi
+Faqat o‘ziga tegishli kurslar, darslar, natijalar va sertifikatlarni ko‘rish.
+
+Rollar bo‘yicha ruxsatlar server tomonida tekshirilishi shart; faqat interfeysda yashirish yetarli emas.
+10. To‘lov va kursga kirish
+Platformada kurslar bepul yoki pullik qilib belgilanadi. Pullik kursni sotib olish jarayoni Public Panel yoki kurs sahifasidan boshlanadi va to‘lov muvaffaqiyatli tasdiqlangach, kurs o‘quvchining shaxsiy kabinetida avtomatik ochiladi.
+10.1. Kursni sotib olish jarayoni
+O‘quvchi katalogdan kerakli kursni tanlaydi va kurs haqida sahifasini ochadi.
+O‘quvchi «Sotib olish» tugmasini bosadi. Tizim kurs nomi, narxi va buyurtma ma’lumotlarini ko‘rsatadi.
+O‘quvchi mavjud to‘lov usullaridan birini tanlaydi: Payme yoki Click.
+Tizim to‘lov provayderiga xavfsiz to‘lov so‘rovini yuboradi va foydalanuvchini to‘lovni yakunlash sahifasiga yo‘naltiradi yoki provayder talab qilgan to‘lov interfeysini ochadi.
+O‘quvchi Payme yoki Click orqali to‘lovni amalga oshiradi.
+To‘lov provayderidan kelgan server-server xabari (callback/webhook) tekshiriladi. Faqat provayder tomonidan tasdiqlangan muvaffaqiyatli to‘lov kursga kirish huquqini beradi.
+To‘lov tasdiqlangach, kurs o‘quvchining Student Panel kabinetidagi «Mening kurslarim» bo‘limida avtomatik ochiladi.
+O‘quvchiga to‘lov muvaffaqiyatli yakunlangani haqida platforma ichida xabar ko‘rsatiladi. Imkoniyatga qarab email yoki SMS xabarnoma ham yuborilishi mumkin.
+10.2. To‘lov usullari va holatlari
+To‘lov usuli
+Talab
+Payme
+Payme merchant integratsiyasi orqali to‘lov yaratish, holatini tekshirish va server xabari asosida tasdiqlash.
+Click
+Click merchant integratsiyasi orqali to‘lov yaratish, holatini tekshirish va server xabari asosida tasdiqlash.
+To‘lov holatlari kamida quyidagicha yuritiladi:
+Kutilmoqda — to‘lov boshlangan, ammo hali tasdiqlanmagan.
+Muvaffaqiyatli — provayder to‘lovni tasdiqlagan.
+Bekor qilingan — foydalanuvchi yoki provayder tomonidan bekor qilingan.
+Xatolik — to‘lov jarayonida xatolik yuz bergan.
+Qaytarilgan — to‘lov to‘liq yoki qisman qaytarilgan, agar refund funksiyasi integratsiya doirasida qo‘llansa.
+10.3. To‘lov xavfsizligi va biznes qoidalari
+Kursga kirish huquqi faqat brauzerdagi «muvaffaqiyatli» sahifaga qaytish asosida berilmaydi; server tomonda provayder tasdig‘i tekshirilishi shart.
+Har bir buyurtma uchun unikal order ID yaratiladi va u kurs, o‘quvchi hamda to‘lov bilan bog‘lanadi.
+Provayderdan bir xil callback bir necha marta kelganda, tizim takroriy ishlov berishni oldini olishi kerak. Bitta to‘lov natijasida kursga kirish huquqi faqat bir marta beriladi.
+To‘lov summasi, valyutasi, buyurtma IDsi va to‘lov holati serverda tekshiriladi; mijoz brauzeridan kelgan summaga ishonilmaydi.
+Muvaffaqiyatsiz yoki kutilayotgan to‘lovda kurs ochilmaydi. O‘quvchi to‘lovni qayta urinish imkoniga ega bo‘ladi.
+To‘lovlar tarixi o‘quvchi kabinetida ko‘rinadi. Admin panelda buyurtma IDsi, o‘quvchi, kurs, summa, to‘lov usuli, sana va holat ko‘rsatiladi.
+Admin to‘lov holatini ko‘rishi mumkin; qo‘lda o‘zgartirish huquqi cheklangan bo‘lishi va barcha o‘zgarishlar audit jurnalida qayd etilishi kerak.
+Payme va Click integratsiyasi provayderlarning amaldagi texnik hujjatlari, merchant talablari va test muhiti asosida ishlab chiqiladi.
+10.4. To‘lov bo‘yicha istisno holatlar
+Holat
+Tizim xatti-harakati
+Foydalanuvchi to‘lov oynasini yopdi
+Buyurtma kutilayotgan yoki bekor qilingan holatda qoladi; kurs ochilmaydi.
+To‘lovdan pul yechildi, ammo sahifaga qaytmadi
+Server callback yoki provayder holatini qayta tekshirish orqali to‘lov tasdiqlanadi va kurs ochiladi.
+Callback takroran keldi
+Takroriy operatsiya qayta bajarilmaydi; avvalgi to‘lov natijasi saqlanadi.
+To‘lov muvaffaqiyatsiz
+Kurs ochilmaydi; foydalanuvchiga xabar va qayta to‘lash imkoniyati beriladi.
+To‘lov qaytarildi
+Qaytarish siyosatiga muvofiq kursga kirish huquqi bekor qilinishi yoki saqlanishi belgilanadi; holat qayd etiladi.
+11. Nofunksional va texnik talablar
+Yo‘nalish
+Talab
+Dizayn
+Minimalistik, sodda va Mohirdev platformasiga o‘xshash tushunarli navigatsiya.
+Moslashuvchanlik
+Desktop, planshet va mobil qurilmalarda to‘g‘ri ishlashi.
+Til
+Birinchi versiyada o‘zbek tili; keyinchalik boshqa tillarni qo‘shish imkoniyati.
+Autentifikatsiya
+Telefon raqami yoki email orqali xavfsiz kirish.
+Ma’lumotlar bazasi
+Kurs, dars, savol, javob, progress, to‘lov va sertifikat ma’lumotlarini ishonchli saqlash.
+Xavfsizlik
+Parollarni xavfsiz saqlash, rollar bo‘yicha ruxsat, sessiya nazorati va ma’lumotlarni himoyalash.
+Test tekshiruvi
+Avtomatik baholash va natijalarni saqlash.
+Sertifikat
+PDF yaratish va unikal identifikator bilan tekshirish.
+Monitoring
+Xatoliklarni qayd etish va tizim holatini kuzatish.
+Zaxira nusxa
+Ma’lumotlar bazasini muntazam zaxiralash.
+
+Texnologiyalar steki (frontend, backend, ma’lumotlar bazasi, hosting va infratuzilma) ishlab chiquvchi jamoa tomonidan alohida texnik loyiha sifatida taklif qilinadi va buyurtmachi bilan kelishiladi.
+12. Ishlab chiqish bosqichlari
+Bosqich
+Ishlar
+Natija
+1
+Talablarni aniqlashtirish va UI/UX dizayn
+Tasdiqlangan sahifalar va prototip.
+2
+Public Panel
+Ochiq sayt va kurs katalogi.
+3
+Student Panel
+O‘quvchi kabineti va kurslarni ko‘rish.
+4
+Admin Panel
+Kurs, modul, dars va savollarni boshqarish.
+5
+Dars va Practice mexanizmi
+Dars jarayoni, 4×6 savol strukturasi va progress.
+6
+Imtihon va sertifikat
+Avtomatik baholash va PDF sertifikat.
+7
+To‘lov integratsiyasi
+To‘lovni tasdiqlash va kursga kirish.
+8
+Testlash va ishga tushirish
+Qabul testlaridan o‘tgan ishchi platforma.
+
+13. Qabul qilish mezonlari
+Platforma quyidagi shartlar bajarilganda qabul qilishga tayyor hisoblanadi:
+Foydalanuvchi ro‘yxatdan o‘ta oladi, tizimga kira oladi va profilini ko‘ra oladi.
+Public Panel orqali kurslarni ko‘rish va kurs sahifasiga o‘tish mumkin.
+Admin kurs, modul va dars yaratishi hamda ularni tahrirlashi mumkin.
+Har bir darsga aynan 4 ta Interactive Practice biriktirish mumkin; har birida 6 tadan savol bo‘ladi.
+O‘quvchi mashqlarni bajara oladi va natijalar saqlanadi.
+Dars va kurs progressi belgilangan qoidalar bo‘yicha hisoblanadi.
+Kurs tugagach yakuniy imtihon ochiladi va tizim natijani avtomatik hisoblaydi.
+O‘tish balini olgan o‘quvchiga sertifikat avtomatik beriladi va PDF yuklab olinadi.
+To‘lov tasdiqlanganda tegishli kursga kirish huquqi beriladi.
+Platforma mobil va desktop ekranlarda asosiy funksiyalarni to‘g‘ri bajaradi.
+O‘quvchi boshqa foydalanuvchining shaxsiy ma’lumotlari yoki natijalariga ruxsatsiz kira olmaydi.
+14. Birinchi versiya doirasiga kirmaydigan ishlar
+Alohida kelishilmaguncha mobil ilova (native iOS/Android), jonli video dars, videokonferensiya, HR/ERP, ombor, ish haqi, murakkab gamifikatsiya, forum va chat modullari birinchi versiyaga kiritilmaydi.
+15. Yakuniy izoh
+Ushbu hujjat OnlineDars platformasining birinchi versiyasi uchun funksional talablarni belgilaydi. Dizayn maketlari, ma’lumotlar bazasi sxemasi, API hujjatlari, integratsiya tafsilotlari va aniq texnologiyalar steki ishlab chiqish boshlanishidan oldin alohida kelishilib tasdiqlanadi.
