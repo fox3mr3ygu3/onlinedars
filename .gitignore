@@ -36,3 +36,9 @@ desktop.ini
 !.vscode/extensions.json
 .idea/
 *.log
+
+# Claude agent worktrees (per-PC)
+.claude/worktrees/
+
+# Generated
+*.tsbuildinfo

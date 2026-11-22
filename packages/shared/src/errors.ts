@@ -1,0 +1,47 @@
+/**
+ * Stable error codes returned by the API as `{ code }`. The web maps them to i18n keys
+ * `errors.<CODE>` in apps/web/messages/uz.json. Never rename a code; add new ones.
+ */
+export const ErrorCode = {
+  // generic
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  VALIDATION_FAILED: 'VALIDATION_FAILED',
+  NOT_FOUND: 'NOT_FOUND',
+  CONFLICT: 'CONFLICT',
+  TOO_MANY_REQUESTS: 'TOO_MANY_REQUESTS',
+  // authn / authz
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  FORBIDDEN: 'FORBIDDEN',
+  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+  ACCOUNT_DISABLED: 'ACCOUNT_DISABLED',
+  EMAIL_TAKEN: 'EMAIL_TAKEN',
+  PHONE_TAKEN: 'PHONE_TAKEN',
+  REFRESH_TOKEN_INVALID: 'REFRESH_TOKEN_INVALID',
+  REFRESH_TOKEN_REUSED: 'REFRESH_TOKEN_REUSED',
+  OTP_INVALID: 'OTP_INVALID',
+  OTP_EXPIRED: 'OTP_EXPIRED',
+  OTP_TOO_MANY_ATTEMPTS: 'OTP_TOO_MANY_ATTEMPTS',
+  OTP_RESEND_TOO_SOON: 'OTP_RESEND_TOO_SOON',
+  WRONG_PASSWORD: 'WRONG_PASSWORD',
+  NOT_ENROLLED: 'NOT_ENROLLED',
+  // content (4×6 rule)
+  LESSON_PRACTICE_LIMIT: 'LESSON_PRACTICE_LIMIT',
+  PRACTICE_QUESTION_LIMIT: 'PRACTICE_QUESTION_LIMIT',
+  LESSON_INCOMPLETE: 'LESSON_INCOMPLETE',
+  // learning
+  LESSON_LOCKED: 'LESSON_LOCKED',
+  EXAM_LOCKED: 'EXAM_LOCKED',
+  EXAM_TIME_OVER: 'EXAM_TIME_OVER',
+  // payments
+  ORDER_NOT_FOUND: 'ORDER_NOT_FOUND',
+  ALREADY_ENROLLED: 'ALREADY_ENROLLED',
+} as const;
+export type ErrorCode = (typeof ErrorCode)[keyof typeof ErrorCode];
+
+/** Shape of every error response body from the API. */
+export interface ApiErrorBody {
+  statusCode: number;
+  code: ErrorCode;
+  message: string;
+  details?: unknown;
+}
