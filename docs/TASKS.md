@@ -20,18 +20,22 @@ the OpenAPI stubs — they don't need finished backend logic.
 ---
 
 ## 1. `architect` — foundation (Phase 0)
+
 **Owns:** root config, `infra/`, `packages/`, `apps/api/prisma/`, `apps/api/src/{common,config,prisma}`, `apps/api/src/modules/{auth,users}`, `docs/DECISIONS.md`
-- [ ] pnpm + Turborepo monorepo, tsconfig/eslint packages, Husky
-- [ ] Docker Compose: postgres, redis, minio; `.env.example`
-- [ ] Scaffold `apps/web` (Next.js + Tailwind + shadcn + next-intl `uz`) and `apps/api` (NestJS + Swagger + pino + Sentry + `/health`)
-- [ ] Full Prisma schema (all models in the skill) + first migration + seed (admin, content manager, student, demo course with 4×6 per lesson)
-- [ ] `packages/shared`: enums (Role, CourseStatus, QuestionType, PaymentStatus, PaymentProvider), zod schemas for all DTOs
-- [ ] Auth: register/login by email or phone, argon2, OTP via Eskiz, JWT + refresh cookie, sessions, logout, password reset
-- [ ] Guards: `JwtAuthGuard`, `RolesGuard`, ownership/enrollment helper
-- [ ] Nightly `pg_dump` backup script
+
+- [x] pnpm + Turborepo monorepo, tsconfig/eslint packages, Husky
+- [x] Docker Compose: postgres, redis, minio; `.env.example`
+- [x] Scaffold `apps/web` (Next.js + Tailwind + shadcn + next-intl `uz`) and `apps/api` (NestJS + Swagger + pino + Sentry + `/health`)
+- [x] Full Prisma schema (all models in the skill) + first migration + seed (admin, content manager, student, demo course with 4×6 per lesson)
+- [x] `packages/shared`: enums (Role, CourseStatus, QuestionType, PaymentStatus, PaymentProvider), zod schemas for all DTOs
+- [x] Auth: register/login by email or phone, argon2, OTP via Eskiz, JWT + refresh cookie, sessions, logout, password reset
+- [x] Guards: `JwtAuthGuard`, `RolesGuard`, ownership/enrollment helper
+- [x] Nightly `pg_dump` backup script
 
 ## 2. `backend-content` — catalog & content management API
+
 **Owns:** `apps/api/src/modules/{courses,modules,lessons,practices,questions,directions,teachers,faq,files,settings}`
+
 - [ ] Public read endpoints: catalog with search + filters, course detail (program, modules, lesson count, price), directions, teachers, FAQ
 - [ ] Admin CRUD: courses (draft/publish/hide/archive, free/paid, price, `sequentialUnlock`), modules (reorder), lessons (materials: text/rich, images, files, optional video), practices, questions (5 types, options, correct answer, explanation)
 - [ ] **4×6 invariant**: max 4 practices per lesson, max 6 questions per practice; lesson/course publish blocked until complete; endpoint returns completeness counters
@@ -39,7 +43,9 @@ the OpenAPI stubs — they don't need finished backend logic.
 - [ ] Settings (platform name, general params); roles: ADMIN + CONTENT_MANAGER for content, ADMIN only for settings
 
 ## 3. `backend-learning` — progress, exams, certificates
+
 **Owns:** `apps/api/src/modules/{progress,exams,certificates,reports}`, `apps/api/src/jobs/certificate-pdf*`, `apps/api/src/templates/certificate/`
+
 - [ ] Student course tree with lock state (respecting `sequentialUnlock`)
 - [ ] Mark material viewed; practice start/submit; **server-side grading** of all 5 question types; store attempts + answers; never leak correct answers before submit
 - [ ] Lesson/course progress calculation; dashboard data (courses, overall progress, last activity)
@@ -48,7 +54,9 @@ the OpenAPI stubs — they don't need finished backend logic.
 - [ ] Admin reports: per-course completion, exam results, activity; admin dashboard stats
 
 ## 4. `backend-payments` — orders, Payme, Click, access
+
 **Owns:** `apps/api/src/modules/{payments,audit,notifications}`, `apps/api/src/jobs/payment-recheck*`, `apps/api/src/jobs/notify*`, `docs/api/payments.md`
+
 - [ ] Order creation (unique orderId, amount from DB, UZS tiyin); free-course direct enrollment
 - [ ] Payme Merchant API: CheckPerformTransaction, CreateTransaction, PerformTransaction, CancelTransaction, CheckTransaction, GetStatement; Basic-auth check
 - [ ] Click: Prepare + Complete endpoints with `sign_string` verification
@@ -59,7 +67,9 @@ the OpenAPI stubs — they don't need finished backend logic.
 - [ ] Tests against provider sandbox payloads, including duplicate callbacks and amount mismatch
 
 ## 5. `frontend-public` — open site & auth
+
 **Owns:** `apps/web/src/app/(public)`, `apps/web/src/app/(auth)`, `apps/web/src/features/{catalog,course,checkout,certificate}`, public layout
+
 - [ ] Landing (hero, directions, recommended courses, CTAs)
 - [ ] Catalog with search + filters; course card (name, short description, lesson count, price, link)
 - [ ] Course page (description, goals, program/modules, lesson count, price, Buy/Start button)
@@ -70,7 +80,9 @@ the OpenAPI stubs — they don't need finished backend logic.
 - [ ] SEO metadata, responsive
 
 ## 6. `frontend-student` — student cabinet
+
 **Owns:** `apps/web/src/app/(student)`, `apps/web/src/features/{lesson,practice,exam,profile}`, student layout
+
 - [ ] Dashboard, My courses, course tree with locks and progress
 - [ ] Lesson viewer (rich text, images, files, video embed) + "material viewed" tracking
 - [ ] Practice player for all 5 question types (incl. drag/match, fill blank, image-based), results with explanations
@@ -78,7 +90,9 @@ the OpenAPI stubs — they don't need finished backend logic.
 - [ ] Results page, Certificates (list + PDF download), Payment history, Profile edit
 
 ## 7. `frontend-admin` — admin panel
+
 **Owns:** `apps/web/src/app/(admin)`, `apps/web/src/features/admin/**`, admin layout
+
 - [ ] Dashboard (students, active courses, completed lessons, exams, results)
 - [ ] Course / module / lesson editors with drag-reorder and material upload
 - [ ] Practice editor showing **"Practices 3/4", "Questions 5/6"** counters; publish button disabled until 4×6 complete
@@ -88,7 +102,9 @@ the OpenAPI stubs — they don't need finished backend logic.
 - [ ] Hide menu items by role (CONTENT_MANAGER sees content only)
 
 ## 8. `qa` — tests & acceptance
+
 **Owns:** `e2e/`, `apps/api/test/` (CI pipeline itself belongs to `devops`)
+
 - [ ] API e2e for every rule in `CLAUDE.md` (4×6, exam unlock, single certificate, role/ownership denial, payment idempotency, amount mismatch)
 - [ ] Playwright flows = spec §13 acceptance criteria:
   1. register, login, view profile
@@ -104,8 +120,10 @@ the OpenAPI stubs — they don't need finished backend logic.
   11. student cannot access another user's data
 
 ## 9. `devops` — git, CI/CD, servers, operations
+
 **Owns:** `.github/`, `infra/` (shared with architect in Phase 0), `docs/GIT_WORKFLOW.md`, `docs/DEPLOYMENT.md`, `CHANGELOG.md`
 Starts in Phase 0 together with architect; continues through launch and maintenance.
+
 - [ ] GitHub repo (private), branch protection on `main`, PR template, CODEOWNERS, Dependabot
 - [ ] `ci.yml`: install, lint, typecheck, unit, API e2e with Postgres/Redis services, migrate check, build, Playwright smoke
 - [ ] Production Dockerfiles (web, api, worker), multi-stage, non-root
@@ -121,4 +139,10 @@ Starts in Phase 0 together with architect; continues through launch and maintena
 ---
 
 ## Requests
+
 <!-- Agents: add cross-ownership requests here, e.g. "backend-learning → architect: add Exam.shuffle Boolean" -->
+
+- architect → backend-content: the DB triggers only block a 5th practice / 7th question and publishing an incomplete lesson. Deleting a practice or question of a **published** lesson is not blocked in the DB: unpublish the lesson in the same transaction (or refuse). Map Postgres check_violation messages starting with `LESSON_PRACTICE_LIMIT` / `PRACTICE_QUESTION_LIMIT` / `LESSON_INCOMPLETE` to AppException with the same ErrorCode.
+- architect → frontend-public / frontend-student / frontend-admin: `apps/web/src/middleware.ts` (role redirects) is not written yet and has no owner in this file. The refresh cookie is httpOnly and scoped to `/api/v1/auth`, so middleware cannot read it; options: a non-sensitive `od_role` hint cookie set by the web after login, or client-side guards. The API enforces access regardless. Please decide who owns it.
+- architect → qa: Phase 0 added `apps/api/test/auth.e2e-spec.ts` + `test/setup-e2e.ts` (your path) for register/login/me/refresh/logout, 401/403 and the DB 4×6 triggers. They are yours from now on.
+- architect → all backend agents: use `AppException` (`apps/api/src/common/errors`) with codes from `packages/shared/src/errors.ts`; add new codes there **and** an `errors.<CODE>` entry in `apps/web/messages/uz.json` (a web unit test checks every code has a message).

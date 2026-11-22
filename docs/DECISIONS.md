@@ -1,4 +1,20 @@
 # Architecture decisions
 
 <!-- date — decision — why -->
+
 - 2026-11-22 — Stack chosen as in .claude/skills/onlinedars-stack (spec left stack to the team) — to be confirmed with the client.
+- 2026-11-22 — Pinned major lines: Next.js 15.5, React 19.2, NestJS 11, Prisma 6.19, TypeScript 5.9, zod 4, Vitest 3, ESLint 9 (flat config). Newer majors exist (Next 16, Nest 12, Prisma 7, TS 7) but the skill specifies Next 15 / Nest 11; Prisma 7 changes client generation and TS 7 is the new native compiler — not worth the risk for v1. Revisit after launch.
+- 2026-11-22 — Vitest + `unplugin-swc` for API tests (SWC emits decorator metadata that Nest DI needs); `@nestjs/cli` (`nest build`) for API builds. Output `dist/main.js` (api) and `dist/worker.js` (worker).
+- 2026-11-22 — Config: own zod schema (`apps/api/src/config/env.ts`) instead of `@nestjs/config`; `.env` loaded with Node's `process.loadEnvFile`. Prisma CLI scripts use `dotenv-cli` to read the root `.env` (no-op in CI where vars are set).
+- 2026-11-22 — Added `@nestjs/throttler` (minor dep): 20 req/min/IP on auth endpoints, disabled in tests.
+- 2026-11-22 — Global guards: `JwtAuthGuard` then `RolesGuard` on every route (deny by default, `@Public()` to opt out). The guard re-reads the session + user on each request (one PK lookup) so logout, password reset and disabling a user take effect immediately and the role always comes from the DB.
+- 2026-11-22 — Refresh tokens: opaque `<sessionId>.<secret>`, one `Session` row per device, HMAC-SHA256 (key `JWT_REFRESH_SECRET`) of the current secret stored, rotated on each refresh with a compare-and-swap. Presenting a non-current secret ⇒ session revoked (`REFRESH_TOKEN_REUSED`). Trade-off: two tabs refreshing at the exact same moment can log the user out; the web client should serialise refresh calls.
+- 2026-11-22 — Cookie `od_refresh`: httpOnly, SameSite=Lax, Secure in production, Path `/api/v1/auth`. The web proxies `/api/v1/*` to the API (Next rewrite in dev, Caddy in prod), so the browser talks same-origin and `NEXT_PUBLIC_API_URL=/api/v1`.
+- 2026-11-22 — Phone sign-up requires an SMS OTP (purpose REGISTER); email sign-up has no verification yet (email provider pending). Forgot-password sends the OTP to the account's phone and always answers 202 (no account enumeration). OTP: 6 digits, 5 min, 5 attempts, 60 s resend cooldown, only HMAC stored.
+- 2026-11-22 — Extra models beyond the skill list: `OtpCode` (SMS codes) and `Notification` (in-app notifications for backend-payments). `ExamQuestion` is the exam's own question pool (not linked to practice questions, so practice results never reveal exam answers); its options reuse `QuestionOption` via a nullable `examQuestionId` with a CHECK that exactly one owner is set.
+- 2026-11-22 — 4×6 rule enforced in the DB as well as services: triggers in migration `0001_init` reject a 5th practice per lesson / 7th question per practice, and reject `Lesson.isPublished = true` unless 4×6 is complete. No unique index on `position`, so reordering is free. Also CHECKs on price/amount ≥ 0, free course price = 0, user has email or phone.
+- 2026-11-22 — Money: `Int` tiyin (max ≈ 21 million so'm per course/order), `currency` default `UZS`. Switch to BigInt only if prices ever exceed that.
+- 2026-11-22 — Orders reuse the `PaymentStatus` enum (PENDING/PAID/CANCELLED/FAILED/REFUNDED) and have a sequential `number` for providers/receipts besides the cuid `id`.
+- 2026-11-22 — Certificates: `publicId` (unique) is the ID printed on the PDF and used in `/verify/{publicId}`; holder name and course title are snapshotted at issue time.
+- 2026-11-22 — Web: shadcn/ui components written by hand from the new-york v4 sources (no CLI run); `components.json` is present so `pnpm dlx shadcn add …` works later. next-intl runs without locale routing (single `uz` locale). `output: 'standalone'` is on except on Windows, where pnpm symlinks need Developer Mode (`NEXT_STANDALONE=1` forces it); Docker/CI build on Linux.
+- 2026-11-22 — Sentry is wired for the API only (`@sentry/nestjs`, init only if `SENTRY_DSN`); web Sentry to be added with the frontend work.
