@@ -34,8 +34,9 @@ FROM deps AS build
 COPY . .
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm install --frozen-lockfile --prefer-offline
-RUN pnpm db:generate \
- && pnpm --filter "./apps/api..." run build
+# Turbo runs db:generate and builds workspace dependencies (packages/shared) first;
+# shared's dist/ is excluded from the build context.
+RUN pnpm turbo run build --filter=@onlinedars/api
 # Self-contained production copy of apps/api (prod deps only, workspace packages included).
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm --filter ./apps/api deploy --prod /out/api \
