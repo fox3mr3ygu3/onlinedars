@@ -34,3 +34,11 @@ They keep working on everything else and mock or stub what's blocked. Tick an it
 - [ ] Optional: Telegram bot for deploy notifications → secrets `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` in both environments.
 - [ ] GHCR packages (`onlinedars-web`, `onlinedars-api`, `onlinedars-worker`) appear after the first merge to `main`. Keep them **private**; in each package's settings confirm the `onlinedars` repo has access (Actions). Nothing to do for the servers: deploys log in with the run's own token.
 - [ ] Decide the MinIO plan for production (community images are no longer published; see `docs/DECISIONS.md`).
+
+## Payments (added by backend-payments, 2026-11-23)
+
+- [ ] **Refund policy**: the code defaults to `revoke` (access removed after a refund). To keep access instead, set the platform setting `REFUND_POLICY` to `"keep"`. Please confirm which one the client wants.
+- [ ] Register callback URLs once staging exists: Payme endpoint `https://<api-domain>/api/v1/payments/payme` with account field `order_id`; Click Prepare `…/api/v1/payments/click/prepare`, Complete `…/api/v1/payments/click/complete` (details: `docs/api/payments.md`).
+- [ ] Run the Payme sandbox test suite (test.paycom.uz) and a Click test payment against staging with the test credentials; then switch to live keys and `PAYME_TEST_MODE=false` for production.
+- [ ] Fiscal receipts (Payme): get the IKPU code and package code for "online course" from tasnif.soliq.uz and set `PAYME_IKPU_CODE` / `PAYME_PACKAGE_CODE` (optional until fiscalisation is required).
+- [ ] Payme "change key" in the merchant cabinet does not reach us automatically: update `PAYME_KEY` in the environment secrets and redeploy when the key changes.
