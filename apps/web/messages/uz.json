@@ -112,6 +112,11 @@
       "continue": "Davom etish",
       "sequential": "Darslar ketma-ket ochiladi",
       "backToCourses": "Kurslarimga qaytish"
+    },
+    "pager": {
+      "prev": "Oldingi",
+      "next": "Keyingi",
+      "page": "{page}/{pages}-sahifa"
     }
   },
   "admin": {
@@ -193,7 +198,8 @@
     "prev": "Oldingi dars",
     "next": "Keyingi dars",
     "videoUnsupported": "Brauzeringiz videoni qo'llab-quvvatlamaydi",
-    "videoTitle": "Dars videosi"
+    "videoTitle": "Dars videosi",
+    "noPractices": "Bu darsda amaliyotlar yo'q"
   },
   "practice": {
     "back": "Darsga qaytish",
@@ -339,10 +345,7 @@
       "FAILED": "Muvaffaqiyatsiz",
       "REFUNDED": "Qaytarilgan"
     },
-    "openCourse": "Kursni ochish",
-    "prev": "Oldingi",
-    "next": "Keyingi",
-    "page": "{page}/{pages}-sahifa"
+    "openCourse": "Kursni ochish"
   },
   "notifications": {
     "title": "Bildirishnomalar",

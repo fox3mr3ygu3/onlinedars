@@ -1,6 +1,12 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { Dashboard } from '@/features/cabinet/Dashboard';
 
-export default async function CabinetPage() {
-  const t = await getTranslations('cabinet');
-  return <h1 className="text-2xl font-semibold">{t('title')}</h1>;
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return { title: t('cabinet.title') };
+}
+
+export default function Page() {
+  return <Dashboard />;
 }
