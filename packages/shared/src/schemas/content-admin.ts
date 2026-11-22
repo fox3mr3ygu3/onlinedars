@@ -7,12 +7,7 @@
  */
 import { z } from 'zod';
 import { PRACTICES_PER_LESSON, QUESTIONS_PER_PRACTICE } from '../constants';
-import {
-  CourseLevel,
-  CourseStatus,
-  type LessonMaterialType,
-  type QuestionType,
-} from '../enums';
+import { CourseLevel, CourseStatus, type LessonMaterialType, type QuestionType } from '../enums';
 import { idSchema, paginationQuerySchema } from './common';
 import {
   courseInputSchema,

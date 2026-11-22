@@ -13,7 +13,13 @@ import {
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { type AdminFaq, CONTENT_ROLES, type Paginated, type PublicFaq } from '@onlinedars/shared';
 import { Public, Roles } from '../../common/decorators';
-import { AdminListQueryDto, FaqInputDto, FaqUpdateDto, PublicFaqListDto, PublicListQueryDto } from './dto';
+import {
+  AdminListQueryDto,
+  FaqInputDto,
+  FaqUpdateDto,
+  PublicFaqListDto,
+  PublicListQueryDto,
+} from './dto';
 import { FaqService } from './faq.service';
 
 @ApiTags('catalog')

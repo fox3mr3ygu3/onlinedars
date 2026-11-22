@@ -200,7 +200,14 @@ export class AdminCoursesService {
       select: { isFree: true, price: true },
     });
     if (!current) throw AppException.notFound();
-    const { teacherIds, directionId, certificateTemplateId, isFree: _f, price: _p, ...rest } = input;
+    const {
+      teacherIds,
+      directionId,
+      certificateTemplateId,
+      isFree: _f,
+      price: _p,
+      ...rest
+    } = input;
     const pricing =
       input.isFree !== undefined || input.price !== undefined ? resolvePrice(current, input) : {};
     return withContentErrors(async () => {
@@ -219,7 +226,9 @@ export class AdminCoursesService {
                   : { disconnect: true },
               }
             : {}),
-          ...(teacherIds !== undefined ? { teachers: { set: teacherIds.map((t) => ({ id: t })) } } : {}),
+          ...(teacherIds !== undefined
+            ? { teachers: { set: teacherIds.map((t) => ({ id: t })) } }
+            : {}),
         },
         include: detailInclude,
       });

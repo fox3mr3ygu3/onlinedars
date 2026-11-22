@@ -146,8 +146,7 @@ export function computeCompleteness(lesson: {
     questionsRequired: QUESTIONS_PER_PRACTICE,
     questionsPerPractice,
     totalQuestions: questionsPerPractice.reduce((s, p) => s + p.questions, 0),
-    ready:
-      practices.length === PRACTICES_PER_LESSON && questionsPerPractice.every((p) => p.ready),
+    ready: practices.length === PRACTICES_PER_LESSON && questionsPerPractice.every((p) => p.ready),
   };
 }
 
@@ -160,5 +159,27 @@ export const completenessSelect = {
     orderBy: { position: 'asc' },
   },
 } satisfies Prisma.LessonSelect;
+
+/**
+ * Removing a practice/question breaks 4×6, so a published lesson is unpublished in the same
+ * transaction (the DB triggers don't cover deletes). Returns true if it was unpublished.
+ */
+export async function unpublishLessonIfPublished(
+  tx: Prisma.TransactionClient,
+  lessonId: string,
+): Promise<boolean> {
+  const { count } = await tx.lesson.updateMany({
+    where: { id: lessonId, isPublished: true },
+    data: { isPublished: false, publishedAt: null },
+  });
+  return count > 0;
+}
+
+/** Response of DELETE on a practice or question. */
+export interface ContentDeleteResult {
+  deleted: true;
+  /** True when the lesson was published and has been unpublished because 4×6 broke. */
+  lessonUnpublished: boolean;
+}
 
 export const iso = (d: Date | null | undefined): string | null => (d ? d.toISOString() : null);

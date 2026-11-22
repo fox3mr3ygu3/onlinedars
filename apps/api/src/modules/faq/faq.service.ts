@@ -26,7 +26,10 @@ export function toAdminFaq(f: Faq): AdminFaq {
   };
 }
 
-const order = [{ position: 'asc' }, { createdAt: 'asc' }] satisfies Prisma.FaqOrderByWithRelationInput[];
+const order = [
+  { position: 'asc' },
+  { createdAt: 'asc' },
+] satisfies Prisma.FaqOrderByWithRelationInput[];
 
 @Injectable()
 export class FaqService {
@@ -56,7 +59,12 @@ export class FaqService {
         }
       : {};
     const [rows, total] = await Promise.all([
-      this.prisma.faq.findMany({ where, orderBy: order, skip: (page - 1) * pageSize, take: pageSize }),
+      this.prisma.faq.findMany({
+        where,
+        orderBy: order,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
       this.prisma.faq.count({ where }),
     ]);
     return paged(rows.map(toAdminFaq), total, page, pageSize);

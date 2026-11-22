@@ -27,7 +27,12 @@ export const platformSettingsSchema = z.object({
   /** When true the web shows a maintenance banner. */
   maintenanceMode: z.boolean().default(false),
   /** Unpaid orders expire after this many minutes (used by backend-payments). */
-  orderTtlMinutes: z.number().int().min(5).max(7 * 24 * 60).default(60),
+  orderTtlMinutes: z
+    .number()
+    .int()
+    .min(5)
+    .max(7 * 24 * 60)
+    .default(60),
   /** What happens to access when a payment is refunded (used by backend-payments). */
   refundPolicy: z.enum(RefundPolicy).default(RefundPolicy.REVOKE_ACCESS),
 });

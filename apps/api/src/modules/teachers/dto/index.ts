@@ -1,4 +1,8 @@
-import { publicTeacherListSchema, teacherInputSchema, teacherUpdateSchema } from '@onlinedars/shared';
+import {
+  publicTeacherListSchema,
+  teacherInputSchema,
+  teacherUpdateSchema,
+} from '@onlinedars/shared';
 import { createZodDto } from 'nestjs-zod';
 
 export { AdminListQueryDto, PublicListQueryDto } from '../../courses/dto/common';
