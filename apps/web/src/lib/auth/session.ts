@@ -57,7 +57,11 @@ export function subscribeSession(listener: () => void): () => void {
 }
 
 function fromResponse(res: AuthResponse): Session {
-  return { accessToken: res.accessToken, user: res.user, expiresAt: Date.now() + res.expiresIn * 1000 };
+  return {
+    accessToken: res.accessToken,
+    user: res.user,
+    expiresAt: Date.now() + res.expiresIn * 1000,
+  };
 }
 
 /** Stores a login/register/refresh response and updates the `od_role` hint cookie. */
@@ -112,15 +116,17 @@ async function doRefresh(): Promise<Session | null> {
  */
 export function refreshSession(): Promise<Session | null> {
   if (typeof window === 'undefined') return Promise.resolve(null);
-  if (!refreshInFlight) {
-    if (state.status !== 'authenticated') setState({ status: 'loading', session: state.session });
-    const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined;
-    const run = locks ? locks.request('od-auth-refresh', doRefresh) : doRefresh();
-    refreshInFlight = run.finally(() => {
-      refreshInFlight = null;
-    });
-  }
-  return refreshInFlight;
+  if (refreshInFlight) return refreshInFlight;
+  if (state.status !== 'authenticated') setState({ status: 'loading', session: state.session });
+  const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined;
+  const run: Promise<Session | null> = locks
+    ? locks.request('od-auth-refresh', () => doRefresh()).then((s) => s)
+    : doRefresh();
+  const p = run.finally(() => {
+    if (refreshInFlight === p) refreshInFlight = null;
+  });
+  refreshInFlight = p;
+  return p;
 }
 
 /**
