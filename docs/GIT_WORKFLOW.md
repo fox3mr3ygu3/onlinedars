@@ -4,6 +4,7 @@
 - Source of truth: the **private GitHub repo**. Every PC clones it.
 - Clone it into a folder that is **not** synced by OneDrive, Dropbox or Google Drive. Recommended: `C:\dev\onlinedars`.
   Cloud-sync tools fight with git and try to upload `node_modules`.
+- Use the same path, `C:\dev\onlinedars`, on every PC so docs and scripts work everywhere. Keep OneDrive for personal files only.
 
 ## Setting up a new PC
 1. Install Git, Node.js LTS, pnpm (`corepack enable`), Docker Desktop and the GitHub CLI (`gh`).

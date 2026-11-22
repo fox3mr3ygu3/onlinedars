@@ -4,6 +4,12 @@ OnlineDars is an online learning platform (modelled on mohirdev.uz UX). A studen
 buys/joins a course, studies lessons, completes interactive practices, passes a final exam and
 receives a verifiable PDF certificate. Full spec (Uzbek): `docs/SPEC_uz.txt`.
 
+## Repo location (read first)
+- The working copy lives at **`C:\dev\onlinedars`** on every PC, cloned from `https://github.com/fox3mr3ygu3/onlinedars`. GitHub is the only sync and backup for code.
+- **Never work inside a OneDrive, Dropbox or Google Drive folder.** If the current directory path contains `OneDrive` (e.g. the old `C:\Users\…\OneDrive\Desktop\platform`), stop and tell the user to open `C:\dev\onlinedars` instead. Don't edit files there.
+- On a new PC without the repo, run `git clone https://github.com/fox3mr3ygu3/onlinedars.git C:\dev\onlinedars` and follow "Setting up a new PC" in `docs/GIT_WORKFLOW.md`.
+- The user keeps OneDrive for personal files. Don't suggest turning it off.
+
 ## Three parts
 - **Public Panel** — landing, course catalog (search/filter), directions, course page, teachers, FAQ, auth, checkout.
 - **Student Panel** — dashboard, my courses, lessons, interactive practice, exam, results, certificates (PDF), profile, payment history.
