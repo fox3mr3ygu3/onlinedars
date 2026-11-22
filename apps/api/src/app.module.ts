@@ -11,8 +11,11 @@ import { OwnershipModule } from './common/ownership/ownership.service';
 import { AppConfig } from './config/app-config';
 import { ConfigModule } from './config/config.module';
 import { AppLoggerModule } from './config/logger.module';
+import { AuditModule } from './modules/audit/audit.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -34,6 +37,9 @@ import { PrismaModule } from './prisma/prisma.module';
     HealthModule,
     AuthModule,
     UsersModule,
+    AuditModule,
+    NotificationsModule,
+    PaymentsModule,
   ],
   providers: [
     { provide: APP_PIPE, useClass: ZodValidationPipe },
