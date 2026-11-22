@@ -18,6 +18,7 @@ platform/
 │   ├── STRUCTURE.md              # this file
 │   ├── TASKS.md                  # work split per agent
 │   ├── GIT_WORKFLOW.md           # branches, multi-PC routine, secrets
+│   ├── HANDOFF.md                # session-by-session "where we stopped" log
 │   ├── DEPLOYMENT.md             # environments, CI/CD, backups, monitoring, scaling
 │   ├── DECISIONS.md              # architecture decisions log
 │   └── api/                      # exported OpenAPI, payment integration notes

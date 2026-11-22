@@ -31,6 +31,25 @@ Native mobile apps, live video/webinars, HR/ERP/warehouse/payroll, complex gamif
 - Folder layout: `docs/STRUCTURE.md` (imported below). Put files where it says.
 - Work split / ownership per agent: `docs/TASKS.md`. Before starting work, find your agent's section and stay inside its owned paths.
 
+## Session routine (do this every session, on any PC)
+**At the start, before any edits:**
+1. `git status`. If there are uncommitted changes you didn't make, stop and ask the user what they are.
+2. `git fetch` then `git pull` on the current branch. If it's a feature branch, also check whether `main` moved (`git log HEAD..origin/main --oneline`) and offer to rebase.
+3. Read the latest entries in `docs/HANDOFF.md` to see where the last session stopped.
+4. Open your agent's section in `docs/TASKS.md` and pick the next unchecked item.
+5. If you'll work on a new task, create a branch (`feat/…`, `fix/…`, `chore/…`) from up-to-date `main`. Never work on `main` directly.
+6. If `package.json`, the lockfile or `prisma/` changed in the pull, run `pnpm install` and `pnpm db:migrate`.
+
+**At the end, or when the user says they're stopping or switching PCs:**
+1. Run lint + typecheck + tests for what you touched.
+2. Commit with a Conventional Commit message. Unfinished work is fine as `wip: …` on the feature branch.
+3. `git push`. Nothing may be left only on this PC.
+4. Tick finished items in `docs/TASKS.md`.
+5. Add an entry at the top of `docs/HANDOFF.md`: date, agent, branch, what was done, what's next, blockers.
+6. Tell the user the branch name and whether a PR is ready to open.
+
+The user has approved this end-of-session commit + push to feature branches ("I'm done", "switching PCs" = run it). Pushing to `main`, merging PRs, or tagging releases still needs an explicit yes.
+
 ## Git & delivery
 - GitHub is the source of truth; the user works from several PCs. Pull at the start of a session and push before ending.
 - Never commit directly to `main`. Use a branch (`feat/…`, `fix/…`, `chore/…`), Conventional Commits, and a PR that needs green CI. Details: `docs/GIT_WORKFLOW.md`.
