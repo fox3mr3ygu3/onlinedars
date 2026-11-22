@@ -405,7 +405,9 @@
         "createdAt": "Ro'yxatdan o'tgan",
         "lastLoginAt": "Oxirgi kirish",
         "enrollments": "Kurslar",
-        "status": "Holati"
+        "status": "Holati",
+        "resultTitle": "Topshiriq",
+        "score": "Natija"
       },
       "profile": "Profil",
       "enrollments": "Kurslarga kirish",
