@@ -39,7 +39,10 @@ export const emptyOption = (patch: Partial<OptionDraft> = {}): OptionDraft => ({
   ...patch,
 });
 
-export function trueFalseOptions(labels: TrueFalseLabels, correct: boolean | null = true): OptionDraft[] {
+export function trueFalseOptions(
+  labels: TrueFalseLabels,
+  correct: boolean | null = true,
+): OptionDraft[] {
   return [
     emptyOption({ text: labels.trueLabel, isCorrect: correct === true }),
     emptyOption({ text: labels.falseLabel, isCorrect: correct === false }),
@@ -73,7 +76,11 @@ export function emptyQuestion(type: QuestionType, labels: TrueFalseLabels): Ques
 }
 
 /** Switching type keeps prompt/explanation/image but resets options to what the type needs. */
-export function changeType(d: QuestionDraft, type: QuestionType, labels: TrueFalseLabels): QuestionDraft {
+export function changeType(
+  d: QuestionDraft,
+  type: QuestionType,
+  labels: TrueFalseLabels,
+): QuestionDraft {
   if (d.type === type) return d;
   const keepChoices =
     (d.type === QuestionType.MULTIPLE_CHOICE && type === QuestionType.IMAGE_BASED) ||
@@ -90,11 +97,16 @@ export function changeType(d: QuestionDraft, type: QuestionType, labels: TrueFal
 export function toggleCorrect(d: QuestionDraft, index: number): QuestionDraft {
   const single =
     d.type === QuestionType.TRUE_FALSE ||
-    ((d.type === QuestionType.MULTIPLE_CHOICE || d.type === QuestionType.IMAGE_BASED) && !d.isMultiple);
+    ((d.type === QuestionType.MULTIPLE_CHOICE || d.type === QuestionType.IMAGE_BASED) &&
+      !d.isMultiple);
   return {
     ...d,
     options: d.options.map((o, i) =>
-      single ? { ...o, isCorrect: i === index } : i === index ? { ...o, isCorrect: !o.isCorrect } : o,
+      single
+        ? { ...o, isCorrect: i === index }
+        : i === index
+          ? { ...o, isCorrect: !o.isCorrect }
+          : o,
     ),
   };
 }
@@ -121,7 +133,11 @@ export function toQuestionInput(d: QuestionDraft): QuestionInput {
       text: o.text.trim(),
       imageUrl: choice ? orNull(o.imageUrl) : null,
       isCorrect:
-        d.type === QuestionType.FILL_BLANK ? true : d.type === QuestionType.MATCHING ? false : o.isCorrect,
+        d.type === QuestionType.FILL_BLANK
+          ? true
+          : d.type === QuestionType.MATCHING
+            ? false
+            : o.isCorrect,
       matchText: d.type === QuestionType.MATCHING ? orNull(o.matchText) : null,
       blankIndex: d.type === QuestionType.FILL_BLANK ? o.blankIndex : null,
     })),

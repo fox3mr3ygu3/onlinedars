@@ -22,7 +22,7 @@ import {
   fromCourse,
   slugify,
   toCourseInput,
-} from './courseForm';
+} from './courseFormModel';
 
 export function CourseForm({
   course,
@@ -36,7 +36,10 @@ export function CourseForm({
   const errMsg = useApiErrorMessage();
   const directions = useQuery({ queryKey: ['admin', 'directions'], queryFn: directionsApi.list });
   const teachers = useQuery({ queryKey: ['admin', 'teachers'], queryFn: teachersApi.list });
-  const templates = useQuery({ queryKey: ['admin', 'certificate-templates'], queryFn: certificateTemplatesApi.list });
+  const templates = useQuery({
+    queryKey: ['admin', 'certificate-templates'],
+    queryFn: certificateTemplatesApi.list,
+  });
 
   const form = useForm<CourseFormValues>({
     defaultValues: course ? fromCourse(course) : emptyCourseForm,
@@ -44,7 +47,8 @@ export function CourseForm({
   });
   const { register, control, watch, setValue, formState } = form;
   const isFree = watch('isFree');
-  const err = (k: keyof CourseFormValues) => vmsg(formState.errors[k]?.message as string | undefined);
+  const err = (k: keyof CourseFormValues) =>
+    vmsg(formState.errors[k]?.message as string | undefined);
 
   const submit = form.handleSubmit(async (values) => {
     try {
@@ -72,9 +76,18 @@ export function CourseForm({
               />
             )}
           </Field>
-          <Field label={t('courses.fields.slug')} hint={t('courses.fields.slugHint')} error={err('slug')}>
+          <Field
+            label={t('courses.fields.slug')}
+            hint={t('courses.fields.slugHint')}
+            error={err('slug')}
+          >
             {(id, d) => (
-              <Input id={id} aria-describedby={d} aria-invalid={!!formState.errors.slug} {...register('slug')} />
+              <Input
+                id={id}
+                aria-describedby={d}
+                aria-invalid={!!formState.errors.slug}
+                {...register('slug')}
+              />
             )}
           </Field>
           <Field
@@ -82,7 +95,9 @@ export function CourseForm({
             error={err('shortDescription')}
             className="md:col-span-2"
           >
-            {(id, d) => <Textarea id={id} aria-describedby={d} rows={2} {...register('shortDescription')} />}
+            {(id, d) => (
+              <Textarea id={id} aria-describedby={d} rows={2} {...register('shortDescription')} />
+            )}
           </Field>
           <div className="grid gap-1.5 md:col-span-2">
             <span className="text-sm font-medium">{t('courses.fields.description')}</span>
@@ -90,7 +105,11 @@ export function CourseForm({
               control={control}
               name="description"
               render={({ field }) => (
-                <RichTextEditor value={field.value} onChange={field.onChange} label={t('courses.fields.description')} />
+                <RichTextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  label={t('courses.fields.description')}
+                />
               )}
             />
           </div>
@@ -100,7 +119,9 @@ export function CourseForm({
             error={err('goalsText')}
             className="md:col-span-2"
           >
-            {(id, d) => <Textarea id={id} aria-describedby={d} rows={4} {...register('goalsText')} />}
+            {(id, d) => (
+              <Textarea id={id} aria-describedby={d} rows={4} {...register('goalsText')} />
+            )}
           </Field>
           <Controller
             control={control}
@@ -204,7 +225,9 @@ export function CourseForm({
                       checked={field.value.includes(tch.id)}
                       onChange={(e) =>
                         field.onChange(
-                          e.target.checked ? [...field.value, tch.id] : field.value.filter((x) => x !== tch.id),
+                          e.target.checked
+                            ? [...field.value, tch.id]
+                            : field.value.filter((x) => x !== tch.id),
                         )
                       }
                     />
