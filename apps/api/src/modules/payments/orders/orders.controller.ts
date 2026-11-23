@@ -27,10 +27,11 @@ export class OrdersController {
   constructor(private readonly orders: OrdersService) {}
 
   @Post('orders')
-  @Roles(Role.STUDENT, Role.CONTENT_MANAGER, Role.ADMIN)
+  // Students only: staff have no cabinet, so an enrolment of theirs would be unusable.
+  @Roles(Role.STUDENT)
   @ApiOperation({
     summary:
-      'Start a purchase. Paid course → { enrolled:false, orderId, number, amount, redirectUrl }; free course → { enrolled:true, courseId }.',
+      'Start a purchase (students only; staff → 403). Paid course → { enrolled:false, orderId, number, amount, redirectUrl }; free course → { enrolled:true, courseId }.',
   })
   create(
     @CurrentUser() user: AuthPrincipal,
