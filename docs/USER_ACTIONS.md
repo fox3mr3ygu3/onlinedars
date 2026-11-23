@@ -41,8 +41,7 @@ They keep working on everything else and mock or stub what's blocked. Tick an it
 
 ## Dependency advisories (pnpm audit, prod deps, 2026-11-23) — owner: architect (root `package.json` / versions)
 
-- [ ] `postcss` 8.4.31 (high: arbitrary file read; path traversal in previous source map; fixed in >=8.5.18) — pinned by `next@15.5.x`. Fix: `pnpm.overrides` `"postcss": "^8.5.18"` in root `package.json`, or a Next release that bumps it. Build-time only (CSS processing of our own sources), low real risk.
-- [ ] `deepmerge-ts` 7.1.5 (high: stack exhaustion; fixed in >=8.0.0) and `effect` 3.21.0 (high: ReDoS in Schema.TemplateLiteral; fixed in >=3.22.1) — pulled by `@prisma/config@6.19.3` (Prisma CLI config loading, not request handling). Fix: newer Prisma 6.x if it bumps them, or `pnpm.overrides` `"effect": "^3.22.1"` (deepmerge-ts 8 is a major — test before overriding).
+- [x] Fixed with `pnpm.overrides` in the root `package.json` (2026-11-23): `postcss`, `effect`, `deepmerge-ts` (8, Prisma CLI verified), `basic-ftp`. Remaining 3 highs (`extract-zip`, `zod` 3 via chromium-bidi) sit in puppeteer's browser-download code, which we never run; see `docs/DECISIONS.md`. Nothing to do unless a fix appears.
 
 ## Payments (added by backend-payments, 2026-11-23)
 
