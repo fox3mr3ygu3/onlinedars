@@ -83,3 +83,7 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 USER node
 HEALTHCHECK NONE
 CMD ["node", "dist/worker.js"]
+
+# ---------- default target = api ----------
+# Builders that can't pass --target (Render) use the last stage, so it must be the API, not the worker.
+FROM api AS api-default

@@ -17,6 +17,13 @@ They keep working on everything else and mock or stub what's blocked. Tick an it
 - [ ] **Eskiz SMS template**: Eskiz only delivers texts matching an approved template. Ask Eskiz to approve: `OnlineDars tasdiqlash kodi: XXXXXX. Kodni hech kimga bermang.` (text is in `apps/api/src/modules/auth/otp.service.ts`)
 - [ ] Optional: enable Windows **Developer Mode** (Settings → System → For developers) if you want `next build` to produce the standalone output locally; not needed for normal dev.
 
+## Free demo hosting (added 2026-11-23) — steps in `docs/DEPLOYMENT.md` → "Free demo hosting"
+
+- [ ] Create free accounts on **Neon**, **Render** and **Netlify** (sign in with GitHub) and give them access to the `onlinedars` repo
+- [ ] Neon: create the project, paste its connection string into Render `DATABASE_URL`, run the seed command once
+- [ ] Netlify: set `API_URL` and `NEXT_PUBLIC_SITE_URL` before the first build; Render: set `WEB_URL` / `API_URL`
+- [ ] Optional: UptimeRobot monitor on `https://<api>.onrender.com/api/v1/health` every 5 min
+
 ## Decisions
 
 - [ ] Confirm the stack in `.claude/skills/onlinedars-stack/SKILL.md` with the client
