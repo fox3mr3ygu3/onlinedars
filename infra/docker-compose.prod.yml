@@ -20,7 +20,7 @@ x-app: &app
 
 services:
   caddy:
-    image: caddy:2.8-alpine
+    image: caddy:2.11-alpine
     restart: unless-stopped
     logging: *logging
     ports:
