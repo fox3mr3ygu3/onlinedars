@@ -139,6 +139,32 @@ Starts in Phase 0 together with architect; continues through launch and maintena
 
 ---
 
+## Backlog (after v1)
+
+Features agreed with the user but not started. When one is picked up, split it into the owner
+sections above and add a `docs/DECISIONS.md` entry if it brings a new dependency or service.
+
+- [ ] **Course intro video + free preview lessons (Udemy-style)** — added 2026-11-23. A visitor
+      can watch a promo video and selected lessons before buying, then decide.
+  - architect: `Course.introVideoUrl String?` and `Lesson.isPreview Boolean @default(false)`
+    (additive migration); shared schemas for course input / public course and lesson input.
+  - backend-content: accept both fields in the admin course/lesson APIs; public course response
+    returns `introVideoUrl` and `isPreview` per lesson; new public
+    `GET /courses/:slugOrId/lessons/:lessonId/preview` → materials only, and only for a published
+    `isPreview` lesson of a published course (404 otherwise). No practices, answers or exam.
+  - frontend-admin: "Intro video (YouTube/Vimeo link)" field in the course form; "Bepul ko'rish"
+    (free preview) checkbox in the lesson editor.
+  - frontend-public: intro video player at the top of the course page; "Bepul ko'rish" link on
+    preview lessons → preview page with the materials and a buy/enrol button.
+  - Rules: previews give no progress; practices, exam and certificate still need enrolment.
+  - qa: API e2e (preview of a non-preview / unpublished lesson → 404, no answers leaked) and a
+    Playwright flow (anonymous visitor watches intro + preview, then is asked to enrol).
+- [ ] **Protected video hosting for paid lessons** — added 2026-11-23. Today VIDEO materials are
+      YouTube/Vimeo links (an unlisted YouTube link can be shared). Option: Bunny Stream / Cloudflare
+      Stream / Mux — admin uploads in the lesson editor, API stores the video id and returns a
+      short-lived signed playback URL only to enrolled students. Needs a provider account + key
+      (`docs/USER_ACTIONS.md`) and a `docs/DECISIONS.md` entry.
+
 ## Requests
 
 <!-- Agents: add cross-ownership requests here, e.g. "backend-learning → architect: add Exam.shuffle Boolean" -->
