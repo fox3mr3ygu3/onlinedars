@@ -9,6 +9,15 @@ Newest entry first. Each session adds one entry before ending, so work can conti
 - Blockers / questions: …
 -->
 
+## 2026-11-23 — qa — test/acceptance-e2e (finished, PR to main)
+
+- Merged `main` (after PR #2) into the branch; HANDOFF conflict resolved by keeping both entries.
+- Done: `e2e/playwright.config.ts` — acceptance specs run on desktop only, `acceptance/mobile-*.spec.ts` on mobile only. New specs: `admin.spec.ts` (§13.3 course created in the UI, edited; §13.4 counters, publish gate, 5th practice / 7th question / incomplete publish refused by the API, publish from the UI), `learning.spec.ts` (§13.5–13.8 locks, viewed + practices, progress 100 %, exam unlock, failed then passed attempt, one certificate, no retake, PDF 200/409 + other user 404, cabinet list, `/verify` valid + not found), `payment.spec.ts` (§13.9 checkout UI → Payme redirect intercepted, forged success return grants nothing, CheckPerform wrong amount → -31001, Create → Perform, repeated Perform idempotent, result page "paid", one enrollment, payment history), `mobile-cabinet.spec.ts` (§13.10 at 375px, no horizontal scroll).
+- Bug found and fixed: login/register stayed on the auth page after success (`router.refresh()` right after `router.replace()` cancelled the navigation) — `features/auth/login-form.tsx`, `register-form.tsx`.
+- Verified locally (Docker Postgres on 5433 + Redis, built API + web): `@fullstack` 11/11, `@smoke` 53/53, lint, typecheck, unit tests (api 410, web 158, shared 24).
+- Next: watch the first CI run of the "Playwright full-stack (acceptance)" job; dedupe `docs/api/ROUTES.md` (still has several agents' copies; note `/courses/:slugOrId`).
+- Blockers / questions: none.
+
 ## 2026-11-23 — qa — test/acceptance-e2e (paused, WIP)
 
 - Paused on the coordinator's instruction (user stopping). Work is committed as `wip:`; nothing ran in CI yet for the new parts.

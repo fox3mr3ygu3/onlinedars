@@ -106,8 +106,8 @@ the OpenAPI stubs — they don't need finished backend logic.
 
 **Owns:** `e2e/`, `apps/api/test/` (CI pipeline itself belongs to `devops`)
 
-- [ ] API e2e for every rule in `CLAUDE.md` (4×6, exam unlock, single certificate, role/ownership denial, payment idempotency, amount mismatch)
-- [ ] Playwright flows = spec §13 acceptance criteria:
+- [x] API e2e for every rule in `CLAUDE.md` (4×6, exam unlock, single certificate, role/ownership denial, payment idempotency, amount mismatch)
+- [x] Playwright flows = spec §13 acceptance criteria (`e2e/acceptance/*`, tag `@fullstack`, CI job "Playwright full-stack (acceptance)"):
   1. register, login, view profile
   2. browse catalog, open course page
   3. admin creates/edits course, module, lesson
