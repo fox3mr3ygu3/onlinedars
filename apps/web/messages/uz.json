@@ -433,9 +433,11 @@
       "certificatesIssued": "Berilgan sertifikatlar",
       "revenue": "Tushum",
       "passRate": "O'tish darajasi",
-      "recentPayments": "So'nggi to'lovlar",
       "quickLinks": "Tezkor havolalar",
-      "newCourse": "Yangi kurs"
+      "newCourse": "Yangi kurs",
+      "recentResults": "So'nggi imtihon natijalari",
+      "passed": "o'tdi",
+      "failed": "o'tmadi"
     },
     "courses": {
       "title": "Kurslar",
@@ -781,9 +783,11 @@
         "passed": "O'tganlar",
         "averageScore": "O'rtacha ball",
         "date": "Sana",
-        "activeStudents": "Faol talabalar",
         "lessonsCompleted": "Tugatilgan darslar",
-        "practicesSubmitted": "Topshirilgan amaliyotlar"
+        "newStudents": "Yangi talabalar",
+        "enrollments": "Kursga yozilishlar",
+        "practiceAttempts": "Amaliyot urinishlari",
+        "examAttempts": "Imtihon urinishlari"
       }
     },
     "settings": {

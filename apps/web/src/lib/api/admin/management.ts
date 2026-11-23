@@ -12,7 +12,7 @@ import type {
 import { itemsOf } from './content';
 import { adminFetch, qs } from './http';
 import type {
-  ActivityReportRow,
+  ActivityReportDay,
   AdminAuditLog,
   AdminCertificateTemplate,
   AdminDashboardStats,
@@ -107,12 +107,13 @@ export const getExamsReport = async (r: ReportRange = {}) =>
       `/admin/reports/exams${qs({ ...r })}`,
     ),
   );
+/** GET /admin/reports/activity answers `{ from, to, days }`. */
 export const getActivityReport = async (r: ReportRange = {}) =>
-  itemsOf(
-    await adminFetch<ActivityReportRow[] | Paginated<ActivityReportRow>>(
+  (
+    await adminFetch<{ from: string; to: string; days: ActivityReportDay[] }>(
       `/admin/reports/activity${qs({ ...r })}`,
-    ),
-  );
+    )
+  ).days;
 
 // ---------- students ----------
 export const listStudents = (q: { search?: string; page?: number; pageSize?: number } = {}) =>

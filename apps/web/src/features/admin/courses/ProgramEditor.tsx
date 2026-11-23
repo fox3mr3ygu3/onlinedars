@@ -205,8 +205,8 @@ function ModuleRow({
           <span className="text-muted-foreground tabular-nums">{index + 1}.</span>
           <span className="truncate">{m.title}</span>
         </button>
-        {m.lessonsCount !== undefined && (
-          <Badge>{t('modules.lessonsCount', { count: m.lessonsCount })}</Badge>
+        {m.lessons !== undefined && (
+          <Badge>{t('modules.lessonsCount', { count: m.lessons.length })}</Badge>
         )}
         <Button
           type="button"

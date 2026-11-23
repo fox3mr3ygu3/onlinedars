@@ -87,7 +87,7 @@ export function StudentsList() {
                   </td>
                   <td>{s.phone ?? '—'}</td>
                   <td>{s.email ?? '—'}</td>
-                  <td className="tabular-nums">{s.enrollmentsCount ?? '—'}</td>
+                  <td className="tabular-nums">{s.enrollments}</td>
                   <td>{formatDate(s.createdAt)}</td>
                   <td>{formatDateTime(s.lastLoginAt)}</td>
                 </tr>
@@ -135,8 +135,9 @@ export function StudentDetail({ studentId }: { studentId: string }) {
 
   if (q.isPending) return <LoadingState />;
   if (q.error) return <ErrorState error={q.error} onRetry={() => q.refetch()} />;
-  const s = q.data;
-  const activeIds = new Set(s.enrollments.filter((e) => !e.revokedAt).map((e) => e.courseId));
+  // GET /admin/students/:id answers { student, enrollments, results, certificates, practiceStats }.
+  const { student: s, enrollments, results, certificates } = q.data;
+  const activeIds = new Set(enrollments.filter((e) => !e.revokedAt).map((e) => e.courseId));
 
   return (
     <>
@@ -210,7 +211,7 @@ export function StudentDetail({ studentId }: { studentId: string }) {
               {t('students.grant')}
             </Button>
           </form>
-          {s.enrollments.length === 0 ? (
+          {enrollments.length === 0 ? (
             <EmptyState>{t('students.noEnrollments')}</EmptyState>
           ) : (
             <TableWrap>
@@ -223,7 +224,7 @@ export function StudentDetail({ studentId }: { studentId: string }) {
                 </tr>
               </thead>
               <tbody>
-                {s.enrollments.map((e) => (
+                {enrollments.map((e) => (
                   <tr key={e.courseId}>
                     <td>
                       <div className="font-medium">{e.courseTitle}</div>
@@ -236,7 +237,7 @@ export function StudentDetail({ studentId }: { studentId: string }) {
                     <td>{formatDate(e.enrolledAt)}</td>
                     <td>
                       <ProgressBar
-                        value={e.progressPercent}
+                        value={e.progress.percent}
                         label={`${t('students.progress')}: ${e.courseTitle}`}
                       />
                     </td>
@@ -263,7 +264,7 @@ export function StudentDetail({ studentId }: { studentId: string }) {
         </Section>
 
         <Section title={t('students.results')}>
-          {s.results.length === 0 ? (
+          {results.length === 0 ? (
             <EmptyState>{t('students.noResults')}</EmptyState>
           ) : (
             <TableWrap>
@@ -277,13 +278,15 @@ export function StudentDetail({ studentId }: { studentId: string }) {
                 </tr>
               </thead>
               <tbody>
-                {s.results.map((r) => (
-                  <tr key={r.id}>
+                {results.map((r) => (
+                  <tr key={r.attemptId}>
                     <td>{r.courseTitle}</td>
                     <td>
-                      <Badge tone="info">{t(`students.resultKinds.${r.kind}`)}</Badge> {r.title}
+                      <Badge tone="info">{t('students.resultKinds.EXAM')}</Badge> {r.examTitle}
                     </td>
-                    <td className="text-right tabular-nums">{Math.round(r.scorePercent)}%</td>
+                    <td className="text-right tabular-nums">
+                      {r.percent === null ? '—' : `${Math.round(r.percent)}%`}
+                    </td>
                     <td>
                       <Badge tone={r.passed ? 'success' : 'danger'}>
                         {r.passed ? t('students.passed') : t('students.failed')}
@@ -297,10 +300,10 @@ export function StudentDetail({ studentId }: { studentId: string }) {
           )}
         </Section>
 
-        {s.certificates && s.certificates.length > 0 && (
+        {certificates && certificates.length > 0 && (
           <Section title={t('students.certificates')}>
             <ul className="grid gap-2 text-sm">
-              {s.certificates.map((c) => (
+              {certificates.map((c) => (
                 <li key={c.id} className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{c.courseTitle}</span>
                   <span className="text-muted-foreground">{formatDate(c.issuedAt)}</span>

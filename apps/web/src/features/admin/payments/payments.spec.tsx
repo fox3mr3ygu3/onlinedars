@@ -6,18 +6,24 @@ import type { AdminPayment } from '@/lib/api/admin/types';
 import { renderAdmin } from '../test-utils';
 import { PaymentStatusDialog, validateStatusChange } from './PaymentStatusDialog';
 
+// Same shape as GET /admin/payments items (shared AdminPaymentView).
 const payment: AdminPayment = {
-  id: 'pay1',
   orderId: 'ord1',
-  orderNumber: 1042,
-  student: { id: 'u1', fullName: 'Aliyev Vali' },
-  course: { id: 'c1', title: 'Python' },
+  number: 1042,
+  courseId: 'c1',
+  courseTitle: 'Python',
+  courseSlug: 'python',
+  student: { id: 'u1', fullName: 'Aliyev Vali', email: null, phone: '+998901234567' },
   amount: 49_900_000,
   currency: 'UZS',
   provider: 'PAYME',
   status: 'PAID',
+  enrolled: true,
   createdAt: '2026-11-20T10:00:00.000Z',
   paidAt: '2026-11-20T10:01:00.000Z',
+  cancelledAt: null,
+  expiresAt: null,
+  transactions: [],
 };
 
 describe('validateStatusChange', () => {
@@ -73,7 +79,7 @@ describe('<PaymentStatusDialog />', () => {
     await userEvent.selectOptions(screen.getByLabelText('Yangi holat'), 'REFUNDED');
     await userEvent.type(screen.getByLabelText('Sabab'), '  Mijoz talabi bilan qaytarildi ');
     await userEvent.click(screen.getByRole('button', { name: "Holatni o'zgartirish" }));
-    expect(onSubmit).toHaveBeenCalledWith('pay1', {
+    expect(onSubmit).toHaveBeenCalledWith('ord1', {
       status: 'REFUNDED',
       reason: 'Mijoz talabi bilan qaytarildi',
     });

@@ -18,7 +18,6 @@ import { Button } from '@/components/ui/button';
 import { getDashboard } from '@/lib/api/admin/management';
 import { formatDateTime, formatMoney } from '../common/format';
 import { ErrorState, LoadingState, PageHeader, Section, TableWrap } from '../common/ui';
-import { PaymentStatusBadge } from '../payments/PaymentStatusBadge';
 import { useAdminMe } from '../useAdminMe';
 
 function Stat({ label, value, icon }: { label: string; value: ReactNode; icon: ReactNode }) {
@@ -78,22 +77,20 @@ export function AdminDashboard() {
             />
             <Stat
               label={t('dashboard.examsTaken')}
-              value={q.data.examsTaken}
+              value={q.data.examAttempts}
               icon={<ClipboardCheck className="size-5" />}
             />
             <Stat
               label={t('dashboard.passRate')}
-              value={`${q.data.examsTaken ? Math.round((q.data.examsPassed / q.data.examsTaken) * 100) : 0}%`}
+              value={`${q.data.examAttempts ? Math.round((q.data.examsPassed / q.data.examAttempts) * 100) : 0}%`}
               icon={<TrendingUp className="size-5" />}
             />
-            {q.data.certificatesIssued !== undefined && (
-              <Stat
-                label={t('dashboard.certificatesIssued')}
-                value={q.data.certificatesIssued}
-                icon={<Award className="size-5" />}
-              />
-            )}
-            {isAdmin && q.data.revenue !== undefined && (
+            <Stat
+              label={t('dashboard.certificatesIssued')}
+              value={q.data.certificates}
+              icon={<Award className="size-5" />}
+            />
+            {isAdmin && (
               <Stat
                 label={t('dashboard.revenue')}
                 value={formatMoney(q.data.revenue, t('common.som'))}
@@ -101,28 +98,31 @@ export function AdminDashboard() {
               />
             )}
           </div>
-          {isAdmin && q.data.recentPayments && q.data.recentPayments.length > 0 && (
-            <Section title={t('dashboard.recentPayments')}>
+          {q.data.recentResults.length > 0 && (
+            <Section title={t('dashboard.recentResults')}>
               <TableWrap>
                 <thead>
                   <tr>
                     <th>{t('payments.fields.student')}</th>
                     <th>{t('payments.fields.course')}</th>
-                    <th>{t('payments.fields.amount')}</th>
+                    <th>{t('students.fields.score')}</th>
                     <th>{t('payments.fields.createdAt')}</th>
-                    <th>{t('payments.fields.status')}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {q.data.recentPayments.map((p) => (
-                    <tr key={p.id}>
-                      <td>{p.student.fullName}</td>
-                      <td>{p.course.title}</td>
-                      <td className="tabular-nums">{formatMoney(p.amount, t('common.som'))}</td>
-                      <td>{formatDateTime(p.createdAt)}</td>
-                      <td>
-                        <PaymentStatusBadge status={p.status} />
+                  {q.data.recentResults.map((r) => (
+                    <tr key={r.attemptId}>
+                      <td>{r.studentName}</td>
+                      <td>{r.courseTitle}</td>
+                      <td className="tabular-nums">
+                        {r.percent === null ? '—' : `${r.percent}%`}
+                        {r.passed !== null && (
+                          <span className="text-muted-foreground ml-2">
+                            {t(r.passed ? 'dashboard.passed' : 'dashboard.failed')}
+                          </span>
+                        )}
                       </td>
+                      <td>{r.submittedAt ? formatDateTime(r.submittedAt) : '—'}</td>
                     </tr>
                   ))}
                 </tbody>

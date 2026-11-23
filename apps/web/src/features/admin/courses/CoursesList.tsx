@@ -114,8 +114,8 @@ export function CoursesList() {
                   <td className="tabular-nums">
                     {c.isFree ? tc('free') : formatMoney(c.price, t('common.som'))}
                   </td>
-                  <td className="tabular-nums">{c.lessonsCount ?? '—'}</td>
-                  <td className="tabular-nums">{c.enrollmentsCount ?? '—'}</td>
+                  <td className="tabular-nums">{c.lessonCount ?? '—'}</td>
+                  <td className="tabular-nums">{c.enrollmentCount ?? '—'}</td>
                   <td>{formatDate(c.updatedAt)}</td>
                 </tr>
               ))}

@@ -119,11 +119,12 @@ export function Reports() {
             }
             row={(r) => (
               <tr key={r.courseId}>
-                <td>{r.courseTitle}</td>
-                <td className="text-right tabular-nums">{r.enrolled}</td>
-                <td className="text-right tabular-nums">{r.completed}</td>
+                <td>{r.title}</td>
+                <td className="text-right tabular-nums">{r.enrollments}</td>
+                {/* finished = earned the certificate */}
+                <td className="text-right tabular-nums">{r.certificates}</td>
                 <td>
-                  <Bar value={r.completionRate <= 1 ? r.completionRate * 100 : r.completionRate} />
+                  <Bar value={r.completionRate} />
                 </td>
               </tr>
             )}
@@ -141,12 +142,12 @@ export function Reports() {
               </tr>
             }
             row={(r) => (
-              <tr key={r.courseId}>
+              <tr key={r.examId}>
                 <td>{r.courseTitle}</td>
                 <td className="text-right tabular-nums">{r.attempts}</td>
                 <td className="text-right tabular-nums">{r.passed}</td>
                 <td>
-                  <Bar value={r.averageScore} />
+                  <Bar value={r.avgPercent ?? 0} />
                 </td>
               </tr>
             )}
@@ -158,17 +159,21 @@ export function Reports() {
             head={
               <tr>
                 <th>{f('date')}</th>
-                <th className="text-right">{f('activeStudents')}</th>
+                <th className="text-right">{f('newStudents')}</th>
+                <th className="text-right">{f('enrollments')}</th>
                 <th className="text-right">{f('lessonsCompleted')}</th>
-                <th className="text-right">{f('practicesSubmitted')}</th>
+                <th className="text-right">{f('practiceAttempts')}</th>
+                <th className="text-right">{f('examAttempts')}</th>
               </tr>
             }
             row={(r) => (
               <tr key={r.date}>
                 <td>{formatDate(r.date)}</td>
-                <td className="text-right tabular-nums">{r.activeStudents}</td>
+                <td className="text-right tabular-nums">{r.newStudents}</td>
+                <td className="text-right tabular-nums">{r.enrollments}</td>
                 <td className="text-right tabular-nums">{r.lessonsCompleted}</td>
-                <td className="text-right tabular-nums">{r.practicesSubmitted}</td>
+                <td className="text-right tabular-nums">{r.practiceAttempts}</td>
+                <td className="text-right tabular-nums">{r.examAttempts}</td>
               </tr>
             )}
           />
