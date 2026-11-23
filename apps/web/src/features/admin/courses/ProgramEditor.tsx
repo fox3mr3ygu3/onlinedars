@@ -51,12 +51,14 @@ interface LessonForm {
   summary: string;
   durationMinutes: string;
   isRequired: boolean;
+  isPreview: boolean;
 }
 const toLessonInput = (v: LessonForm) => ({
   title: v.title.trim(),
   summary: v.summary.trim() || null,
   durationMinutes: v.durationMinutes === '' ? null : Number(v.durationMinutes),
   isRequired: v.isRequired,
+  isPreview: v.isPreview,
 });
 
 /** Persists a new order optimistically; rolls back by refetching if the API rejects it. */
@@ -262,6 +264,7 @@ function LessonsOfModule({ moduleId }: { moduleId: string }) {
                 <span className="text-muted-foreground mr-1 tabular-nums">{i + 1}.</span>
                 {l.title}
               </Link>
+              {l.isPreview && <Badge tone="info">{t('lessons.previewBadge')}</Badge>}
               <Badge tone={l.isPublished ? 'success' : 'neutral'}>
                 {l.isPublished ? t('lessons.published') : t('lessons.draft')}
               </Badge>
@@ -283,7 +286,13 @@ function LessonsOfModule({ moduleId }: { moduleId: string }) {
         onOpenChange={setCreating}
         title={t('lessons.newTitle')}
         schema={lessonInputSchema}
-        defaultValues={{ title: '', summary: '', durationMinutes: '', isRequired: true }}
+        defaultValues={{
+          title: '',
+          summary: '',
+          durationMinutes: '',
+          isRequired: true,
+          isPreview: false,
+        }}
         toInput={toLessonInput}
         onSubmit={async (input) => {
           await createLesson(moduleId, input);
@@ -323,6 +332,7 @@ export function LessonFields({
         )}
       </Field>
       <CheckboxField label={t('isRequired')} {...f.register('isRequired')} />
+      <CheckboxField label={t('isPreview')} {...f.register('isPreview')} />
     </>
   );
 }

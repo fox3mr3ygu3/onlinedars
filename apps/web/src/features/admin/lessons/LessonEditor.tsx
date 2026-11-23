@@ -205,6 +205,7 @@ function LessonInfoForm({ lesson }: { lesson: AdminLesson }) {
       summary: lesson.summary ?? '',
       durationMinutes: lesson.durationMinutes == null ? '' : String(lesson.durationMinutes),
       isRequired: lesson.isRequired,
+      isPreview: lesson.isPreview ?? false,
     },
     resolver: mappedZodResolver(lessonInputSchema, toLessonInput),
   });
