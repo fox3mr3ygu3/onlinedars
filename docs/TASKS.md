@@ -57,14 +57,14 @@ the OpenAPI stubs — they don't need finished backend logic.
 
 **Owns:** `apps/api/src/modules/{payments,audit,notifications}`, `apps/api/src/jobs/payment-recheck*`, `apps/api/src/jobs/notify*`, `docs/api/payments.md`
 
-- [ ] Order creation (unique orderId, amount from DB, UZS tiyin); free-course direct enrollment
-- [ ] Payme Merchant API: CheckPerformTransaction, CreateTransaction, PerformTransaction, CancelTransaction, CheckTransaction, GetStatement; Basic-auth check
-- [ ] Click: Prepare + Complete endpoints with `sign_string` verification
-- [ ] Idempotency (unique provider transaction id), status machine PENDING→PAID/CANCELLED/FAILED/REFUNDED, enrollment in same transaction
-- [ ] Re-check job for stuck PENDING payments; refund handling per policy setting
-- [ ] Student payment history; admin payment list (orderId, student, course, amount, method, date, status); restricted manual edit + AuditLog
-- [ ] In-app notification on success; optional email/SMS
-- [ ] Tests against provider sandbox payloads, including duplicate callbacks and amount mismatch
+- [x] Order creation (unique orderId, amount from DB, UZS tiyin); free-course direct enrollment
+- [x] Payme Merchant API: CheckPerformTransaction, CreateTransaction, PerformTransaction, CancelTransaction, CheckTransaction, GetStatement; Basic-auth check
+- [x] Click: Prepare + Complete endpoints with `sign_string` verification
+- [x] Idempotency (unique provider transaction id), status machine PENDING→PAID/CANCELLED/FAILED/REFUNDED, enrollment in same transaction
+- [x] Re-check job for stuck PENDING payments; refund handling per policy setting
+- [x] Student payment history; admin payment list (orderId, student, course, amount, method, date, status); restricted manual edit + AuditLog
+- [x] In-app notification on success; optional email/SMS
+- [x] Tests against provider sandbox payloads, including duplicate callbacks and amount mismatch
 
 ## 5. `frontend-public` — open site & auth
 
@@ -152,3 +152,7 @@ Starts in Phase 0 together with architect; continues through launch and maintena
 - (done in Phase 0) devops → architect: add `S3_PUBLIC_URL` (public base URL for presigned links, e.g. `https://files.onlinedars.uz`) to `.env.example` and the config schema; the api should trust `X-Forwarded-For` from the proxy only (`app.set("trust proxy", 1)`).
 - devops → backend-learning: launch Puppeteer with `executablePath: process.env.PUPPETEER_EXECUTABLE_PATH` and args `--no-sandbox --disable-dev-shm-usage` (worker image, non-root).
 - devops → qa: put Playwright in `e2e/playwright.config.ts` with a `webServer` that starts web + api, and tag the smoke subset `@smoke` (CI runs `--grep @smoke`).
+- backend-payments → backend-content: please expose the `REFUND_POLICY` setting (`"revoke"` default | `"keep"`, key/values exported from `@onlinedars/shared` as `REFUND_POLICY_SETTING_KEY` / `RefundPolicy`) in the admin settings API; payments reads it straight from the `Setting` table.
+- backend-payments → frontend-public: provider return URL is `WEB_URL/checkout/{courseId}?orderId={orderId}`; when `orderId` is present, poll `GET /orders/:orderId` until `status` is `PAID` (`enrolled: true`) or `CANCELLED`/`FAILED`. `POST /orders` → discriminate on `enrolled`; 503 `PAYMENT_PROVIDER_UNAVAILABLE` means that provider has no credentials yet.
+- backend-payments → frontend-admin: `PATCH /admin/payments/:orderId/status` allows only `PENDING→PAID|CANCELLED|FAILED`, `CANCELLED|FAILED→PAID`, `PAID→REFUNDED` (else 409 `INVALID_STATUS_TRANSITION`); reason ≥ 5 chars. Audit rows: `GET /admin/audit-logs?entityType=Order&entityId=…`.
+- backend-payments → backend-learning: record enrollment grants/revokes with the global `AuditService.log(entry, tx)` (pass your transaction client).

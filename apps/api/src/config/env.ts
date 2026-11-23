@@ -38,6 +38,23 @@ export const envSchema = z.object({
   /** Comma-separated extra CORS origins. WEB_URL is always allowed. */
   CORS_ORIGINS: optionalString,
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+  // ── Payments (all optional; a provider is disabled until its credentials are set) ──
+  PAYME_MERCHANT_ID: optionalString,
+  /** Merchant key (test key on staging). Payme sends `Basic base64("Paycom:<key>")`. */
+  PAYME_KEY: optionalString,
+  /** true → checkout.test.paycom.uz, false → checkout.paycom.uz. */
+  PAYME_TEST_MODE: z
+    .enum(['true', 'false', '1', '0'])
+    .default('true')
+    .transform((v) => v === 'true' || v === '1'),
+  /** Optional fiscal receipt data (IKPU / package code from tasnif.soliq.uz). */
+  PAYME_IKPU_CODE: optionalString,
+  PAYME_PACKAGE_CODE: optionalString,
+  CLICK_SERVICE_ID: optionalString,
+  CLICK_MERCHANT_ID: optionalString,
+  CLICK_SECRET_KEY: optionalString,
+  /** Minutes between stuck-payment re-checks in the worker; 0 disables the schedule. */
+  PAYMENT_RECHECK_INTERVAL_MINUTES: z.coerce.number().int().min(0).default(10),
 });
 
 export type Env = z.infer<typeof envSchema>;

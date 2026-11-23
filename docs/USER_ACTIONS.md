@@ -43,3 +43,11 @@ They keep working on everything else and mock or stub what's blocked. Tick an it
 
 - [ ] `postcss` 8.4.31 (high: arbitrary file read; path traversal in previous source map; fixed in >=8.5.18) — pinned by `next@15.5.x`. Fix: `pnpm.overrides` `"postcss": "^8.5.18"` in root `package.json`, or a Next release that bumps it. Build-time only (CSS processing of our own sources), low real risk.
 - [ ] `deepmerge-ts` 7.1.5 (high: stack exhaustion; fixed in >=8.0.0) and `effect` 3.21.0 (high: ReDoS in Schema.TemplateLiteral; fixed in >=3.22.1) — pulled by `@prisma/config@6.19.3` (Prisma CLI config loading, not request handling). Fix: newer Prisma 6.x if it bumps them, or `pnpm.overrides` `"effect": "^3.22.1"` (deepmerge-ts 8 is a major — test before overriding).
+
+## Payments (added by backend-payments, 2026-11-23)
+
+- [ ] **Refund policy**: the code defaults to `revoke` (access removed after a refund). To keep access instead, set the platform setting `REFUND_POLICY` to `"keep"`. Please confirm which one the client wants.
+- [ ] Register callback URLs once staging exists: Payme endpoint `https://<api-domain>/api/v1/payments/payme` with account field `order_id`; Click Prepare `…/api/v1/payments/click/prepare`, Complete `…/api/v1/payments/click/complete` (details: `docs/api/payments.md`).
+- [ ] Run the Payme sandbox test suite (test.paycom.uz) and a Click test payment against staging with the test credentials; then switch to live keys and `PAYME_TEST_MODE=false` for production.
+- [ ] Fiscal receipts (Payme): get the IKPU code and package code for "online course" from tasnif.soliq.uz and set `PAYME_IKPU_CODE` / `PAYME_PACKAGE_CODE` (optional until fiscalisation is required).
+- [ ] Payme "change key" in the merchant cabinet does not reach us automatically: update `PAYME_KEY` in the environment secrets and redeploy when the key changes.
