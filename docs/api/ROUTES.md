@@ -118,7 +118,7 @@ provider's server callback does (idempotent).
 | Method                        | Path                                         | Notes                                                                                                                  |
 | ----------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | GET, POST                     | `/admin/courses`                             | list items carry `moduleCount`, `lessonCount`, `publishedLessonCount`, `enrollmentCount`                               |
-| GET, PATCH, DELETE            | `/admin/courses/:id`                         | delete is refused when orders exist (`COURSE_NOT_DELETABLE`)                                                           |
+| GET, PATCH, DELETE            | `/admin/courses/:id`                         | `introVideoUrl` (YouTube / Vimeo / direct link); delete is refused when orders exist (`COURSE_NOT_DELETABLE`)          |
 | POST                          | `/admin/courses/:id/status`                  | `{ status }` (DRAFT / PUBLISHED / HIDDEN / ARCHIVED)                                                                   |
 | GET, POST                     | `/admin/courses/:id/modules`                 | modules include their `lessons`                                                                                        |
 | PATCH                         | `/admin/courses/:id/modules/reorder`         | `{ ids[] }`                                                                                                            |
