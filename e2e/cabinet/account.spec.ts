@@ -39,7 +39,7 @@ test.describe('results, certificates, payments, notifications, profile @smoke', 
     ]);
     await page.goto('/cabinet/results');
     await expect(page.getByRole('heading', { name: 'Natijalar' })).toBeVisible();
-    await expect(page.getByText("O'tdi").first()).toBeVisible();
+    await expect(page.getByText("O'tdi").filter({ visible: true }).first()).toBeVisible();
   });
 
   test('certificate PDF download sends the request and saves a file', async ({ page }) => {
@@ -88,9 +88,9 @@ test.describe('results, certificates, payments, notifications, profile @smoke', 
       },
     ]);
     await page.goto('/cabinet/payments');
-    await expect(page.getByText("499 000 so'm").first()).toBeVisible();
-    await expect(page.getByText("To'langan").first()).toBeVisible();
-    await expect(page.getByText('Payme').first()).toBeVisible();
+    await expect(page.getByText("499 000 so'm").filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText("To'langan").filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText('Payme').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('notifications: mark as read', async ({ page }) => {

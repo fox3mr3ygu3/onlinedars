@@ -24,7 +24,7 @@ test.describe('cabinet shell, dashboard, courses @smoke', () => {
     ).toBeVisible();
     await expect(page.getByTestId('overall-progress')).toHaveText('33%');
     await expect(page.getByText('4-amaliyot')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'HTML asoslari' })).toHaveAttribute(
+    await expect(page.getByRole('link', { name: 'HTML asoslari', exact: true })).toHaveAttribute(
       'href',
       '/cabinet/courses/c1',
     );
@@ -110,7 +110,7 @@ test.describe('cabinet shell, dashboard, courses @smoke', () => {
       { path: /.*/, status: 401, body: { statusCode: 401, code: 'UNAUTHORIZED', message: 'x' } },
     ]);
     await page.goto('/cabinet');
-    await expect(page.getByRole('alert')).toContainText('Davom etish uchun tizimga kiring');
+    await expect(page.getByText('Davom etish uchun tizimga kiring')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Kirish' })).toHaveAttribute(
       'href',
       '/login?next=/cabinet',

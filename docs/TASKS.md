@@ -83,11 +83,11 @@ the OpenAPI stubs — they don't need finished backend logic.
 
 **Owns:** `apps/web/src/app/(student)`, `apps/web/src/features/{lesson,practice,exam,profile}`, student layout
 
-- [ ] Dashboard, My courses, course tree with locks and progress
-- [ ] Lesson viewer (rich text, images, files, video embed) + "material viewed" tracking
-- [ ] Practice player for all 5 question types (incl. drag/match, fill blank, image-based), results with explanations
-- [ ] Exam: start, countdown timer, autosave, submit, result
-- [ ] Results page, Certificates (list + PDF download), Payment history, Profile edit
+- [x] Dashboard, My courses, course tree with locks and progress
+- [x] Lesson viewer (rich text, images, files, video embed) + "material viewed" tracking
+- [x] Practice player for all 5 question types (incl. drag/match, fill blank, image-based), results with explanations
+- [x] Exam: start, countdown timer, autosave, submit, result
+- [x] Results page, Certificates (list + PDF download), Payment history, Profile edit
 
 ## 7. `frontend-admin` — admin panel
 
@@ -152,3 +152,9 @@ Starts in Phase 0 together with architect; continues through launch and maintena
 - (done in Phase 0) devops → architect: add `S3_PUBLIC_URL` (public base URL for presigned links, e.g. `https://files.onlinedars.uz`) to `.env.example` and the config schema; the api should trust `X-Forwarded-For` from the proxy only (`app.set("trust proxy", 1)`).
 - devops → backend-learning: launch Puppeteer with `executablePath: process.env.PUPPETEER_EXECUTABLE_PATH` and args `--no-sandbox --disable-dev-shm-usage` (worker image, non-root).
 - devops → qa: put Playwright in `e2e/playwright.config.ts` with a `webServer` that starts web + api, and tag the smoke subset `@smoke` (CI runs `--grep @smoke`).
+- frontend-student → coordinator/frontend-public: the cabinet calls the API through `configureStudentAuth()` in `apps/web/src/lib/api/student-fetch.ts` (default: plain `apiFetch`, no token). After merging `feat/web-public`, wire it once, e.g. in `CabinetShell`: `configureStudentAuth({ fetch: authFetch, getAccessToken: async () => (await getSession())?.accessToken ?? null })`, and call `useRequireSession(['STUDENT'])` there. Until then every cabinet call returns 401 against a real API (the UI shows a login prompt).
+- frontend-student → backend-learning / backend-payments: `apps/web/src/lib/api/learning-types.ts` and the `MyOrder` / `MyNotification` types in `apps/web/src/lib/api/me.ts` are copies of your shared contracts (`schemas/learning.ts`, `schemas/payments.ts`). After merge, replace them with imports from `@onlinedars/shared`. `GET /me/certificates/:id/pdf` may return either PDF bytes or JSON `{ url }` (presigned) — the web handles both. Exam autosave is local only (localStorage); no server autosave endpoint is called.
+- frontend-student → architect: `FormMessage`'s `translate` prop (`apps/web/src/components/ui/form.tsx`) clashes with the HTML `translate="yes|no"` attribute type, so passing a function needs a cast. Please rename it (e.g. `translateMessage`).
+- frontend-student → architect: added web devDeps (`@testing-library/{react,dom,user-event,jest-dom}`, `jsdom`), dep `dompurify`, and root devDep `@playwright/test` (CI runs `pnpm exec playwright` from the root). `apps/web/vitest.config.mts` now has `unit` (node) + `dom` (jsdom, `*.spec.tsx`) projects.
+- frontend-student → qa: created `e2e/playwright.config.ts` (web-only `webServer` via `next start`, mobile 375 + desktop 1280 projects) and `e2e/cabinet/*.spec.ts` (API mocked with `page.route`, all `@smoke`). Merge/extend as you like (e.g. add the API to `webServer` for full-stack flows).
+- frontend-student → coordinator: `uz.json` — added keys inside the existing `cabinet` object and new namespaces `lesson, practice, exam, results, certificates, payments, notifications, profile` appended after `errors`.
