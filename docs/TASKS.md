@@ -69,16 +69,16 @@ the OpenAPI stubs — they don't need finished backend logic.
 
 ## 5. `frontend-public` — open site & auth
 
-**Owns:** `apps/web/src/app/(public)`, `apps/web/src/app/(auth)`, `apps/web/src/features/{catalog,course,checkout,certificate}`, public layout
+**Owns:** `apps/web/src/app/(public)`, `apps/web/src/app/(auth)`, `apps/web/src/features/{catalog,course,checkout,certificate,auth}`, public layout (`components/layout/public-*`), shared web auth layer `apps/web/src/lib/auth/**` + `apps/web/src/middleware.ts`, `apps/web/src/lib/api/{client,public,auth,orders}.ts`, `app/robots.ts`, `app/sitemap.ts`
 
-- [ ] Landing (hero, directions, recommended courses, CTAs)
-- [ ] Catalog with search + filters; course card (name, short description, lesson count, price, link)
-- [ ] Course page (description, goals, program/modules, lesson count, price, Buy/Start button)
-- [ ] Directions, Teachers, FAQ pages
-- [ ] Login / register (phone or email, OTP), forgot password
-- [ ] Checkout: order summary, choose Payme or Click, redirect; return page that **polls order status** (never trusts the redirect)
-- [ ] Public certificate verify page `/verify/[certificateId]`
-- [ ] SEO metadata, responsive
+- [x] Landing (hero, directions, recommended courses, CTAs)
+- [x] Catalog with search + filters; course card (name, short description, lesson count, price, link)
+- [x] Course page (description, goals, program/modules, lesson count, price, Buy/Start button)
+- [x] Directions, Teachers, FAQ pages
+- [x] Login / register (phone or email, OTP), forgot password
+- [x] Checkout: order summary, choose Payme or Click, redirect; return page that **polls order status** (never trusts the redirect)
+- [x] Public certificate verify page `/verify/[certificateId]`
+- [x] SEO metadata, responsive
 
 ## 6. `frontend-student` — student cabinet
 
@@ -184,3 +184,10 @@ Starts in Phase 0 together with architect; continues through launch and maintena
 - frontend-student → architect: added web devDeps (`@testing-library/{react,dom,user-event,jest-dom}`, `jsdom`), dep `dompurify`, and root devDep `@playwright/test` (CI runs `pnpm exec playwright` from the root). `apps/web/vitest.config.mts` now has `unit` (node) + `dom` (jsdom, `*.spec.tsx`) projects.
 - frontend-student → qa: created `e2e/playwright.config.ts` (web-only `webServer` via `next start`, mobile 375 + desktop 1280 projects) and `e2e/cabinet/*.spec.ts` (API mocked with `page.route`, all `@smoke`). Merge/extend as you like (e.g. add the API to `webServer` for full-stack flows).
 - frontend-student → coordinator: `uz.json` — added keys inside the existing `cabinet` object and new namespaces `lesson, practice, exam, results, certificates, payments, notifications, profile` appended after `errors`.
+
+- (done) frontend-public: owns `apps/web/src/middleware.ts` + `src/lib/auth/**` (coordinator decision). Auth layer API is documented at the top of `apps/web/src/lib/auth/index.ts`. Cabinet/admin layouts: use `useRequireSession(['STUDENT'])` / `useRequireSession(STAFF_ROLES)` and `authFetch` for API calls.
+- frontend-public → backend-content: the web sends both `search` and `q` to `GET /courses` (shared `catalogQuerySchema` uses `q`; the coordinator's contract said `search`). Pick one and tell us. Course cards need `lessonCount` (and ideally `moduleCount`, `direction {id,slug,name}`); course detail needs `description, goals[], modules[{id,title,description,lessons[{id,title,durationMinutes}]}], teachers[{id,slug,fullName,title,photoUrl}]`. `GET /courses/:slugOrId` should also resolve by id (checkout falls back to the id when no slug is in the URL). Directions may include `courseCount`. Lists as `{items,total,page,pageSize}` (bare arrays also accepted).
+- frontend-public → architect: please add response zod schemas for the public catalog (course card/detail, direction, teacher, faq) and the `POST /orders` response to `packages/shared`; the web uses local types in `apps/web/src/lib/api/{public,orders}.ts` with TODOs. Also `NEXT_PUBLIC_SITE_URL` (absolute site origin for canonical URLs, Open Graph and the sitemap; default `http://localhost:3000`) → `.env.example`.
+- frontend-public → backend-payments: the web needs `errors.PAYMENT_PROVIDER_UNAVAILABLE` in `uz.json` (your branch adds the code; frontend-public did not add it to avoid a merge conflict in the `errors` namespace). Until then the generic error is shown. The free-course call still sends `provider: 'PAYME'` (the server ignores it for free courses).
+- frontend-public → qa: `e2e/playwright.config.ts` and `e2e/public/*` were created by frontend-public (yours from now on). `@playwright/test` is a root devDependency. Smoke specs mock the API with `page.route`; server-rendered data pages need the real API (CI starts it with test-only JWT secrets from the config). Locally: `pnpm build` then `E2E_PROD=1 pnpm exec playwright test --config e2e/playwright.config.ts --grep @smoke` (`next dev` compiles too slowly for the default timeouts on this PC).
+- frontend-public → frontend-student: payment-success links go to `/cabinet/courses/{courseId}` and `/cabinet/payments`; please keep those routes.
