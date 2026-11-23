@@ -1,0 +1,36 @@
+# Render Blueprint — free demo API (docs/DEPLOYMENT.md → "Free demo hosting").
+# Web runs on Netlify (apps/web/netlify.toml), the database on Neon. Not the production setup.
+services:
+  - type: web
+    name: onlinedars-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./infra/docker/api.Dockerfile
+    dockerContext: .
+    # Free plan has no pre-deploy step, so migrations run on every start (idempotent).
+    dockerCommand: sh -c "prisma migrate deploy --schema prisma/schema.prisma && node dist/main.js"
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    branch: main
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false # Neon connection string, entered in the Render dashboard
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: WEB_URL
+        sync: false # https://<site>.netlify.app
+      - key: API_URL
+        sync: false # https://onlinedars-api.onrender.com/api/v1
+      # No MinIO/S3 on the demo: uploads go to the container disk and vanish on restart.
+      - key: STORAGE_DRIVER
+        value: local
+      - key: UPLOAD_DIR
+        value: /tmp/uploads
+      # No Redis: certificate PDFs render inline (no Chromium in this image, so they stay "preparing").
+      - key: PAYMENT_RECHECK_INTERVAL_MINUTES
+        value: '0'

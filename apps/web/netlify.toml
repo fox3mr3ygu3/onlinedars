@@ -1,0 +1,12 @@
+# Netlify — free demo web (docs/DEPLOYMENT.md → "Free demo hosting").
+# Site settings: Base directory = (empty, repo root), Package directory = apps/web.
+# Set API_URL and NEXT_PUBLIC_SITE_URL in Netlify before the first build: the /api/v1 rewrite
+# in next.config.ts is resolved at build time.
+[build]
+  command = "pnpm turbo run build --filter=@onlinedars/web"
+
+[build.environment]
+  NODE_VERSION = "22"
+  PNPM_VERSION = "9.15.9"
+  NEXT_PUBLIC_API_URL = "/api/v1"
+  TURBO_TELEMETRY_DISABLED = "1"
