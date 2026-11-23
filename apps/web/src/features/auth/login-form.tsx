@@ -37,8 +37,8 @@ export function LoginForm() {
     setError(null);
     try {
       const u = await login(values);
+      // No router.refresh() here: it re-renders /login and cancels this navigation.
       router.replace(next ?? roleHome(u.role));
-      router.refresh();
     } catch (e) {
       setError(apiMessage(e));
     }

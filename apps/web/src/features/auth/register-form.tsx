@@ -31,8 +31,8 @@ function useAfterAuth() {
   return {
     next,
     go: (role: Parameters<typeof roleHome>[0]) => {
+      // No router.refresh() here: it re-renders the auth page and cancels this navigation.
       router.replace(next ?? roleHome(role));
-      router.refresh();
     },
   };
 }
