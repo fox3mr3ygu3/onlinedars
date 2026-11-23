@@ -5,7 +5,9 @@ import { call, DEMO_COURSE, gotoReady, registerStudent, signInBrowser } from './
 test.describe('catalog @fullstack', () => {
   test('search the catalog and open the course page', async ({ page }) => {
     await gotoReady(page, '/courses');
-    await expect(page.getByRole('link', { name: DEMO_COURSE.title }).first()).toBeVisible();
+    // Page 1 lists courses; which ones depends on how many exist (demo seed, earlier runs), so the
+    // demo course is only asserted after searching for it.
+    await expect(page.locator('main a[href^="/courses/"]').first()).toBeVisible();
 
     await page.getByLabel('Qidiruv').fill('Veb-dasturlash');
     await page.getByRole('button', { name: 'Qidirish' }).click();
