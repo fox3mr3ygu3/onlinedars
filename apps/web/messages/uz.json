@@ -40,7 +40,530 @@
     "title": "Shaxsiy kabinet"
   },
   "admin": {
-    "title": "Boshqaruv paneli"
+    "title": "Boshqaruv paneli",
+    "shell": {
+      "openMenu": "Menyuni ochish",
+      "closeMenu": "Menyuni yopish",
+      "skipToContent": "Asosiy qismga o'tish",
+      "logout": "Chiqish",
+      "toSite": "Saytga o'tish",
+      "loadingUser": "Foydalanuvchi tekshirilmoqda...",
+      "notSignedIn": "Boshqaruv paneliga kirish uchun tizimga kiring",
+      "signIn": "Tizimga kirish",
+      "forbidden": "Sizda boshqaruv paneliga kirish huquqi yo'q",
+      "adminOnly": "Bu bo'lim faqat administratorlar uchun",
+      "roles": {
+        "ADMIN": "Administrator",
+        "CONTENT_MANAGER": "Kontent menejeri",
+        "STUDENT": "Talaba"
+      },
+      "groups": {
+        "content": "Kontent",
+        "management": "Boshqaruv"
+      }
+    },
+    "nav": {
+      "dashboard": "Bosh sahifa",
+      "courses": "Kurslar",
+      "exams": "Imtihonlar",
+      "certificates": "Sertifikat shablonlari",
+      "directions": "Yo'nalishlar",
+      "teachers": "O'qituvchilar",
+      "faq": "Savol-javob",
+      "students": "Talabalar",
+      "payments": "To'lovlar",
+      "reports": "Hisobotlar",
+      "settings": "Sozlamalar",
+      "audit": "Audit jurnali"
+    },
+    "common": {
+      "save": "Saqlash",
+      "saving": "Saqlanmoqda...",
+      "saved": "Saqlandi",
+      "create": "Yaratish",
+      "add": "Qo'shish",
+      "edit": "Tahrirlash",
+      "delete": "O'chirish",
+      "deleted": "O'chirildi",
+      "cancel": "Bekor qilish",
+      "close": "Yopish",
+      "back": "Orqaga",
+      "search": "Qidirish",
+      "searchPlaceholder": "Qidirish...",
+      "filter": "Filtrlash",
+      "reset": "Tozalash",
+      "all": "Barchasi",
+      "none": "Yo'q",
+      "yes": "Ha",
+      "no": "Yo'q",
+      "active": "Faol",
+      "inactive": "Faol emas",
+      "loading": "Yuklanmoqda...",
+      "empty": "Ma'lumot yo'q",
+      "error": "Ma'lumotni yuklab bo'lmadi",
+      "retry": "Qayta urinish",
+      "actions": "Amallar",
+      "open": "Ochish",
+      "position": "Tartib raqami",
+      "confirmDelete": "Rostdan ham o'chirmoqchimisiz? Bu amalni qaytarib bo'lmaydi.",
+      "confirm": "Tasdiqlash",
+      "prev": "Oldingi",
+      "next": "Keyingi",
+      "pageOf": "{page}-sahifa / {pages}",
+      "totalCount": "Jami: {count}",
+      "dateFrom": "Sanadan",
+      "dateTo": "Sanagacha",
+      "som": "so'm",
+      "moveUp": "Yuqoriga ko'chirish",
+      "moveDown": "Pastga ko'chirish",
+      "dragHandle": "Sudrab tartibni o'zgartirish (yoki Alt + ↑/↓)",
+      "orderSaved": "Tartib saqlandi",
+      "moved": "{name}: {position}-o'ringa ko'chirildi",
+      "invalid": "Qiymat noto'g'ri",
+      "required": "Majburiy maydon",
+      "upload": "Fayl yuklash",
+      "uploading": "Yuklanmoqda...",
+      "uploaded": "Fayl yuklandi",
+      "removeFile": "Faylni olib tashlash",
+      "preview": "Ko'rib chiqish",
+      "details": "Batafsil",
+      "minutes": "daqiqa",
+      "percent": "%"
+    },
+    "dashboard": {
+      "title": "Bosh sahifa",
+      "students": "Talabalar",
+      "activeCourses": "Faol kurslar",
+      "completedLessons": "Tugatilgan darslar",
+      "examsTaken": "Topshirilgan imtihonlar",
+      "examsPassed": "Muvaffaqiyatli imtihonlar",
+      "certificatesIssued": "Berilgan sertifikatlar",
+      "revenue": "Tushum",
+      "passRate": "O'tish darajasi",
+      "recentPayments": "So'nggi to'lovlar",
+      "quickLinks": "Tezkor havolalar",
+      "newCourse": "Yangi kurs"
+    },
+    "courses": {
+      "title": "Kurslar",
+      "new": "Yangi kurs",
+      "editTitle": "Kursni tahrirlash",
+      "createTitle": "Yangi kurs yaratish",
+      "created": "Kurs yaratildi",
+      "fields": {
+        "title": "Nomi",
+        "slug": "URL nomi (slug)",
+        "slugHint": "Faqat kichik lotin harflari, raqamlar va chiziqcha, masalan: python-asoslari",
+        "shortDescription": "Qisqa tavsif",
+        "description": "To'liq tavsif",
+        "goals": "Kurs maqsadlari",
+        "goalsHint": "Har bir qatorga bitta maqsad",
+        "coverImage": "Muqova rasmi",
+        "level": "Daraja",
+        "isFree": "Bepul kurs",
+        "price": "Narxi (so'm)",
+        "priceHint": "Narx so'mda kiritiladi, tizimda tiyinda saqlanadi",
+        "sequentialUnlock": "Darslarni ketma-ket ochish",
+        "sequentialUnlockHint": "Yoqilgan bo'lsa, keyingi dars oldingisi tugagandan so'ng ochiladi",
+        "direction": "Yo'nalish",
+        "teachers": "O'qituvchilar",
+        "certificateTemplate": "Sertifikat shabloni",
+        "defaultTemplate": "Standart shablon",
+        "status": "Holati",
+        "price_column": "Narx",
+        "lessons": "Darslar",
+        "students": "Talabalar",
+        "updatedAt": "Yangilangan"
+      },
+      "levels": {
+        "BEGINNER": "Boshlang'ich",
+        "INTERMEDIATE": "O'rta",
+        "ADVANCED": "Yuqori"
+      },
+      "status": {
+        "DRAFT": "Qoralama",
+        "PUBLISHED": "Nashr qilingan",
+        "HIDDEN": "Yashirilgan",
+        "ARCHIVED": "Arxivlangan"
+      },
+      "statusActions": {
+        "title": "Kurs holati",
+        "PUBLISHED": "Nashr qilish",
+        "HIDDEN": "Yashirish",
+        "ARCHIVED": "Arxivlash",
+        "DRAFT": "Qoralamaga qaytarish",
+        "changed": "Kurs holati o'zgartirildi",
+        "hint": "Nashr qilish uchun barcha darslar 4 ta amaliyot × 6 ta savol bilan to'liq bo'lishi kerak"
+      },
+      "tabs": {
+        "general": "Asosiy",
+        "program": "Dastur (modullar va darslar)",
+        "exam": "Yakuniy imtihon"
+      },
+      "deleteCourse": "Kursni o'chirish"
+    },
+    "modules": {
+      "title": "Modullar va darslar",
+      "add": "Modul qo'shish",
+      "newTitle": "Yangi modul",
+      "editTitle": "Modulni tahrirlash",
+      "fields": {
+        "title": "Modul nomi",
+        "description": "Tavsif"
+      },
+      "empty": "Hali modullar yo'q. Birinchi modulni qo'shing.",
+      "lessonsCount": "{count} ta dars",
+      "deleteConfirm": "Modul va undagi barcha darslar o'chiriladi. Davom etasizmi?"
+    },
+    "lessons": {
+      "add": "Dars qo'shish",
+      "newTitle": "Yangi dars",
+      "editTitle": "Darsni tahrirlash",
+      "empty": "Bu modulda hali darslar yo'q",
+      "fields": {
+        "title": "Dars nomi",
+        "summary": "Qisqa mazmuni",
+        "durationMinutes": "Davomiyligi (daqiqa)",
+        "isRequired": "Majburiy dars (imtihon uchun talab qilinadi)"
+      },
+      "published": "Nashr qilingan",
+      "draft": "Qoralama",
+      "publish": "Darsni nashr qilish",
+      "unpublish": "Nashrdan olish",
+      "publishedToast": "Dars nashr qilindi",
+      "unpublishedToast": "Dars nashrdan olindi",
+      "publishBlocked": "Nashr qilish uchun 4 ta amaliyot va har birida 6 ta savol bo'lishi kerak",
+      "openEditor": "Darsni ochish",
+      "practicesLink": "Amaliyotlar",
+      "breadcrumbCourse": "Kursga qaytish",
+      "materials": {
+        "title": "Dars materiallari",
+        "add": "Material qo'shish",
+        "empty": "Hali materiallar yo'q",
+        "types": {
+          "TEXT": "Matn",
+          "IMAGE": "Rasm",
+          "FILE": "Fayl",
+          "VIDEO": "Video"
+        },
+        "fields": {
+          "type": "Material turi",
+          "title": "Sarlavha",
+          "content": "Matn",
+          "file": "Fayl",
+          "image": "Rasm",
+          "videoUrl": "Video havolasi (YouTube, Vimeo yoki to'g'ridan-to'g'ri havola)"
+        },
+        "saved": "Material saqlandi"
+      }
+    },
+    "richText": {
+      "toolbar": "Matn formatlash",
+      "bold": "Qalin",
+      "italic": "Kursiv",
+      "underline": "Tagiga chizilgan",
+      "h2": "Sarlavha",
+      "h3": "Kichik sarlavha",
+      "bulletList": "Belgili ro'yxat",
+      "orderedList": "Raqamli ro'yxat",
+      "quote": "Iqtibos",
+      "code": "Kod",
+      "link": "Havola",
+      "linkPrompt": "Havola manzilini kiriting",
+      "clear": "Formatlashni tozalash"
+    },
+    "practices": {
+      "title": "Amaliyotlar",
+      "counter": "Amaliyotlar {count}/{required}",
+      "questionsCounter": "Savollar {count}/{required}",
+      "lessonTotal": "Darsdagi savollar: {have}/{need}",
+      "add": "Amaliyot qo'shish",
+      "limitReached": "Darsda {required} ta amaliyot bo'lishi kerak — chegaraga yetildi",
+      "missing": "Yana {count} ta amaliyot qo'shing",
+      "newTitle": "Yangi amaliyot",
+      "editTitle": "Amaliyotni tahrirlash",
+      "fields": {
+        "title": "Amaliyot nomi",
+        "description": "Tavsif",
+        "isRequired": "Majburiy amaliyot",
+        "passScore": "O'tish bali (%)",
+        "passScoreHint": "0 — har qanday topshirish hisoblanadi"
+      },
+      "empty": "Hali amaliyotlar yo'q",
+      "openQuestions": "Savollarni tahrirlash",
+      "ready": "Dars to'liq: nashr qilish mumkin",
+      "notReady": "Dars hali to'liq emas",
+      "complete": "To'liq",
+      "incomplete": "To'liq emas"
+    },
+    "questions": {
+      "title": "Savollar",
+      "add": "Savol qo'shish",
+      "limitReached": "Amaliyotda {required} ta savol bo'lishi kerak — chegaraga yetildi",
+      "empty": "Hali savollar yo'q",
+      "backToLesson": "Darsga qaytish",
+      "created": "Savol qo'shildi",
+      "updated": "Savol yangilandi",
+      "number": "{n}-savol",
+      "types": {
+        "MULTIPLE_CHOICE": "Variantli savol",
+        "TRUE_FALSE": "To'g'ri / Noto'g'ri",
+        "MATCHING": "Moslashtirish",
+        "FILL_BLANK": "Bo'sh joyni to'ldirish",
+        "IMAGE_BASED": "Rasmli savol"
+      },
+      "points": "{points} ball"
+    },
+    "questionEditor": {
+      "newTitle": "Yangi savol",
+      "editTitle": "Savolni tahrirlash",
+      "type": "Savol turi",
+      "prompt": "Savol matni",
+      "promptFillBlankHint": "Bo'sh joylarni '{{0}}', '{{1}}' … ko'rinishida belgilang. Masalan: Poytaxt — '{{0}}'.",
+      "image": "Savol rasmi",
+      "imageRequiredHint": "Rasmli savol uchun rasm majburiy",
+      "imageUrl": "Rasm havolasi",
+      "explanation": "Izoh (javobdan keyin ko'rsatiladi)",
+      "points": "Ball",
+      "isMultiple": "Bir nechta to'g'ri javob",
+      "options": "Javob variantlari",
+      "option": "Variant {n}",
+      "optionImage": "Variant rasmi havolasi (ixtiyoriy)",
+      "addOption": "Variant qo'shish",
+      "removeOption": "Variantni o'chirish",
+      "correct": "To'g'ri javob",
+      "trueLabel": "To'g'ri",
+      "falseLabel": "Noto'g'ri",
+      "correctAnswer": "To'g'ri javob:",
+      "pairs": "Moslik juftliklari",
+      "pairLeft": "Chap tomon {n}",
+      "pairRight": "O'ng tomon {n}",
+      "addPair": "Juftlik qo'shish",
+      "removePair": "Juftlikni o'chirish",
+      "blanks": "Bo'sh joylar uchun qabul qilinadigan javoblar",
+      "blankLabel": "Bo'sh joy {n}",
+      "blankAnswer": "Javob",
+      "addAnswer": "Javob qo'shish",
+      "addAnswerFor": "{n} uchun javob qo'shish",
+      "removeAnswer": "Javobni o'chirish",
+      "noBlanksYet": "Matnga '{{0}}' belgisini qo'shing — bo'sh joylar shu yerda paydo bo'ladi",
+      "fixErrors": "Xatolarni tuzating",
+      "invalid": "Maydon noto'g'ri to'ldirilgan",
+      "submitCreate": "Savolni qo'shish",
+      "submitUpdate": "Savolni saqlash"
+    },
+    "exams": {
+      "title": "Imtihonlar",
+      "subtitle": "Har bir kursning yakuniy imtihoni",
+      "configure": "Sozlash",
+      "notConfigured": "Sozlanmagan",
+      "configTitle": "Yakuniy imtihon sozlamalari",
+      "saved": "Imtihon sozlamalari saqlandi",
+      "fields": {
+        "title": "Imtihon nomi",
+        "questionCount": "Savollar soni (har bir urinishda)",
+        "timeLimitMinutes": "Vaqt chegarasi (daqiqa)",
+        "passScore": "O'tish bali (%)",
+        "maxAttempts": "Urinishlar soni (bo'sh — cheklanmagan)",
+        "shuffleQuestions": "Savollarni aralashtirish",
+        "isActive": "Imtihon faol"
+      },
+      "pool": "Imtihon savollar bazasi",
+      "poolCount": "Bazada {count} ta savol",
+      "poolTooSmall": "Bazada savollar soni ({pool}) urinishdagi savollar sonidan ({count}) kam",
+      "unlockHint": "Imtihon talaba barcha majburiy darslarni tugatgandan so'ng ochiladi. Baholash serverda avtomatik."
+    },
+    "certificates": {
+      "title": "Sertifikat shablonlari",
+      "new": "Yangi shablon",
+      "editTitle": "Shablonni tahrirlash",
+      "created": "Shablon yaratildi",
+      "fields": {
+        "name": "Shablon nomi",
+        "html": "HTML shablon",
+        "backgroundImage": "Fon rasmi",
+        "isDefault": "Standart shablon"
+      },
+      "default": "Standart",
+      "placeholders": "Mavjud o'zgaruvchilar",
+      "placeholdersHint": "Bosib nusxa oling va HTML ichiga qo'ying",
+      "missing": "Shablonda quyidagilar yo'q: {list}",
+      "preview": "Jonli ko'rinish",
+      "sample": {
+        "fullName": "Aliyev Vali G'aniyevich",
+        "courseTitle": "Python dasturlash asoslari",
+        "certificateId": "OD-2026-000123"
+      }
+    },
+    "students": {
+      "title": "Talabalar",
+      "searchPlaceholder": "Ism, telefon yoki email bo'yicha qidirish",
+      "fields": {
+        "fullName": "F.I.Sh.",
+        "phone": "Telefon",
+        "email": "Email",
+        "createdAt": "Ro'yxatdan o'tgan",
+        "lastLoginAt": "Oxirgi kirish",
+        "enrollments": "Kurslar",
+        "status": "Holati",
+        "resultTitle": "Topshiriq",
+        "score": "Natija"
+      },
+      "profile": "Profil",
+      "enrollments": "Kurslarga kirish",
+      "grant": "Kursga kirish berish",
+      "grantSelect": "Kursni tanlang",
+      "granted": "Kursga kirish berildi",
+      "revoke": "Kirishni bekor qilish",
+      "revoked": "Kirish bekor qilindi",
+      "revokeConfirm": "Talabaning «{course}» kursiga kirishi bekor qilinadi. Davom etasizmi?",
+      "revokedAt": "Bekor qilingan: {date}",
+      "progress": "O'zlashtirish",
+      "results": "Natijalar",
+      "certificates": "Sertifikatlar",
+      "noEnrollments": "Talaba hali hech qaysi kursga yozilmagan",
+      "noResults": "Hali natijalar yo'q",
+      "sources": {
+        "PURCHASE": "Xarid",
+        "FREE": "Bepul",
+        "ADMIN": "Administrator"
+      },
+      "resultKinds": {
+        "PRACTICE": "Amaliyot",
+        "EXAM": "Imtihon"
+      },
+      "passed": "O'tdi",
+      "failed": "O'tmadi",
+      "blocked": "Bloklangan"
+    },
+    "payments": {
+      "title": "To'lovlar",
+      "searchPlaceholder": "Buyurtma raqami, talaba yoki telefon",
+      "fields": {
+        "orderId": "Buyurtma",
+        "student": "Talaba",
+        "course": "Kurs",
+        "amount": "Summa",
+        "provider": "To'lov usuli",
+        "createdAt": "Sana",
+        "status": "Holati"
+      },
+      "status": {
+        "PENDING": "Kutilmoqda",
+        "PAID": "To'langan",
+        "CANCELLED": "Bekor qilingan",
+        "FAILED": "Muvaffaqiyatsiz",
+        "REFUNDED": "Qaytarilgan"
+      },
+      "providers": {
+        "PAYME": "Payme",
+        "CLICK": "Click"
+      },
+      "allCourses": "Barcha kurslar",
+      "changeStatus": "Holatni o'zgartirish",
+      "dialog": {
+        "title": "To'lov holatini qo'lda o'zgartirish",
+        "description": "Bu amal audit jurnaliga yoziladi. Kursga kirish faqat to'lov tizimi tasdiqlagan to'lovlar orqali beriladi — qo'lda o'zgartirishni faqat zarur hollarda bajaring.",
+        "current": "Joriy holat",
+        "newStatus": "Yangi holat",
+        "reason": "Sabab",
+        "reasonPlaceholder": "Masalan: to'lov tizimi bilan solishtirish natijasida qaytarildi",
+        "reasonRequired": "Sababni kiriting (kamida 5 ta belgi)",
+        "sameStatus": "Yangi holat joriy holatdan farq qilishi kerak",
+        "submit": "Holatni o'zgartirish",
+        "success": "To'lov holati o'zgartirildi"
+      }
+    },
+    "reports": {
+      "title": "Hisobotlar",
+      "courses": "Kurslar bo'yicha",
+      "exams": "Imtihonlar bo'yicha",
+      "activity": "Faollik",
+      "fields": {
+        "course": "Kurs",
+        "enrolled": "Yozilganlar",
+        "completed": "Tugatganlar",
+        "completionRate": "Tugatish darajasi",
+        "attempts": "Urinishlar",
+        "passed": "O'tganlar",
+        "averageScore": "O'rtacha ball",
+        "date": "Sana",
+        "activeStudents": "Faol talabalar",
+        "lessonsCompleted": "Tugatilgan darslar",
+        "practicesSubmitted": "Topshirilgan amaliyotlar"
+      }
+    },
+    "settings": {
+      "title": "Sozlamalar",
+      "saved": "Sozlamalar saqlandi",
+      "general": "Umumiy",
+      "fields": {
+        "platformName": "Platforma nomi",
+        "supportPhone": "Qo'llab-quvvatlash telefoni",
+        "supportEmail": "Qo'llab-quvvatlash emaili",
+        "supportTelegram": "Telegram havolasi",
+        "refundPolicyDays": "To'lovni qaytarish muddati (kun)",
+        "certificateVerifyBaseUrl": "Sertifikatni tekshirish manzili (asosiy URL)",
+        "maintenanceMode": "Texnik ishlar rejimi"
+      },
+      "other": "Boshqa sozlamalar",
+      "otherHint": "Qolgan sozlamalar JSON ko'rinishida",
+      "invalidJson": "JSON noto'g'ri"
+    },
+    "audit": {
+      "title": "Audit jurnali",
+      "fields": {
+        "createdAt": "Vaqt",
+        "actor": "Kim",
+        "action": "Amal",
+        "entity": "Obyekt",
+        "reason": "Sabab",
+        "ip": "IP"
+      },
+      "actionFilter": "Amal bo'yicha",
+      "entityFilter": "Obyekt turi bo'yicha",
+      "before": "Oldin",
+      "after": "Keyin",
+      "system": "Tizim"
+    },
+    "directions": {
+      "title": "Yo'nalishlar",
+      "new": "Yangi yo'nalish",
+      "editTitle": "Yo'nalishni tahrirlash",
+      "fields": {
+        "name": "Nomi",
+        "slug": "URL nomi (slug)",
+        "description": "Tavsif",
+        "icon": "Belgi (lucide nomi)",
+        "position": "Tartib raqami",
+        "isActive": "Faol"
+      }
+    },
+    "teachers": {
+      "title": "O'qituvchilar",
+      "new": "Yangi o'qituvchi",
+      "editTitle": "O'qituvchini tahrirlash",
+      "fields": {
+        "fullName": "F.I.Sh.",
+        "slug": "URL nomi (slug)",
+        "title": "Lavozimi",
+        "bio": "Biografiya",
+        "photo": "Rasm",
+        "position": "Tartib raqami",
+        "isActive": "Faol"
+      }
+    },
+    "faq": {
+      "title": "Savol-javob",
+      "new": "Yangi savol",
+      "editTitle": "Savolni tahrirlash",
+      "fields": {
+        "question": "Savol",
+        "answer": "Javob",
+        "position": "Tartib raqami",
+        "isActive": "Faol"
+      }
+    }
   },
   "validation": {
     "required": "Majburiy maydon",

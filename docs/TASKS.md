@@ -94,13 +94,13 @@ the OpenAPI stubs — they don't need finished backend logic.
 
 **Owns:** `apps/web/src/app/(admin)`, `apps/web/src/features/admin/**`, admin layout
 
-- [ ] Dashboard (students, active courses, completed lessons, exams, results)
-- [ ] Course / module / lesson editors with drag-reorder and material upload
-- [ ] Practice editor showing **"Practices 3/4", "Questions 5/6"** counters; publish button disabled until 4×6 complete
-- [ ] Question editor for all 5 types (options, correct answer, explanation, image)
-- [ ] Exam config, certificate template editor + preview
-- [ ] Students (profile, access, progress, results), Payments (list, filters, restricted status edit with reason), Reports, Settings, Audit log
-- [ ] Hide menu items by role (CONTENT_MANAGER sees content only)
+- [x] Dashboard (students, active courses, completed lessons, exams, results)
+- [x] Course / module / lesson editors with drag-reorder and material upload
+- [x] Practice editor showing **"Practices 3/4", "Questions 5/6"** counters; publish button disabled until 4×6 complete
+- [x] Question editor for all 5 types (options, correct answer, explanation, image)
+- [x] Exam config, certificate template editor + preview
+- [x] Students (profile, access, progress, results), Payments (list, filters, restricted status edit with reason), Reports, Settings, Audit log
+- [x] Hide menu items by role (CONTENT_MANAGER sees content only)
 
 ## 8. `qa` — tests & acceptance
 
@@ -171,3 +171,9 @@ Starts in Phase 0 together with architect; continues through launch and maintena
 - backend-content → frontend-student / frontend-public: render lesson TEXT HTML through DOMPurify (server only does a regex backstop). Footer/contacts: `GET /settings/public`. Catalog accepts `search` (or `q`), `directionId` or `direction` (slug), `teacherId`, `level`, `isFree`, `sort` (`newest|popular|priceAsc|priceDesc|title`).
 - backend-content → qa: added `apps/api/test/content.e2e-spec.ts` (role denial, 4×6 via HTTP + triggers, publish rules, answer stripping, uploads, settings audit). It is yours from now on; it has only run in skip mode locally (no Postgres here).
 - backend-content → devops: new optional env `STORAGE_DRIVER`, `S3_REGION`, `UPLOAD_DIR` (in `.env.example`); add `S3_REGION` (and `STORAGE_DRIVER=s3`) to `infra/docker/prod.env.example`. Objects are read through `S3_PUBLIC_URL`, so the bucket needs an anonymous read policy on `uploads/*` only (certificate PDFs must stay private).
+
+- frontend-admin → frontend-public / coordinator: after `feat/web-public` merges, wire the admin panel to the shared session so only one refresh runs per tab: in `apps/web/src/lib/api/admin/http.ts` (or the admin layout) call `setAdminAccessTokenProvider(async () => (await getSession())?.accessToken ?? null)` and use `useSession().user` in `useAdminMe` if preferred. Until then `adminFetch` does its own single-flight `POST /auth/refresh`, which can race with `@/lib/auth` and trigger `REFRESH_TOKEN_REUSED`.
+- frontend-admin → backend-content: admin list endpoints may return a bare array or `{items,total,page,pageSize}` (both handled). Course responses should include `teacherIds` (or `teachers[]`), `direction{id,name}`, `lessonsCount`, `enrollmentsCount`; module `lessonsCount`; lesson `courseId` (used for the "back to course" link). `POST /admin/files` is called as multipart with fields `file` and `purpose` and must return `{url,key,mimeType,sizeBytes}`. Rich-text material/course `description` HTML comes from a contentEditable editor — sanitise it server-side. Settings keys the form knows: `platformName, supportPhone, supportEmail, supportTelegram, certificateVerifyBaseUrl, refundPolicyDays, maintenanceMode` (others are edited as JSON); `PATCH /admin/settings` receives the full object.
+- frontend-admin → backend-learning: exam pool routes used: `GET/POST /admin/courses/:courseId/exam/questions`, `PATCH/DELETE /admin/courses/:courseId/exam/questions/:id`; `GET /admin/courses/:id/exam` → 404 when not configured. Dashboard fields: `students, activeCourses, completedLessons, examsTaken, examsPassed` (+ optional `certificatesIssued, revenue, recentPayments`). Reports rows: courses `{courseId,courseTitle,enrolled,completed,completionRate}`, exams `{courseId,courseTitle,attempts,passed,averageScore}`, activity `{date,activeStudents,lessonsCompleted,practicesSubmitted}`; all accept `from`/`to` ISO. Student detail: `enrollments[{courseId,courseTitle,source,enrolledAt,completedAt,revokedAt,progressPercent}]`, `results[{id,kind:'PRACTICE'|'EXAM',title,courseTitle,scorePercent,passed,submittedAt}]`, optional `certificates[{id,publicId,courseTitle,issuedAt}]`. Certificate template placeholders: see DECISIONS (2026-11-23).
+- frontend-admin → backend-payments: `GET /admin/payments` rows used: `{id, orderId, orderNumber?, student{id,fullName,phone?,email?}, course{id,title}, amount, currency, provider, status, createdAt, paidAt}`; `from`/`to` are ISO datetimes. `GET /admin/audit-logs` accepts `action, entityType, from, to, page, pageSize` and rows `{id, actor{id,fullName}|null, action, entityType, entityId, before, after, reason, ip, createdAt}`.
+- frontend-admin → qa: added `e2e/playwright.config.ts` (web only, API mocked per spec) and `e2e/admin/*.spec.ts` (tagged `@smoke`); merge with your config as needed. Specs set the `od_role` cookie so frontend-public's middleware lets `/admin` through.
