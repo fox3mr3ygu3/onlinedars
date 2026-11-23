@@ -139,6 +139,50 @@ Starts in Phase 0 together with architect; continues through launch and maintena
 
 ---
 
+## Backlog (after v1)
+
+Features agreed with the user but not started. When one is picked up, split it into the owner
+sections above and add a `docs/DECISIONS.md` entry if it brings a new dependency or service.
+
+- [ ] **Course intro video + free preview lessons (Udemy-style)** — added 2026-11-23. A visitor
+      can watch a promo video and selected lessons before buying, then decide.
+  - architect: `Course.introVideoUrl String?` and `Lesson.isPreview Boolean @default(false)`
+    (additive migration); shared schemas for course input / public course and lesson input.
+  - backend-content: accept both fields in the admin course/lesson APIs; public course response
+    returns `introVideoUrl` and `isPreview` per lesson; new public
+    `GET /courses/:slugOrId/lessons/:lessonId/preview` → materials only, and only for a published
+    `isPreview` lesson of a published course (404 otherwise). No practices, answers or exam.
+  - frontend-admin: "Intro video (YouTube/Vimeo link)" field in the course form; "Bepul ko'rish"
+    (free preview) checkbox in the lesson editor.
+  - frontend-public: intro video player at the top of the course page; "Bepul ko'rish" link on
+    preview lessons → preview page with the materials and a buy/enrol button.
+  - Rules: previews give no progress; practices, exam and certificate still need enrolment.
+  - qa: API e2e (preview of a non-preview / unpublished lesson → 404, no answers leaked) and a
+    Playwright flow (anonymous visitor watches intro + preview, then is asked to enrol).
+- [ ] **Protected video hosting for paid lessons** — added 2026-11-23. Today VIDEO materials are
+      YouTube/Vimeo links (an unlisted YouTube link can be shared). Option: Bunny Stream / Cloudflare
+      Stream / Mux — admin uploads in the lesson editor, API stores the video id and returns a
+      short-lived signed playback URL only to enrolled students. Needs a provider account + key
+      (`docs/USER_ACTIONS.md`) and a `docs/DECISIONS.md` entry.
+
+- [ ] **Realistic demo content for every page** — added 2026-11-23. Today the seed has one course,
+      one teacher, one student and no activity, so most pages look empty (catalog shows 1 course;
+      payments, reports, results, certificates and audit log show nothing). Goal: open any page
+      locally or on staging and see how it looks in real use.
+  - architect / qa: a separate, idempotent `pnpm db:seed:demo` (dev and staging only — refuses
+    `NODE_ENV=production`; the base `db:seed` stays minimal). Uzbek (Latin) texts.
+  - Content: ~8–10 courses across all directions (free and paid, all levels, statuses
+    DRAFT/PUBLISHED/HIDDEN), cover images, 2–4 modules each, lessons with TEXT/IMAGE/VIDEO
+    (YouTube) materials and the full 4×6 practices using all 5 question types, an exam per course;
+    5–6 teachers with photos and bios; more directions and FAQ items.
+  - Activity: ~30 students with different progress (not started / mid-course / finished),
+    practice and exam attempts (passed and failed), issued certificates, orders in every status
+    (PENDING, PAID, CANCELLED, FAILED, REFUNDED, Payme and Click), notifications, a few audit-log
+    entries — spread over the last ~60 days so dashboard numbers and reports have data.
+  - Done when: catalog, course pages, teachers, FAQ, student cabinet (for a demo student with
+    progress), and every admin page (dashboard, lists, reports, payments, audit) show realistic
+    data; `docs/GIT_WORKFLOW.md` "Setting up a new PC" mentions the demo seed.
+
 ## Requests
 
 <!-- Agents: add cross-ownership requests here, e.g. "backend-learning → architect: add Exam.shuffle Boolean" -->

@@ -9,6 +9,14 @@ Newest entry first. Each session adds one entry before ending, so work can conti
 - Blockers / questions: …
 -->
 
+## 2026-11-23 — coordinator — fix/admin-api-fields
+
+- Found by clicking through the admin panel against the real API: the admin UI read field names from its old mock contract, so values showed blank or "—" (dashboard exams, course list lessons/students, student list courses, student profile, all 3 reports, module lesson badges). The payments list and status change used `payment.id` / `payment.course` (the API sends `orderId` / `courseTitle`) and would have broken once real payments existed.
+- Fix: `apps/web/src/lib/api/admin/types.ts` now re-exports the API's own types from `@onlinedars/shared` (dashboard, reports, students, payments), and the pages use the real fields; dashboard shows recent exam results (the API sends those, not payments); activity report reads `{ days }`. Unit and Playwright admin mocks updated to the real shapes.
+- Verified: each page in the browser against the seeded API; web lint, typecheck, 158 unit tests, admin smoke 12/12.
+- Branch is based on `test/acceptance-e2e` (PR #14); merge #14 first.
+- Next: other areas may have the same mock-vs-API drift; the cabinet and public pages were checked by the full-stack acceptance specs, the admin pages only partly.
+
 ## 2026-11-23 — qa — test/acceptance-e2e (finished, PR to main)
 
 - Merged `main` (after PR #2) into the branch; HANDOFF conflict resolved by keeping both entries.

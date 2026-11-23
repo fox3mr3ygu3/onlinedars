@@ -92,7 +92,7 @@ function Inner({
     setServerError(null);
     setBusy(true);
     try {
-      await onSubmit(payment.id, r.value);
+      await onSubmit(payment.orderId, r.value);
       onDone();
     } catch (e) {
       setServerError(errMsg(e));
@@ -117,7 +117,7 @@ function Inner({
         </DialogHeader>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
           <dt className="text-muted-foreground">{t('fields.orderId')}</dt>
-          <dd className="font-mono">{payment.orderNumber ?? payment.orderId}</dd>
+          <dd className="font-mono">{payment.number}</dd>
           <dt className="text-muted-foreground">{t('fields.student')}</dt>
           <dd>{payment.student.fullName}</dd>
           <dt className="text-muted-foreground">{t('fields.amount')}</dt>

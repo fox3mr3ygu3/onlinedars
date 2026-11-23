@@ -169,15 +169,15 @@ export function PaymentsList() {
             </thead>
             <tbody>
               {q.data.items.map((p) => (
-                <tr key={p.id} data-testid="payment-row">
-                  <td className="font-mono text-xs">{p.orderNumber ?? p.orderId}</td>
+                <tr key={p.orderId} data-testid="payment-row">
+                  <td className="font-mono text-xs">{p.number}</td>
                   <td>
                     <div>{p.student.fullName}</div>
                     <div className="text-muted-foreground text-xs">
                       {p.student.phone ?? p.student.email}
                     </div>
                   </td>
-                  <td>{p.course.title}</td>
+                  <td>{p.courseTitle}</td>
                   <td className="text-right tabular-nums">
                     {formatMoney(p.amount, t('common.som'))}
                   </td>

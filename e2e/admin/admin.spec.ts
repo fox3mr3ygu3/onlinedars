@@ -1,12 +1,20 @@
 import { expect, test } from '@playwright/test';
 import { mockApi, page1 } from './mock-api';
 
+// Same shape as GET /admin/dashboard (shared AdminDashboardStats).
 const dashboard = {
   students: 120,
+  newStudents30d: 12,
   activeCourses: 4,
+  enrollments: 150,
   completedLessons: 860,
-  examsTaken: 40,
+  practiceAttempts: 2400,
+  examAttempts: 40,
   examsPassed: 30,
+  certificates: 28,
+  paidOrders: 90,
+  revenue: 4_491_000_000,
+  recentResults: [],
 };
 
 const practice = (i: number) => ({
@@ -94,22 +102,28 @@ test.describe('admin panel @smoke', () => {
 
   test('payment status change requires a reason and sends it', async ({ page }) => {
     const api = await mockApi(page, 'ADMIN');
+    // Same shape as GET /admin/payments items (shared AdminPaymentView).
     const payment = {
-      id: 'pay1',
       orderId: 'ord1',
-      orderNumber: 1042,
-      student: { id: 's1', fullName: 'Aliyev Vali', phone: '+998901234567' },
-      course: { id: 'c1', title: 'Python' },
+      number: 1042,
+      courseId: 'c1',
+      courseTitle: 'Python',
+      courseSlug: 'python',
+      student: { id: 's1', fullName: 'Aliyev Vali', email: null, phone: '+998901234567' },
       amount: 49_900_000,
       currency: 'UZS',
       provider: 'PAYME',
       status: 'PAID',
+      enrolled: true,
       createdAt: '2026-11-20T10:00:00.000Z',
       paidAt: '2026-11-20T10:01:00.000Z',
+      cancelledAt: null,
+      expiresAt: null,
+      transactions: [],
     };
     api.on('GET', '/admin/payments', page1([payment]));
     api.on('GET', '/admin/courses', page1([]));
-    api.on('PATCH', '/admin/payments/pay1/status', (_r, body) => ({
+    api.on('PATCH', '/admin/payments/ord1/status', (_r, body) => ({
       ...payment,
       ...(body as object),
     }));

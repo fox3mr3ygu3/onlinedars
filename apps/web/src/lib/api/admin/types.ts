@@ -1,10 +1,9 @@
 import type {
+  AdminPaymentView,
+  AdminStudentProfile,
   CourseLevel,
   CourseStatus,
-  EnrollmentSource,
   LessonMaterialType,
-  PaymentProvider,
-  PaymentStatus,
   QuestionType,
   Role,
 } from '@onlinedars/shared';
@@ -53,9 +52,10 @@ export interface AdminCourse {
   teacherIds?: string[];
   teachers?: { id: string; fullName: string }[];
   certificateTemplateId: string | null;
-  modulesCount?: number;
-  lessonsCount?: number;
-  enrollmentsCount?: number;
+  /** Counts are sent on GET /admin/courses list items. */
+  moduleCount?: number;
+  lessonCount?: number;
+  enrollmentCount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -66,7 +66,8 @@ export interface AdminModule {
   title: string;
   description: string | null;
   position: number;
-  lessonsCount?: number;
+  /** GET /admin/courses/:id/modules includes each module's lessons. */
+  lessons?: { id: string }[];
 }
 
 export interface AdminLesson {
@@ -197,60 +198,20 @@ export interface AdminCertificateTemplate {
   updatedAt?: string;
 }
 
-export interface AdminStudentListItem {
-  id: string;
-  fullName: string;
-  email: string | null;
-  phone: string | null;
-  isActive: boolean;
-  createdAt: string;
-  lastLoginAt: string | null;
-  enrollmentsCount?: number;
-}
-
-export interface AdminStudentEnrollment {
-  courseId: string;
-  courseTitle: string;
-  source: EnrollmentSource;
-  enrolledAt: string;
-  completedAt: string | null;
-  revokedAt: string | null;
-  /** 0..100 */
-  progressPercent: number;
-}
-
-export interface AdminStudentResult {
-  id: string;
-  kind: 'PRACTICE' | 'EXAM';
-  title: string;
-  courseTitle: string;
-  scorePercent: number;
-  passed: boolean;
-  submittedAt: string;
-}
-
-export interface AdminStudentDetail extends AdminStudentListItem {
-  avatarUrl: string | null;
-  phoneVerified?: boolean;
-  enrollments: AdminStudentEnrollment[];
-  results: AdminStudentResult[];
-  certificates?: { id: string; publicId: string; courseTitle: string; issuedAt: string }[];
-}
-
-export interface AdminPayment {
-  id: string;
-  orderId: string;
-  orderNumber?: number;
-  student: { id: string; fullName: string; phone?: string | null; email?: string | null };
-  course: { id: string; title: string };
-  /** tiyin */
-  amount: number;
-  currency: string;
-  provider: PaymentProvider | null;
-  status: PaymentStatus;
-  createdAt: string;
-  paidAt: string | null;
-}
+// Response shapes owned by the API: use the shared types so the admin UI cannot drift from them.
+export type {
+  ActivityReportDay,
+  AdminDashboardStats,
+  AdminStudentListItem,
+  CourseReportRow,
+  ExamReportRow,
+} from '@onlinedars/shared';
+/** GET /admin/students/:id */
+export type AdminStudentDetail = AdminStudentProfile;
+export type AdminStudentEnrollment = AdminStudentProfile['enrollments'][number];
+export type AdminStudentResult = AdminStudentProfile['results'][number];
+/** Items of GET /admin/payments (`orderId` is the id used by the status-change route). */
+export type AdminPayment = AdminPaymentView;
 
 export interface AdminAuditLog {
   id: string;
@@ -263,40 +224,6 @@ export interface AdminAuditLog {
   reason: string | null;
   ip: string | null;
   createdAt: string;
-}
-
-export interface AdminDashboardStats {
-  students: number;
-  activeCourses: number;
-  completedLessons: number;
-  examsTaken: number;
-  examsPassed: number;
-  certificatesIssued?: number;
-  revenue?: number;
-  recentPayments?: AdminPayment[];
-}
-
-export interface CourseReportRow {
-  courseId: string;
-  courseTitle: string;
-  enrolled: number;
-  completed: number;
-  completionRate: number;
-}
-
-export interface ExamReportRow {
-  courseId: string;
-  courseTitle: string;
-  attempts: number;
-  passed: number;
-  averageScore: number;
-}
-
-export interface ActivityReportRow {
-  date: string;
-  activeStudents: number;
-  lessonsCompleted: number;
-  practicesSubmitted: number;
 }
 
 export type AdminSettings = Record<string, unknown>;
