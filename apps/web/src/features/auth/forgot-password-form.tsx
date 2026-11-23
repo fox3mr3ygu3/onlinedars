@@ -69,7 +69,13 @@ export function ForgotPasswordForm() {
   if (login) {
     const { errors, isSubmitting } = resetForm.formState;
     return (
-      <form onSubmit={onReset} noValidate className="grid gap-4" aria-label={t('resetTitle')}>
+      <form
+        method="post"
+        onSubmit={onReset}
+        noValidate
+        className="grid gap-4"
+        aria-label={t('resetTitle')}
+      >
         <div>
           <h2 className="font-semibold">{t('resetTitle')}</h2>
           <p className="text-muted-foreground text-sm">{t('resetSubtitle')}</p>
@@ -103,7 +109,7 @@ export function ForgotPasswordForm() {
 
   const { errors, isSubmitting } = requestForm.formState;
   return (
-    <form onSubmit={onRequest} noValidate className="grid gap-4">
+    <form method="post" onSubmit={onRequest} noValidate className="grid gap-4">
       <FormAlert>{error}</FormAlert>
       <Field
         id="login"

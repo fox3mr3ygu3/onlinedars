@@ -86,10 +86,16 @@ export async function apiFetch<T>(path: string, options: ApiRequestOptions = {})
   return data as T;
 }
 
-const KNOWN_CODES = new Set<string>(Object.values(ErrorCode));
+const CODE_RE = /^[A-Z][A-Z0-9_]{1,63}$/;
 
-/** i18n key for any thrown value: `errors.<CODE>` for API errors, `errors.INTERNAL_ERROR` otherwise. */
-export function errorMessageKey(e: unknown): `errors.${ErrorCode}` {
-  if (isApiError(e) && KNOWN_CODES.has(e.code)) return `errors.${e.code}`;
+/**
+ * i18n key for any thrown value: `errors.<CODE>` for API errors (also codes newer than this
+ * build's ErrorCode list), `errors.INTERNAL_ERROR` otherwise. Callers should fall back to
+ * INTERNAL_ERROR when the key has no message (`t.has`), see `useApiErrorMessage`.
+ */
+export function errorMessageKey(e: unknown): string {
+  if (isApiError(e) && typeof e.code === 'string' && CODE_RE.test(e.code)) {
+    return `errors.${e.code}`;
+  }
   return `errors.${ErrorCode.INTERNAL_ERROR}`;
 }

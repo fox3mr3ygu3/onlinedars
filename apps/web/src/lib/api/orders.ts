@@ -1,6 +1,7 @@
 import {
   type CreateOrderInput,
   type OrderStatusResponse,
+  type PaymentProvider,
   PaymentStatus,
 } from '@onlinedars/shared';
 import { authFetch } from '../auth/session';
@@ -10,16 +11,23 @@ import { authFetch } from '../auth/session';
  * the browser never decides whether a payment succeeded — it only polls GET /orders/:orderId.
  */
 
+/** Paid course: the provider page to send the browser to. */
 export interface CreatedOrder {
+  enrolled?: false;
   orderId: string;
   number: number;
   /** tiyin, computed by the server */
   amount: number;
+  currency?: string;
+  provider?: PaymentProvider;
+  status?: PaymentStatus;
   redirectUrl: string;
 }
 
+/** Free course: enrolled directly, no payment. */
 export interface FreeEnrollment {
   enrolled: true;
+  courseId?: string;
 }
 
 export type CreateOrderResult = CreatedOrder | FreeEnrollment;

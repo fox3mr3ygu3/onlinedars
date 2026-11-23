@@ -23,6 +23,8 @@ export interface CheckoutResultProps {
   orderId: string | null;
   intervalMs?: number;
   timeoutMs?: number;
+  /** where to come back after login (defaults to /checkout/result?orderId=…) */
+  returnPath?: string;
 }
 
 function isFatal(e: unknown): boolean {
@@ -38,6 +40,7 @@ export function CheckoutResult({
   orderId,
   intervalMs = 2000,
   timeoutMs = 120_000,
+  returnPath,
 }: CheckoutResultProps) {
   const t = useTranslations('checkout');
   const tRoot = useTranslations();
@@ -76,13 +79,15 @@ export function CheckoutResult({
       .catch((e: unknown) => {
         if (controller.signal.aborted) return;
         if (isApiError(e) && e.status === 401) {
-          router.replace(loginRedirect(`/checkout/result?orderId=${encodeURIComponent(orderId)}`));
+          router.replace(
+            loginRedirect(returnPath ?? `/checkout/result?orderId=${encodeURIComponent(orderId)}`),
+          );
           return;
         }
         setView({ kind: 'error', messageKey: errorMessageKey(e) });
       });
     return () => controller.abort();
-  }, [orderId, intervalMs, timeoutMs, attempt]);
+  }, [orderId, intervalMs, timeoutMs, attempt, returnPath]);
 
   if (!orderId) {
     return <StatusBlock tone="error" title={t('missingOrder')} />;
@@ -90,7 +95,10 @@ export function CheckoutResult({
 
   if (view.kind === 'error') {
     return (
-      <StatusBlock tone="error" title={tRoot(view.messageKey)}>
+      <StatusBlock
+        tone="error"
+        title={tRoot.has(view.messageKey) ? tRoot(view.messageKey) : tRoot('errors.INTERNAL_ERROR')}
+      >
         <Button variant="outline" onClick={retry}>
           <RotateCcw aria-hidden />
           {t('checkAgain')}

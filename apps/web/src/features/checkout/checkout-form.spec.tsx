@@ -37,9 +37,13 @@ describe('CheckoutForm', () => {
   it('sends only courseId + chosen provider (never an amount)', async () => {
     const fetchMock = vi.fn(async () =>
       jsonResponse(201, {
+        enrolled: false,
         orderId: 'o1',
         number: 7,
         amount: 1,
+        currency: 'UZS',
+        provider: 'CLICK',
+        status: 'PENDING',
         redirectUrl: 'javascript:alert(1)',
       }),
     );
@@ -58,7 +62,7 @@ describe('CheckoutForm', () => {
   it('free course: enrolls and goes to the cabinet course', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => jsonResponse(201, { enrolled: true })),
+      vi.fn(async () => jsonResponse(201, { enrolled: true, courseId: 'c1' })),
     );
     renderWithIntl(<CheckoutForm courseId="c1" isFree />);
     expect(screen.queryByText("To'lov usulini tanlang")).not.toBeInTheDocument();
@@ -84,6 +88,19 @@ describe('CheckoutForm', () => {
     renderWithIntl(<CheckoutForm courseId="c1" isFree={false} />);
     await userEvent.click(screen.getByTestId('checkout-submit'));
     expect(await screen.findByRole('alert')).toHaveTextContent('Topilmadi');
+  });
+});
+
+describe('CheckoutForm provider errors', () => {
+  it('a provider without credentials (503) shows an error and does not redirect', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse(503, { code: 'PAYMENT_PROVIDER_UNAVAILABLE', message: 'x' })),
+    );
+    renderWithIntl(<CheckoutForm courseId="c1" isFree={false} />);
+    await userEvent.click(screen.getByTestId('checkout-submit'));
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+    expect(push).not.toHaveBeenCalled();
   });
 });
 

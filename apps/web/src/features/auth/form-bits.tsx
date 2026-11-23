@@ -24,7 +24,10 @@ export function useFieldMessage(): (message: string | undefined) => string | und
 /** Translated message for a thrown API error (`errors.<CODE>`). */
 export function useApiErrorMessage(): (e: unknown) => string {
   const t = useTranslations();
-  return (e) => t(errorMessageKey(e));
+  return (e) => {
+    const key = errorMessageKey(e);
+    return t.has(key) ? t(key) : t('errors.INTERNAL_ERROR');
+  };
 }
 
 type FieldProps = React.ComponentProps<'input'> & {

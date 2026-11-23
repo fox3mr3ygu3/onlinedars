@@ -19,11 +19,12 @@ export function VerifyForm({ initial = '' }: { initial?: string }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-2">
+    <form action="/verify" method="get" onSubmit={onSubmit} className="grid gap-2">
       <Label htmlFor="certificate-code">{t('codeLabel')}</Label>
       <div className="flex flex-col gap-2 sm:flex-row">
         <Input
           id="certificate-code"
+          name="code"
           value={code}
           onChange={(e) => setCode(e.target.value)}
           placeholder={t('codePlaceholder')}

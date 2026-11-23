@@ -63,7 +63,7 @@ function EmailRegister() {
   });
 
   return (
-    <form onSubmit={onSubmit} noValidate className="grid gap-4">
+    <form method="post" onSubmit={onSubmit} noValidate className="grid gap-4">
       <FormAlert>{error}</FormAlert>
       <Field
         id="fullName"
@@ -140,7 +140,13 @@ function PhoneRegister() {
 
   if (details) {
     return (
-      <form onSubmit={onVerify} noValidate className="grid gap-4" aria-label={t('otpTitle')}>
+      <form
+        method="post"
+        onSubmit={onVerify}
+        noValidate
+        className="grid gap-4"
+        aria-label={t('otpTitle')}
+      >
         <div>
           <h2 className="font-semibold">{t('otpTitle')}</h2>
           <p className="text-muted-foreground text-sm">{t('otpSent', { phone: details.phone })}</p>
@@ -186,7 +192,7 @@ function PhoneRegister() {
 
   const { errors, isSubmitting } = detailsForm.formState;
   return (
-    <form onSubmit={onDetails} noValidate className="grid gap-4">
+    <form method="post" onSubmit={onDetails} noValidate className="grid gap-4">
       <FormAlert>{error}</FormAlert>
       <Field
         id="fullName"

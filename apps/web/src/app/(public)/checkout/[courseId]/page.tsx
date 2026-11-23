@@ -5,12 +5,15 @@ import { getTranslations } from 'next-intl/server';
 import { Price } from '@/features/catalog/price';
 import { Container, ErrorState, PageHeader } from '@/features/catalog/page-section';
 import { CheckoutForm } from '@/features/checkout/checkout-form';
+import { CheckoutResult } from '@/features/checkout/checkout-result';
 import { loadCourse } from '@/features/course/load-course';
 
 type Props = {
   params: Promise<{ courseId: string }>;
-  searchParams: Promise<{ course?: string | string[] }>;
+  searchParams: Promise<{ course?: string | string[]; orderId?: string | string[] }>;
 };
+
+const firstParam = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)?.trim();
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('checkout');
@@ -20,13 +23,30 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * Order summary + provider choice. The course is loaded by slug when the course page passed one
  * (`?course=<slug>`), otherwise by id. Middleware already requires a signed-in user here.
+ *
+ * Payme/Click send the browser back to `/checkout/{courseId}?orderId={orderId}`: then this page
+ * only polls GET /orders/:orderId (the redirect itself proves nothing).
  */
 export default async function CheckoutPage({ params, searchParams }: Props) {
   const t = await getTranslations('checkout');
   const tc = await getTranslations('catalog');
   const { courseId } = await params;
-  const slugParam = (await searchParams).course;
-  const slug = Array.isArray(slugParam) ? slugParam[0] : slugParam;
+  const sp = await searchParams;
+  const orderId = firstParam(sp.orderId)?.slice(0, 64);
+  if (orderId) {
+    return (
+      <>
+        <PageHeader title={t('resultTitle')} />
+        <Container className="max-w-xl py-8">
+          <CheckoutResult
+            orderId={orderId}
+            returnPath={`/checkout/${encodeURIComponent(courseId)}?orderId=${encodeURIComponent(orderId)}`}
+          />
+        </Container>
+      </>
+    );
+  }
+  const slug = firstParam(sp.course);
   const res = await loadCourse(slug || courseId);
   if (res.kind === 'notFound') notFound();
 
