@@ -1,16 +1,13 @@
 import { ErrorCode } from '@onlinedars/shared';
-import { ApiError, apiBaseUrl, apiFetch, type ApiRequestOptions } from './client';
+import { authFetch, getSession } from '@/lib/auth';
+import { ApiError, apiBaseUrl, type ApiRequestOptions } from './client';
 
 /**
  * Transport used by the student API functions (`learning.ts`, `me.ts`).
  *
- * The auth layer (`@/lib/auth`, owned by frontend-public) provides `authFetch` (attaches the
- * in-memory access token and refreshes once on 401) and `getSession()`. It is built in parallel,
- * so this seam keeps the cabinet independent of it: the default is plain `apiFetch` (cookies
- * only), and `configureStudentAuth({ fetch: authFetch, getAccessToken })` switches every student
- * call to the authenticated transport.
- *
- * TODO(merge): once `@/lib/auth` is on main, wire it in `features/profile/CabinetAuthBridge.tsx`.
+ * Defaults to the shared auth layer (`@/lib/auth`): `authFetch` attaches the in-memory access
+ * token and refreshes once on 401; downloads take the token from `getSession()`.
+ * `configureStudentAuth` remains as a seam for tests.
  */
 export type StudentFetcher = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
 
@@ -20,8 +17,8 @@ interface StudentAuthConfig {
 }
 
 let config: StudentAuthConfig = {
-  fetch: apiFetch,
-  getAccessToken: async () => null,
+  fetch: authFetch,
+  getAccessToken: async () => (await getSession())?.accessToken ?? null,
 };
 
 export function configureStudentAuth(next: Partial<StudentAuthConfig>): void {
