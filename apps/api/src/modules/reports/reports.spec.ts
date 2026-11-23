@@ -9,6 +9,7 @@ import {
   resolveRange,
   toCourseReportRow,
 } from './reports.logic';
+import { withoutMoney } from './reports.controller';
 import { ReportsService } from './reports.service';
 
 describe('report ranges', () => {
@@ -139,5 +140,25 @@ describe('ReportsService', () => {
     const { prisma } = createMockPrisma();
     const r = await new ReportsService(prisma).activity({ from: '2026-11-01', to: '2026-11-07' });
     expect(r.days).toHaveLength(7);
+  });
+});
+
+describe('withoutMoney (dashboard for CONTENT_MANAGER)', () => {
+  it('zeroes revenue and paid orders and keeps everything else', () => {
+    const stats = {
+      students: 5,
+      newStudents30d: 2,
+      activeCourses: 1,
+      enrollments: 4,
+      completedLessons: 9,
+      practiceAttempts: 30,
+      examAttempts: 3,
+      examsPassed: 2,
+      certificates: 2,
+      paidOrders: 3,
+      revenue: 150_000_000,
+      recentResults: [],
+    };
+    expect(withoutMoney(stats)).toEqual({ ...stats, revenue: 0, paidOrders: 0 });
   });
 });
