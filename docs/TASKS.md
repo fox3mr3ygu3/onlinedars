@@ -165,7 +165,7 @@ sections above and add a `docs/DECISIONS.md` entry if it brings a new dependency
       short-lived signed playback URL only to enrolled students. Needs a provider account + key
       (`docs/USER_ACTIONS.md`) and a `docs/DECISIONS.md` entry.
 
-- [ ] **Realistic demo content for every page** — added 2026-11-23. Today the seed has one course,
+- [x] **Realistic demo content for every page** — added 2026-11-23. Today the seed has one course,
       one teacher, one student and no activity, so most pages look empty (catalog shows 1 course;
       payments, reports, results, certificates and audit log show nothing). Goal: open any page
       locally or on staging and see how it looks in real use.

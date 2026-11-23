@@ -14,6 +14,9 @@
 3. Run `git clone https://github.com/<owner>/onlinedars.git C:\dev\onlinedars`.
 4. Run `cp .env.example .env` and fill in the values from your password manager.
 5. Run `pnpm install`, `pnpm docker:up`, `pnpm db:migrate`, `pnpm db:seed`, `pnpm dev`.
+   Optional: `pnpm db:seed:demo` fills every page with realistic demo data (10 courses, 30 students
+   `talaba01…30@demo.onlinedars.uz`, orders in every status, certificates, reports). Dev/staging only.
+   If port 5432 is taken by a local PostgreSQL, set `POSTGRES_PORT=5433` in `.env` and use 5433 in `DATABASE_URL`.
 
 ## Daily routine on any PC
 

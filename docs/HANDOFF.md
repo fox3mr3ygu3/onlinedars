@@ -9,6 +9,19 @@ Newest entry first. Each session adds one entry before ending, so work can conti
 - Blockers / questions: …
 -->
 
+## 2026-11-23 — coordinator — PRs #19, #20, #21 + feat/demo-seed (new PC: D:dev)
+
+- New PC setup: repo at `D:dev` (user's choice, not C:devonlinedars). A local Windows PostgreSQL holds 5432, so Docker Postgres runs on **5433** (`POSTGRES_PORT` in `.env`). MinIO image is gone → `STORAGE_DRIVER=local`. pnpm installed globally for the user.
+- Open PRs (each with green local checks; CI was running when written):
+  - **#19** `fix/staff-enrollment`: POST /orders student-only; course page + checkout show staff a notice.
+  - **#20** `chore/tech-followups`: security overrides (audit 12 → 3 unreachable), REDIS_URL optional, content-manager dashboard (403 → allowed, no money), merged ROUTES.md.
+  - **#21** `feat/course-preview`: intro video + free preview lessons (migration 0002), RichText SSR fix.
+  - **demo seed** `feat/demo-seed`: `pnpm db:seed:demo`.
+- After #20 and #21 are both merged: add `GET /courses/:slugOrId/lessons/:lessonId/preview` to `docs/api/ROUTES.md`; optionally give demo courses intro videos / preview lessons in the demo seed.
+- Lesson learned: run `@fullstack` specs only against the test DB (`onlinedars_test`), never against the dev servers — they create courses and users. A full-stack run also leaves test responses in `apps/web/.next` fetch cache for ~60 s.
+- Dependabot: 14 PRs open; cancelled runs were re-run. Prisma bump (#7) fails CI and needs code changes; Postgres 19 / Redis 8 image bumps should wait for a planned DB upgrade.
+- Next: user merges #19–#21 + demo seed PR; deployment setup is the remaining stage (docs/USER_ACTIONS.md).
+
 ## 2026-11-23 — coordinator — fix/admin-api-fields
 
 - Found by clicking through the admin panel against the real API: the admin UI read field names from its old mock contract, so values showed blank or "—" (dashboard exams, course list lessons/students, student list courses, student profile, all 3 reports, module lesson badges). The payments list and status change used `payment.id` / `payment.course` (the API sends `orderId` / `courseTitle`) and would have broken once real payments existed.
