@@ -21,7 +21,8 @@ runs:
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
-        cache: pnpm
+        # Without an install the pnpm store doesn't exist, and the post-step cache save fails.
+        cache: ${{ inputs.install == 'true' && 'pnpm' || '' }}
 
     - name: Install dependencies
       if: inputs.install == 'true'
