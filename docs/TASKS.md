@@ -165,6 +165,24 @@ sections above and add a `docs/DECISIONS.md` entry if it brings a new dependency
       short-lived signed playback URL only to enrolled students. Needs a provider account + key
       (`docs/USER_ACTIONS.md`) and a `docs/DECISIONS.md` entry.
 
+- [ ] **Realistic demo content for every page** — added 2026-11-23. Today the seed has one course,
+      one teacher, one student and no activity, so most pages look empty (catalog shows 1 course;
+      payments, reports, results, certificates and audit log show nothing). Goal: open any page
+      locally or on staging and see how it looks in real use.
+  - architect / qa: a separate, idempotent `pnpm db:seed:demo` (dev and staging only — refuses
+    `NODE_ENV=production`; the base `db:seed` stays minimal). Uzbek (Latin) texts.
+  - Content: ~8–10 courses across all directions (free and paid, all levels, statuses
+    DRAFT/PUBLISHED/HIDDEN), cover images, 2–4 modules each, lessons with TEXT/IMAGE/VIDEO
+    (YouTube) materials and the full 4×6 practices using all 5 question types, an exam per course;
+    5–6 teachers with photos and bios; more directions and FAQ items.
+  - Activity: ~30 students with different progress (not started / mid-course / finished),
+    practice and exam attempts (passed and failed), issued certificates, orders in every status
+    (PENDING, PAID, CANCELLED, FAILED, REFUNDED, Payme and Click), notifications, a few audit-log
+    entries — spread over the last ~60 days so dashboard numbers and reports have data.
+  - Done when: catalog, course pages, teachers, FAQ, student cabinet (for a demo student with
+    progress), and every admin page (dashboard, lists, reports, payments, audit) show realistic
+    data; `docs/GIT_WORKFLOW.md` "Setting up a new PC" mentions the demo seed.
+
 ## Requests
 
 <!-- Agents: add cross-ownership requests here, e.g. "backend-learning → architect: add Exam.shuffle Boolean" -->
