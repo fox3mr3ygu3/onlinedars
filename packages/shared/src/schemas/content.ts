@@ -45,6 +45,8 @@ export const courseInputSchema = z
     description: z.string().trim().max(50000).default(''),
     goals: z.array(z.string().trim().min(1).max(300)).max(30).default([]),
     coverImageUrl: urlOrNull,
+    /** Promo video for the public course page (YouTube / Vimeo / direct link). */
+    introVideoUrl: urlOrNull,
     level: z.enum(CourseLevel).default(CourseLevel.BEGINNER),
     isFree: z.boolean().default(false),
     /** Price in tiyin. Must be 0 for free courses and > 0 for paid ones. */
@@ -91,6 +93,8 @@ export const lessonInputSchema = z.object({
   summary: optionalText(1000),
   durationMinutes: z.number().int().min(0).max(1000).nullable().optional(),
   isRequired: z.boolean().default(true),
+  /** Free preview: visitors can open the materials before enrolling. */
+  isPreview: z.boolean().default(false),
 });
 export type LessonInput = z.infer<typeof lessonInputSchema>;
 

@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Container, ErrorState } from '@/features/catalog/page-section';
 import { excerpt } from '@/features/catalog/seo';
+import { CourseIntroVideo } from '@/features/course/course-intro-video';
 import { CourseProgram } from '@/features/course/course-program';
 import { CourseGoals, CoursePurchaseCard } from '@/features/course/course-purchase-card';
 import { loadCourse } from '@/features/course/load-course';
@@ -111,6 +112,14 @@ export default async function CoursePage({ params }: Props) {
 
       <Container className="grid gap-8 py-8 lg:grid-cols-[1fr_340px] lg:py-12">
         <div className="order-2 min-w-0 space-y-10 lg:order-1">
+          {course.introVideoUrl && (
+            <section aria-labelledby="intro">
+              <h2 id="intro" className="mb-3 text-xl font-semibold">
+                {t('introVideo')}
+              </h2>
+              <CourseIntroVideo url={course.introVideoUrl} title={course.title} />
+            </section>
+          )}
           {course.description && (
             <section aria-labelledby="about">
               <h2 id="about" className="mb-3 text-xl font-semibold">
@@ -133,7 +142,7 @@ export default async function CoursePage({ params }: Props) {
             <h2 id="program" className="mb-4 text-xl font-semibold">
               {t('program')}
             </h2>
-            <CourseProgram modules={course.modules} />
+            <CourseProgram modules={course.modules} courseSlug={course.slug} />
           </section>
           {course.teachers.length > 0 && (
             <section aria-labelledby="teachers">

@@ -41,6 +41,7 @@ export interface AdminCourse {
   description: string;
   goals: string[];
   coverImageUrl: string | null;
+  introVideoUrl?: string | null;
   level: CourseLevel;
   status: CourseStatus;
   isFree: boolean;
@@ -79,6 +80,8 @@ export interface AdminLesson {
   durationMinutes: number | null;
   position: number;
   isRequired: boolean;
+  /** Free preview: visitors can open the materials before enrolling. */
+  isPreview?: boolean;
   isPublished: boolean;
 }
 

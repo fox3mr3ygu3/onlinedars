@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button';
 import { FormAlert, useApiErrorMessage } from '@/features/auth/form-bits';
 import { isApiError } from '@/lib/api/client';
 import { createOrder, isFreeEnrollment } from '@/lib/api/orders';
-import { loginRedirect } from '@/lib/auth';
+import { isStaff, loginRedirect, useSession } from '@/lib/auth';
 import { cn } from '@/lib/utils';
+import { StaffEnrolNotice } from '@/features/course/student-only';
 import { cabinetCourseHref, isSafeRedirectUrl } from './redirect';
 
 const PROVIDERS = [PaymentProvider.PAYME, PaymentProvider.CLICK] as const;
@@ -27,6 +28,7 @@ export function CheckoutForm({ courseId, isFree }: { courseId: string; isFree: b
   const [busy, setBusy] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useSession();
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,6 +60,9 @@ export function CheckoutForm({ courseId, isFree }: { courseId: string; isFree: b
       setBusy(false);
     }
   }
+
+  // Staff accounts cannot enrol or buy (POST /orders is student-only).
+  if (isStaff(user?.role)) return <StaffEnrolNotice />;
 
   return (
     <form onSubmit={onSubmit} className="grid gap-5">

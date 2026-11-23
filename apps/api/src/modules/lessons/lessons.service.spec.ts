@@ -107,7 +107,7 @@ describe('LessonsService publish rules', () => {
       publishedAt: null,
       practices: [],
     });
-    const l = await service.create('m1', { title: 'Dars', isRequired: true });
+    const l = await service.create('m1', { title: 'Dars', isRequired: true, isPreview: false });
     expect(prisma.lesson.create.mock.calls[0]![0].data).toMatchObject({
       position: 3,
       isPublished: false,

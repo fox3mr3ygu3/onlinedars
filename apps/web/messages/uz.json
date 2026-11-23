@@ -142,7 +142,16 @@
     "includes": "Kursga kiradi",
     "includesPractice": "Har bir darsda 4 ta amaliyot",
     "includesExam": "Yakuniy imtihon",
-    "includesCertificate": "Tekshiriladigan PDF sertifikat"
+    "includesCertificate": "Tekshiriladigan PDF sertifikat",
+    "introVideo": "Kurs bilan tanishing",
+    "freePreview": "Bepul ko'rish",
+    "previewLabel": "Bepul ko'rish darsi",
+    "previewBackToCourse": "Kurs sahifasiga qaytish",
+    "previewCtaTitle": "Kursni davom ettirmoqchimisiz?",
+    "previewCtaText": "Bu dars hamma uchun ochiq. Amaliyotlar, yakuniy imtihon va sertifikat kursga yozilgandan so'ng ochiladi.",
+    "previewCtaButton": "Kursga yozilish",
+    "previewNotFound": "Bu dars bepul ko'rish uchun ochiq emas",
+    "staffCannotEnrol": "Administrator va kontent menejer hisoblari kursga yozila olmaydi. Kursni o'qish uchun talaba hisobi bilan kiring."
   },
   "teachers": {
     "title": "O'qituvchilar",
@@ -468,7 +477,9 @@
         "price_column": "Narx",
         "lessons": "Darslar",
         "students": "Talabalar",
-        "updatedAt": "Yangilangan"
+        "updatedAt": "Yangilangan",
+        "introVideo": "Tanishtiruv videosi",
+        "introVideoHint": "YouTube yoki Vimeo havolasi. Kurs sahifasida hamma uchun ko'rinadi — xarid qilishdan oldin kursni tanishtiradi."
       },
       "levels": {
         "BEGINNER": "Boshlang'ich",
@@ -519,7 +530,8 @@
         "title": "Dars nomi",
         "summary": "Qisqa mazmuni",
         "durationMinutes": "Davomiyligi (daqiqa)",
-        "isRequired": "Majburiy dars (imtihon uchun talab qilinadi)"
+        "isRequired": "Majburiy dars (imtihon uchun talab qilinadi)",
+        "isPreview": "Bepul ko'rish (kursni sotib olmaganlar ham dars materiallarini ko'ra oladi)"
       },
       "published": "Nashr qilingan",
       "draft": "Qoralama",
@@ -550,7 +562,8 @@
           "videoUrl": "Video havolasi (YouTube, Vimeo yoki to'g'ridan-to'g'ri havola)"
         },
         "saved": "Material saqlandi"
-      }
+      },
+      "previewBadge": "Bepul ko'rish"
     },
     "richText": {
       "toolbar": "Matn formatlash",

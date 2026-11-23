@@ -81,6 +81,7 @@ export function toAdminCourseDetail(c: DetailRow): AdminCourseDetail {
       c,
       c.modules.flatMap((m) => m.lessons),
     ),
+    introVideoUrl: c.introVideoUrl,
     shortDescription: c.shortDescription,
     description: c.description,
     goals: c.goals,

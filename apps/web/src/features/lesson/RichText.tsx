@@ -1,18 +1,24 @@
 'use client';
 
 import DOMPurify from 'dompurify';
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { richTextToHtml } from './content';
 
-/** Renders lesson rich text (HTML or markdown) after client-side sanitising (defence in depth). */
+/**
+ * Renders lesson rich text (HTML or markdown) after client-side sanitising (defence in depth).
+ * DOMPurify needs the DOM, so the HTML is set after mount: server and first client render are both
+ * empty (no hydration mismatch on server-rendered pages such as the public lesson preview).
+ */
 export function RichText({ content }: { content: string }) {
-  const html = useMemo(() => {
-    if (typeof window === 'undefined') return '';
-    return DOMPurify.sanitize(richTextToHtml(content), {
-      USE_PROFILES: { html: true },
-      ADD_ATTR: ['target'],
-      FORBID_TAGS: ['style', 'form', 'input', 'button', 'iframe'],
-    });
+  const [html, setHtml] = useState('');
+  useEffect(() => {
+    setHtml(
+      DOMPurify.sanitize(richTextToHtml(content), {
+        USE_PROFILES: { html: true },
+        ADD_ATTR: ['target'],
+        FORBID_TAGS: ['style', 'form', 'input', 'button', 'iframe'],
+      }),
+    );
   }, [content]);
   return (
     <div

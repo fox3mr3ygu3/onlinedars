@@ -91,6 +91,32 @@ describe('CheckoutForm', () => {
   });
 });
 
+describe('CheckoutForm for staff', () => {
+  it('shows a notice instead of the form and never calls the API', async () => {
+    resetSessionForTests();
+    applyAuthResponse({
+      accessToken: 'tok',
+      expiresIn: 900,
+      user: {
+        id: 'a1',
+        email: 'admin@b.uz',
+        phone: null,
+        fullName: 'Admin',
+        role: 'ADMIN',
+        avatarUrl: null,
+        phoneVerified: false,
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    });
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    renderWithIntl(<CheckoutForm courseId="c1" isFree />);
+    expect(await screen.findByTestId('staff-enrol-notice')).toBeInTheDocument();
+    expect(screen.queryByTestId('checkout-submit')).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
 describe('CheckoutForm provider errors', () => {
   it('a provider without credentials (503) shows an error and does not redirect', async () => {
     vi.stubGlobal(

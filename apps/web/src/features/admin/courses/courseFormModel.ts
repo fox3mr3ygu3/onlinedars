@@ -10,6 +10,7 @@ export interface CourseFormValues {
   description: string;
   goalsText: string;
   coverImageUrl: string;
+  introVideoUrl: string;
   level: CourseLevel;
   isFree: boolean;
   priceSom: string;
@@ -26,6 +27,7 @@ export const emptyCourseForm: CourseFormValues = {
   description: '',
   goalsText: '',
   coverImageUrl: '',
+  introVideoUrl: '',
   level: CourseLevel.BEGINNER,
   isFree: false,
   priceSom: '',
@@ -46,6 +48,7 @@ export function toCourseInput(v: CourseFormValues): CourseInput {
       .map((g) => g.trim())
       .filter(Boolean),
     coverImageUrl: v.coverImageUrl || null,
+    introVideoUrl: v.introVideoUrl.trim() || null,
     level: v.level,
     isFree: v.isFree,
     price: v.isFree ? 0 : somToTiyin(v.priceSom),
@@ -64,6 +67,7 @@ export function fromCourse(c: AdminCourse): CourseFormValues {
     description: c.description ?? '',
     goalsText: (c.goals ?? []).join('\n'),
     coverImageUrl: c.coverImageUrl ?? '',
+    introVideoUrl: c.introVideoUrl ?? '',
     level: c.level,
     isFree: c.isFree,
     priceSom: c.isFree ? '' : String(tiyinToSom(c.price)),

@@ -106,6 +106,8 @@ export const publicLessonOutlineSchema = z.object({
   summary: z.string().nullable(),
   durationMinutes: z.number().int().nullable(),
   position: z.number().int(),
+  /** Free preview lesson: materials open without enrolling. */
+  isPreview: z.boolean(),
 });
 
 export const publicModuleOutlineSchema = z.object({
@@ -122,6 +124,39 @@ export const publicCourseDetailSchema = publicCourseCardSchema.extend({
   goals: z.array(z.string()),
   sequentialUnlock: z.boolean(),
   hasExam: z.boolean(),
+  /** Promo video (YouTube / Vimeo / direct link) or null. */
+  introVideoUrl: z.string().nullable(),
   modules: z.array(publicModuleOutlineSchema),
 });
 export type PublicCourseDetail = z.infer<typeof publicCourseDetailSchema>;
+
+/** GET /courses/:slugOrId/lessons/:lessonId/preview — materials of a free preview lesson. */
+export const publicLessonPreviewSchema = z.object({
+  course: z.object({
+    id: z.string(),
+    slug: z.string(),
+    title: z.string(),
+    isFree: z.boolean(),
+    price: z.number().int(),
+  }),
+  lesson: z.object({
+    id: z.string(),
+    title: z.string(),
+    summary: z.string().nullable(),
+    durationMinutes: z.number().int().nullable(),
+  }),
+  materials: z.array(
+    z.object({
+      id: z.string(),
+      type: z.string(),
+      title: z.string().nullable(),
+      content: z.string().nullable(),
+      fileUrl: z.string().nullable(),
+      mimeType: z.string().nullable(),
+      sizeBytes: z.number().int().nullable(),
+      videoUrl: z.string().nullable(),
+      position: z.number().int(),
+    }),
+  ),
+});
+export type PublicLessonPreview = z.infer<typeof publicLessonPreviewSchema>;
