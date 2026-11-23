@@ -150,7 +150,8 @@
     "previewCtaTitle": "Kursni davom ettirmoqchimisiz?",
     "previewCtaText": "Bu dars hamma uchun ochiq. Amaliyotlar, yakuniy imtihon va sertifikat kursga yozilgandan so'ng ochiladi.",
     "previewCtaButton": "Kursga yozilish",
-    "previewNotFound": "Bu dars bepul ko'rish uchun ochiq emas"
+    "previewNotFound": "Bu dars bepul ko'rish uchun ochiq emas",
+    "staffCannotEnrol": "Administrator va kontent menejer hisoblari kursga yozila olmaydi. Kursni o'qish uchun talaba hisobi bilan kiring."
   },
   "teachers": {
     "title": "O'qituvchilar",

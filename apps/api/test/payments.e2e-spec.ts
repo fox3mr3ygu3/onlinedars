@@ -305,6 +305,22 @@ describe.skipIf(!hasDb)('payments e2e', () => {
       expect(await prisma.order.count({ where: { userId: s.id } })).toBe(0);
     });
 
+    it('staff cannot start a purchase or enrol (403), even in a free course', async () => {
+      const staff = await register('staffbuy');
+      for (const role of ['CONTENT_MANAGER', 'ADMIN'] as const) {
+        await prisma.user.update({ where: { id: staff.id }, data: { role } });
+        for (const courseId of [freeCourseId, paidCourseId]) {
+          await http
+            .post('/api/v1/orders')
+            .set('Authorization', `Bearer ${staff.token}`)
+            .send({ courseId, provider: 'PAYME' })
+            .expect(403);
+        }
+      }
+      expect(await prisma.order.count({ where: { userId: staff.id } })).toBe(0);
+      expect(await prisma.enrollment.count({ where: { userId: staff.id } })).toBe(0);
+    });
+
     it('admin endpoints: student and content manager get 403', async () => {
       const s = await register('nonadmin');
       await http

@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Price } from '@/features/catalog/price';
 import type { CourseDetail } from '@/lib/api/public';
+import { StudentOnly } from './student-only';
 
 /** Sticky side card on the course page: price + Buy (paid) or Start (free). */
 export function CoursePurchaseCard({ course }: { course: CourseDetail }) {
@@ -18,11 +19,13 @@ export function CoursePurchaseCard({ course }: { course: CourseDetail }) {
         <p className="text-muted-foreground text-sm">{t('price')}</p>
         <Price isFree={free} price={course.price} className="text-2xl" />
       </div>
-      <Button asChild size="lg" className="w-full">
-        <Link href={href} data-testid="course-cta">
-          {free ? t('start') : t('buy')}
-        </Link>
-      </Button>
+      <StudentOnly>
+        <Button asChild size="lg" className="w-full">
+          <Link href={href} data-testid="course-cta">
+            {free ? t('start') : t('buy')}
+          </Link>
+        </Button>
+      </StudentOnly>
       <dl className="grid grid-cols-2 gap-3 text-sm">
         <div className="bg-muted/50 rounded-lg p-3">
           <dt className="text-muted-foreground">{t('modules')}</dt>

@@ -3,13 +3,14 @@ import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swa
 import {
   type ActivityReportDay,
   type AdminDashboardStats,
+  type AuthPrincipal,
   type CourseReportRow,
   type ExamReportRow,
   reportRangeQuerySchema,
   Role,
 } from '@onlinedars/shared';
 import { createZodDto } from 'nestjs-zod';
-import { Roles } from '../../common/decorators';
+import { CurrentUser, Roles } from '../../common/decorators';
 import { ReportsService } from './reports.service';
 
 export class ReportRangeQueryDto extends createZodDto(reportRangeQuerySchema) {}
@@ -22,10 +23,16 @@ export class ReportsController {
   constructor(private readonly reports: ReportsService) {}
 
   @Get('dashboard')
-  @ApiOperation({ summary: 'Admin dashboard totals + recent exam results' })
+  // Content managers land on /admin too; they get the dashboard without money figures.
+  @Roles(Role.ADMIN, Role.CONTENT_MANAGER)
+  @ApiOperation({
+    summary:
+      'Admin dashboard totals + recent exam results (revenue/paidOrders are 0 for CONTENT_MANAGER)',
+  })
   @ApiOkResponse({ description: 'AdminDashboardStats' })
-  dashboard(): Promise<AdminDashboardStats> {
-    return this.reports.dashboard();
+  async dashboard(@CurrentUser() user: AuthPrincipal): Promise<AdminDashboardStats> {
+    const stats = await this.reports.dashboard();
+    return user.role === Role.ADMIN ? stats : withoutMoney(stats);
   }
 
   @Get('reports/courses')
@@ -50,4 +57,9 @@ export class ReportsController {
   ): Promise<{ from: string; to: string; days: ActivityReportDay[] }> {
     return this.reports.activity(q);
   }
+}
+
+/** Payment figures are admin-only (enforced here, not just hidden in the UI). */
+export function withoutMoney(stats: AdminDashboardStats): AdminDashboardStats {
+  return { ...stats, revenue: 0, paidOrders: 0 };
 }

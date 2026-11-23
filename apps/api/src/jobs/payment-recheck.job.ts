@@ -54,13 +54,13 @@ export class PaymentRecheckJob implements OnApplicationBootstrap, OnModuleDestro
       return;
     }
     const every = minutes * 60_000;
-    // The config schema defaults REDIS_URL, so look at the raw env to know if it was set.
-    if (!process.env.REDIS_URL?.trim()) {
+    const redisUrl = this.config.env.REDIS_URL;
+    if (!redisUrl) {
       this.logger.warn('REDIS_URL not set: running payment re-check in-process');
       this.timer = setInterval(() => void this.runSafely(), every);
       return;
     }
-    const connection = redisConnectionFromUrl(this.config.env.REDIS_URL);
+    const connection = redisConnectionFromUrl(redisUrl);
     this.queue = new Queue(PAYMENT_RECHECK_QUEUE, { connection });
     await this.queue.upsertJobScheduler(
       SCHEDULER_ID,
