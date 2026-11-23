@@ -134,7 +134,7 @@ services:
       retries: 10
 
   redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     restart: unless-stopped
     logging: *logging
     # AOF so queued BullMQ jobs (certificates, payment re-checks) survive a restart.
