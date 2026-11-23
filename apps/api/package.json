@@ -30,7 +30,7 @@
     "@nestjs/throttler": "^6.4.0",
     "@onlinedars/shared": "workspace:*",
     "@prisma/client": "6.19.3",
-    "@sentry/nestjs": "^10.20.0",
+    "@sentry/nestjs": "^11.15.0",
     "argon2": "^0.44.0",
     "bullmq": "^5.34.0",
     "cookie-parser": "^1.4.7",
