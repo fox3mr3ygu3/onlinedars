@@ -51,3 +51,8 @@ They keep working on everything else and mock or stub what's blocked. Tick an it
 - [ ] Run the Payme sandbox test suite (test.paycom.uz) and a Click test payment against staging with the test credentials; then switch to live keys and `PAYME_TEST_MODE=false` for production.
 - [ ] Fiscal receipts (Payme): get the IKPU code and package code for "online course" from tasnif.soliq.uz and set `PAYME_IKPU_CODE` / `PAYME_PACKAGE_CODE` (optional until fiscalisation is required).
 - [ ] Payme "change key" in the merchant cabinet does not reach us automatically: update `PAYME_KEY` in the environment secrets and redeploy when the key changes.
+
+## Certificates (added by backend-learning, 2026-11-23)
+
+- [ ] For local certificate PDFs: set `PUPPETEER_EXECUTABLE_PATH` in `.env` to your Chrome (e.g. `C:\Program Files\Google\Chrome\Application\chrome.exe`). Without it, certificates are still issued and verifiable; only the PDF download answers "being prepared". The worker Docker image already has Chromium.
+- [ ] Confirm with the client: exam retakes are blocked after a pass, and a timed-out exam is graded from the answers autosaved before the deadline.

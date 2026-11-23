@@ -8,7 +8,7 @@ async function bootstrap(): Promise<void> {
   app.useLogger(app.get(Logger));
   app.enableShutdownHooks();
   await app.init();
-  app.get(Logger).log('Worker started (no processors registered yet)');
+  app.get(Logger).log('Worker started');
 
   // Keep the process alive until BullMQ workers hold their own handles.
   const keepAlive = setInterval(() => undefined, 1 << 30);

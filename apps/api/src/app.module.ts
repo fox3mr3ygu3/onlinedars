@@ -13,9 +13,15 @@ import { ConfigModule } from './config/config.module';
 import { AppLoggerModule } from './config/logger.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CertificatesModule } from './modules/certificates/certificates.module';
+import { ExamsModule } from './modules/exams/exams.module';
 import { HealthModule } from './modules/health/health.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+
+import { ProgressModule } from './modules/progress/progress.module';
+import { ReportsModule } from './modules/reports/reports.module';
+import { StudentsModule } from './modules/students/students.module';
 import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -40,6 +46,13 @@ import { PrismaModule } from './prisma/prisma.module';
     AuditModule,
     NotificationsModule,
     PaymentsModule,
+
+    // backend-learning
+    ProgressModule,
+    ExamsModule,
+    CertificatesModule,
+    ReportsModule,
+    StudentsModule,
   ],
   providers: [
     { provide: APP_PIPE, useClass: ZodValidationPipe },
