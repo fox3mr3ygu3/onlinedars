@@ -6,6 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
  * - CI builds first and runs `next start`; locally `next dev` unless `E2E_PROD=1` (after `pnpm build`).
  * - `E2E_API=1` also starts the built API on :4000 (needs Postgres + Redis) for full-stack specs.
  * - The mobile project skips e2e/public/** until those specs are checked at 375px (qa).
+ * - e2e/acceptance/** (`@fullstack`) runs on desktop only, except acceptance/mobile-*.spec.ts,
+ *   which runs on mobile only (spec §13.10).
  */
 const PORT = Number(process.env.E2E_PORT ?? 3000);
 const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
@@ -33,11 +35,13 @@ export default defineConfig({
   projects: [
     {
       name: 'desktop',
+      testIgnore: ['acceptance/mobile-*.spec.ts'],
       use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
     },
     {
       name: 'mobile',
-      testIgnore: ['public/**'],
+      // Full-stack acceptance flows run once (desktop); mobile gets its own acceptance/mobile-*.
+      testIgnore: ['public/**', /acceptance[\\/](?!mobile-)[^\\/]+\.spec\.ts$/],
       use: { ...devices['Pixel 5'], viewport: { width: 375, height: 812 } },
     },
   ],

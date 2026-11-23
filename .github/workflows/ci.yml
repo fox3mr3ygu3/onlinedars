@@ -177,6 +177,71 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+  playwright-fullstack:
+    name: Playwright full-stack (acceptance)
+    # Spec §13 acceptance flows against the real API + Postgres + Redis (no API mocks).
+    # Payment callbacks are sent by the tests with the test-only provider keys below.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: onlinedars_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/onlinedars_test?schema=public
+      REDIS_URL: redis://localhost:6379
+      E2E_API: '1'
+      # Test-only values (also used by the specs to sign provider callbacks). Never real keys.
+      JWT_ACCESS_SECRET: e2e-access-secret-not-for-production-000
+      JWT_REFRESH_SECRET: e2e-refresh-secret-not-for-production-00
+      STORAGE_DRIVER: memory
+      PAYME_MERCHANT_ID: 5e730e8e0b852a417aa49ceb
+      PAYME_KEY: e2e-payme-test-key
+      PAYME_TEST_MODE: 'true'
+      CLICK_SERVICE_ID: '12345'
+      CLICK_MERCHANT_ID: '67890'
+      CLICK_SECRET_KEY: e2e-click-secret-key
+      # No ESKIZ_* → the console SMS provider is used.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Prepare database
+        run: |
+          pnpm db:generate
+          pnpm db:migrate:deploy
+          pnpm db:seed
+      - run: pnpm build
+      - name: Install browsers
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Run acceptance specs (@fullstack)
+        run: pnpm exec playwright test --config e2e/playwright.config.ts --grep @fullstack
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-fullstack-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
   docker:
     name: Docker image (${{ matrix.image }})
     # On main the deploy workflow builds and pushes; here we only check the Dockerfiles build.

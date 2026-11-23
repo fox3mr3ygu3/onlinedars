@@ -9,6 +9,34 @@ Newest entry first. Each session adds one entry before ending, so work can conti
 - Blockers / questions: …
 -->
 
+## 2026-11-23 — qa — test/acceptance-e2e (finished, PR to main)
+
+- Merged `main` (after PR #2) into the branch; HANDOFF conflict resolved by keeping both entries.
+- Done: `e2e/playwright.config.ts` — acceptance specs run on desktop only, `acceptance/mobile-*.spec.ts` on mobile only. New specs: `admin.spec.ts` (§13.3 course created in the UI, edited; §13.4 counters, publish gate, 5th practice / 7th question / incomplete publish refused by the API, publish from the UI), `learning.spec.ts` (§13.5–13.8 locks, viewed + practices, progress 100 %, exam unlock, failed then passed attempt, one certificate, no retake, PDF 200/409 + other user 404, cabinet list, `/verify` valid + not found), `payment.spec.ts` (§13.9 checkout UI → Payme redirect intercepted, forged success return grants nothing, CheckPerform wrong amount → -31001, Create → Perform, repeated Perform idempotent, result page "paid", one enrollment, payment history), `mobile-cabinet.spec.ts` (§13.10 at 375px, no horizontal scroll).
+- Bug found and fixed: login/register stayed on the auth page after success (`router.refresh()` right after `router.replace()` cancelled the navigation) — `features/auth/login-form.tsx`, `register-form.tsx`.
+- Verified locally (Docker Postgres on 5433 + Redis, built API + web): `@fullstack` 11/11, `@smoke` 53/53, lint, typecheck, unit tests (api 410, web 158, shared 24).
+- Next: watch the first CI run of the "Playwright full-stack (acceptance)" job; dedupe `docs/api/ROUTES.md` (still has several agents' copies; note `/courses/:slugOrId`).
+- Blockers / questions: none.
+
+## 2026-11-23 — qa — test/acceptance-e2e (paused, WIP)
+
+- Paused on the coordinator's instruction (user stopping). Work is committed as `wip:`; nothing ran in CI yet for the new parts.
+- Merged `origin/feat/phase-1-integration` twice (FILE_REQUIRED fix, ubuntu-24.04 runners). The last CI run before my changes (45099388320): lint, unit, API e2e, build, docker, audit green; Playwright smoke was still running when I paused.
+- Done (not yet run in CI):
+  - `.github/workflows/ci.yml`: new job `playwright-fullstack` ("Playwright full-stack (acceptance)", ubuntu-24.04, postgres:16 + redis:7, db generate/migrate/seed, build, `E2E_API=1 … --grep @fullstack`, test-only JWT/Payme/Click keys, STORAGE_DRIVER=memory, console SMS). Existing jobs unchanged.
+  - `e2e/acceptance/support.ts`: helpers (API calls, register/login, browser sign-in via the /api/v1 proxy + `od_role` cookie, building a 4×6 lesson / published course through the admin API, perfect answers from admin question data, Payme JSON-RPC calls with Basic auth).
+  - `e2e/acceptance/auth.spec.ts`: §13.1 register (email) in the UI → cabinet → profile; login form incl. a wrong password; §13.11 ownership/role denial through the API (other user's order, not-enrolled course/lesson, admin routes 403, anonymous 401) + middleware keeps a student out of /admin.
+  - `e2e/acceptance/catalog.spec.ts`: §13.2 catalog search → course page; empty search state; checkout opens by course id.
+  - API fix (mismatch): `GET /courses/:slug` now also resolves by id (`CoursesService.getPublicBySlug`, checkout passes the course id); unit test in `courses.service.spec.ts` (passes locally).
+- Left (next steps, in order):
+  1. `e2e/playwright.config.ts`: add `testIgnore` for `acceptance/**` in the mobile project (except a `acceptance/mobile-cabinet.spec.ts` smoke) and ignore that mobile spec in desktop.
+  2. Write `admin.spec.ts` (§13.3 create/edit course, module, lesson in the UI; §13.4 counters, 5th practice / 7th question rejected via API, publish disabled until 4×6, then publish), `learning.spec.ts` (§13.5–13.8: viewed + practice in the UI, rest via API with perfect answers, lock/progress checks in the course tree, exam unlock, failed then passed attempt, certificate listed, `/verify/{id}` valid, PDF 200 or 409 CERTIFICATE_PDF_PENDING, other user's PDF 404), `payment.spec.ts` (§13.9: UI checkout → intercept the Payme redirect, `?orderId=&status=success` alone grants nothing, CheckPerform → Create → Perform, poll page shows paid, course in cabinet, duplicate Perform → one enrollment), `mobile-cabinet.spec.ts` (§13.10).
+  3. Run `pnpm lint typecheck test build` locally, push, watch CI, fix web↔API mismatches the specs reveal (≤6 iterations), `test.fixme` what can't pass.
+  4. Dedupe `docs/api/ROUTES.md` into one document (note the new `/courses/:slugOrId`).
+  5. Tick qa items in TASKS.md (none ticked yet).
+- Known limits: certificate PDFs use their own S3 storage (not STORAGE_DRIVER), so in CI the PDF stays pending (no worker, no MinIO); specs must accept CERTIFICATE_PDF_PENDING. Static check done: web `learning-types.ts` is type-identical to the shared learning schemas.
+- Blockers / questions: none.
+
 ## 2026-11-23 — coordinator — feat/phase-1-integration (paused by the user)
 
 - **State:** Phase 0 + all six Phase 1 branches are merged into `feat/phase-1-integration`. Local: lint, typecheck, build, 591 unit tests pass (api 409, web 158, shared 24). CI: API e2e 70/70 against Postgres, build and all Docker images pass. Playwright smoke failed only because `ubuntu-latest` became 26.04; all jobs are now pinned to `ubuntu-24.04` (commit 7aee946) and that CI run had not finished when work paused — check it first.
