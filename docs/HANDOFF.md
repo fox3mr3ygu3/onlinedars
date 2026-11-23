@@ -9,6 +9,15 @@ Newest entry first. Each session adds one entry before ending, so work can conti
 - Blockers / questions: …
 -->
 
+## 2026-11-23 — coordinator — feat/phase-1-integration (paused by the user)
+
+- **State:** Phase 0 + all six Phase 1 branches are merged into `feat/phase-1-integration`. Local: lint, typecheck, build, 591 unit tests pass (api 409, web 158, shared 24). CI: API e2e 70/70 against Postgres, build and all Docker images pass. Playwright smoke failed only because `ubuntu-latest` became 26.04; all jobs are now pinned to `ubuntu-24.04` (commit 7aee946) and that CI run had not finished when work paused — check it first.
+- **PR #1** (`feat/phase-0-foundation` → `main`) is green and waits for the user to merge (agents were not permitted to merge into `main`). After it, open a PR `feat/phase-1-integration` → `main`.
+- **qa** is on `test/acceptance-e2e` (from the integration branch): full-stack Playwright specs for spec §13 (tag `@fullstack`) and a CI job with Postgres/Redis. Read its HANDOFF entry on that branch for what's written, what passed and what's left; continue there, then merge it into the integration branch.
+- **Fixes made during integration:** one `refundPolicy` setting shared by settings and payments (`PaymentRefundPolicy` normalises REVOKE_ACCESS/KEEP_ACCESS); admin and cabinet API calls use the shared `authFetch`/`getSession` (no second refresh loop); `POST /admin/files` without a body → FILE_REQUIRED; one vitest config (node + jsdom projects) and one Playwright config (desktop + mobile, `E2E_API=1` for the real API; mobile skips `e2e/public/**` for now).
+- **Known follow-ups:** certificates use their own S3 storage instead of `modules/files` StorageService (unify); `REDIS_URL` should be optional in config; high audit advisories (postcss via next, effect/deepmerge-ts via prisma) need overrides or upgrades; `docs/api/ROUTES.md` has several agents' copies appended (qa was asked to dedupe); see Requests in `docs/TASKS.md`.
+- **User to-dos:** `docs/USER_ACTIONS.md`.
+
 ## 2026-11-23 — coordinator — feat/phase-0-foundation
 
 - Overnight autonomous run (user asleep, said carry on without confirmation; merge to `main` only after green CI).
