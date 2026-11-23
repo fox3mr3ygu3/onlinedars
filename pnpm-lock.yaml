@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@playwright/test':
+        specifier: 1.56.1
+        version: 1.56.1
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -205,9 +208,6 @@ importers:
       '@onlinedars/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
-      '@playwright/test':
-        specifier: 1.56.1
-        version: 1.56.1
       '@tailwindcss/postcss':
         specifier: ^4.1.14
         version: 4.3.5

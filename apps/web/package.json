@@ -33,7 +33,6 @@
   "devDependencies": {
     "@onlinedars/eslint-config": "workspace:*",
     "@onlinedars/tsconfig": "workspace:*",
-    "@playwright/test": "1.56.1",
     "@tailwindcss/postcss": "^4.1.14",
     "@testing-library/dom": "^10",
     "@testing-library/jest-dom": "^6",
