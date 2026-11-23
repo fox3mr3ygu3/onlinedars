@@ -42,9 +42,14 @@ export const UPLOAD_ALLOWED_MIME: Record<UploadPurpose, readonly string[]> = {
   FILE: FILE_MIME_TYPES,
 };
 
-export const uploadFieldsSchema = z.object({
-  purpose: z.enum(UploadPurpose).default(UploadPurpose.FILE),
-});
+// A request with no multipart body arrives with `undefined` fields; treat it as `{}` so the
+// controller can answer FILE_REQUIRED instead of a generic VALIDATION_FAILED.
+export const uploadFieldsSchema = z.preprocess(
+  (v) => v ?? {},
+  z.object({
+    purpose: z.enum(UploadPurpose).default(UploadPurpose.FILE),
+  }),
+);
 export type UploadFields = z.infer<typeof uploadFieldsSchema>;
 
 /** Response of POST /admin/files. `id` is the storage key; store `url` (and `key`) on the entity. */
