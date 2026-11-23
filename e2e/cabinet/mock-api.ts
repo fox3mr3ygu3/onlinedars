@@ -15,12 +15,36 @@ export interface MockLog {
   calls: { method: string; path: string; body: unknown }[];
 }
 
+/** `od_role` hint cookie the web middleware needs, or every /cabinet page redirects to /login. */
+async function setStudentRoleCookie(page: Page) {
+  const base = new URL(
+    process.env.E2E_BASE_URL ?? `http://localhost:${process.env.E2E_PORT ?? 3000}`,
+  );
+  await page
+    .context()
+    .addCookies([{ name: 'od_role', value: 'STUDENT', domain: base.hostname, path: '/' }]);
+}
+
 export async function mockApi(page: Page, handlers: MockHandler[]): Promise<MockLog> {
   const log: MockLog = { calls: [] };
+  await setStudentRoleCookie(page);
   await page.route('**/api/v1/**', async (route) => {
     const req = route.request();
     const url = new URL(req.url());
     const path = url.pathname.replace(/^\/api\/v1/, '');
+    const isRefresh = req.method() === 'POST' && path === '/auth/refresh';
+    // The web session layer gets its access token from /auth/refresh before other calls. Answer it
+    // (unlogged) unless a spec mocks it itself, e.g. a catch-all 401 for the logged-out case.
+    if (
+      isRefresh &&
+      !handlers.some((h) => (!h.method || h.method === 'POST') && h.path.test(path))
+    ) {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ accessToken: 'e2e-token', expiresIn: 900, user: me }),
+      });
+    }
     let body: unknown = null;
     try {
       body = req.postDataJSON();
