@@ -15,6 +15,7 @@
     "db:migrate": "dotenv -e ../../.env -- prisma migrate dev",
     "db:migrate:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
     "db:seed": "pnpm --filter @onlinedars/shared build && dotenv -e ../../.env -- prisma db seed",
+    "db:seed:demo": "pnpm --filter @onlinedars/shared build && dotenv -e ../../.env -- tsx prisma/seed-demo.ts",
     "db:studio": "dotenv -e ../../.env -- prisma studio"
   },
   "prisma": {

@@ -57,7 +57,7 @@ interface Term {
   definition: string;
 }
 
-interface LessonTopic {
+export interface LessonTopic {
   title: string;
   summary: string;
   terms: Term[]; // exactly 6
