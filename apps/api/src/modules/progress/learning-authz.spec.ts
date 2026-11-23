@@ -52,7 +52,7 @@ describe('learning controllers: roles', () => {
       ReportsController,
     ]) {
       for (const name of Object.getOwnPropertyNames(ctrl.prototype)) {
-        const fn = (ctrl.prototype as Record<string, unknown>)[name];
+        const fn = (ctrl.prototype as unknown as Record<string, unknown>)[name];
         if (typeof fn === 'function')
           expect(Reflect.getMetadata(IS_PUBLIC_KEY, fn)).toBeUndefined();
       }

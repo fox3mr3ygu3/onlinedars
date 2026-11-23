@@ -4,11 +4,28 @@
  * count → 0, updateMany/deleteMany → { count: 1 }, everything else → null).
  * `$transaction(fn)` runs `fn` with the same mock.
  */
+import type { Prisma } from '@prisma/client';
 import { type Mock, vi } from 'vitest';
 import type { PrismaService } from '../../../prisma/prisma.service';
 
-export type MockModel = Record<string, Mock>;
-export type MockPrisma = Record<string, MockModel> & {
+type Method =
+  | 'findUnique'
+  | 'findUniqueOrThrow'
+  | 'findFirst'
+  | 'findMany'
+  | 'create'
+  | 'update'
+  | 'upsert'
+  | 'delete'
+  | 'deleteMany'
+  | 'updateMany'
+  | 'count'
+  | 'groupBy'
+  | 'aggregate';
+type ModelKey = Uncapitalize<Prisma.ModelName>;
+
+export type MockModel = Record<Method, Mock>;
+export type MockPrisma = Record<ModelKey, MockModel> & {
   $transaction: Mock;
   $executeRaw: Mock;
   $queryRaw: Mock;
@@ -33,13 +50,14 @@ export function createMockPrisma(): { mock: MockPrisma; prisma: PrismaService } 
       if (prop in target) return target[prop];
       let model = models.get(prop);
       if (!model) {
-        model = new Proxy({} as MockModel, {
+        const fns: Record<string, Mock> = {};
+        model = new Proxy(fns, {
           get(m, method) {
             if (typeof method !== 'string') return undefined;
             m[method] ??= vi.fn(async () => defaultFor(method));
             return m[method];
           },
-        });
+        }) as unknown as MockModel;
         models.set(prop, model);
       }
       return model;
