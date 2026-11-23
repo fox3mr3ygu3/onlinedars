@@ -1,8 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Minimal Playwright config (created by frontend-admin; qa/coordinator may merge with theirs).
- * Admin specs mock the API with `page.route('**\/api/v1/**')`, so only the web app is started.
+ * Playwright config (merged from frontend-admin and frontend-student; qa owns e2e/).
+ * Admin and cabinet specs mock the API with `page.route('**\/api/v1/**')`, so only the web app is started.
  * CI builds first and runs `next start`; locally `next dev` is used unless a server is running.
  */
 const PORT = Number(process.env.E2E_PORT ?? 3000);
@@ -32,5 +32,7 @@ export default defineConfig({
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 180_000,
+        // Mocked specs never reach a real API; point the proxy somewhere harmless.
+        env: { API_URL: process.env.API_URL ?? 'http://127.0.0.1:4999/api/v1' },
       },
 });

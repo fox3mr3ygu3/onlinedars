@@ -1,8 +1,17 @@
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
+import { CabinetShell } from '@/components/layout/student/CabinetShell';
 
-/** Student cabinet shell (/cabinet/*). frontend-student adds the sidebar. The API enforces access. */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('cabinet');
+  return { title: t('title'), robots: { index: false, follow: false } };
+}
+
+/**
+ * Student cabinet shell (/cabinet/*). Data is fetched client-side with the student's session;
+ * the API enforces auth/ownership on every call (hiding UI is not access control).
+ */
 export default function CabinetLayout({ children }: { children: ReactNode }) {
-  return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-4 py-6">{children}</div>
-  );
+  return <CabinetShell>{children}</CabinetShell>;
 }
