@@ -34,3 +34,8 @@ They keep working on everything else and mock or stub what's blocked. Tick an it
 - [ ] Optional: Telegram bot for deploy notifications → secrets `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` in both environments.
 - [ ] GHCR packages (`onlinedars-web`, `onlinedars-api`, `onlinedars-worker`) appear after the first merge to `main`. Keep them **private**; in each package's settings confirm the `onlinedars` repo has access (Actions). Nothing to do for the servers: deploys log in with the run's own token.
 - [ ] Decide the MinIO plan for production (community images are no longer published; see `docs/DECISIONS.md`).
+
+## Certificates (added by backend-learning, 2026-11-23)
+
+- [ ] For local certificate PDFs: set `PUPPETEER_EXECUTABLE_PATH` in `.env` to your Chrome (e.g. `C:\Program Files\Google\Chrome\Application\chrome.exe`). Without it, certificates are still issued and verifiable; only the PDF download answers "being prepared". The worker Docker image already has Chromium.
+- [ ] Confirm with the client: exam retakes are blocked after a pass, and a timed-out exam is graded from the answers autosaved before the deadline.

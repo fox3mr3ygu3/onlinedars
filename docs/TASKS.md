@@ -44,14 +44,15 @@ the OpenAPI stubs — they don't need finished backend logic.
 
 ## 3. `backend-learning` — progress, exams, certificates
 
-**Owns:** `apps/api/src/modules/{progress,exams,certificates,reports}`, `apps/api/src/jobs/certificate-pdf*`, `apps/api/src/templates/certificate/`
+**Owns:** `apps/api/src/modules/{progress,exams,certificates,reports,students}`, `apps/api/src/jobs/certificate-pdf*`, `apps/api/src/templates/certificate/`
 
-- [ ] Student course tree with lock state (respecting `sequentialUnlock`)
-- [ ] Mark material viewed; practice start/submit; **server-side grading** of all 5 question types; store attempts + answers; never leak correct answers before submit
-- [ ] Lesson/course progress calculation; dashboard data (courses, overall progress, last activity)
-- [ ] Final exam: admin config (question count, time limit, pass score); unlock after all required lessons; timed attempt; auto-grade; results history
-- [ ] Certificate: auto-issue on pass (once per user+course), BullMQ job renders PDF via Puppeteer from admin-managed template, unique ID, `GET /certificates/verify/:id` public
-- [ ] Admin reports: per-course completion, exam results, activity; admin dashboard stats
+- [x] Student course tree with lock state (respecting `sequentialUnlock`)
+- [x] Mark material viewed; practice start/submit; **server-side grading** of all 5 question types; store attempts + answers; never leak correct answers before submit
+- [x] Lesson/course progress calculation; dashboard data (courses, overall progress, last activity)
+- [x] Final exam: admin config (question count, time limit, pass score); unlock after all required lessons; timed attempt; auto-grade; results history
+- [x] Certificate: auto-issue on pass (once per user+course), BullMQ job renders PDF via Puppeteer from admin-managed template, unique ID, `GET /certificates/verify/:id` public
+- [x] Admin reports: per-course completion, exam results, activity; admin dashboard stats
+- [x] Admin students (added by coordinator): list/search, profile with progress + results, grant/revoke access (AuditLog)
 
 ## 4. `backend-payments` — orders, Payme, Click, access
 
@@ -152,3 +153,9 @@ Starts in Phase 0 together with architect; continues through launch and maintena
 - (done in Phase 0) devops → architect: add `S3_PUBLIC_URL` (public base URL for presigned links, e.g. `https://files.onlinedars.uz`) to `.env.example` and the config schema; the api should trust `X-Forwarded-For` from the proxy only (`app.set("trust proxy", 1)`).
 - devops → backend-learning: launch Puppeteer with `executablePath: process.env.PUPPETEER_EXECUTABLE_PATH` and args `--no-sandbox --disable-dev-shm-usage` (worker image, non-root).
 - devops → qa: put Playwright in `e2e/playwright.config.ts` with a `webServer` that starts web + api, and tag the smoke subset `@smoke` (CI runs `--grep @smoke`).
+- (done) devops → backend-learning: Puppeteer launches with `PUPPETEER_EXECUTABLE_PATH` and `--no-sandbox --disable-dev-shm-usage` (`apps/api/src/modules/certificates/pdf/pdf-renderer.ts`).
+- backend-learning → backend-content / coordinator: certificates use a local `CertificateStorage` interface with its own S3 impl (`modules/certificates/storage/`). When `modules/files` StorageService merges, provide `CertificateStorage` via an adapter in `CertificatesModule` and drop `@aws-sdk/client-s3` from apps/api if files already brings it.
+- backend-learning → architect: `REDIS_URL` has a default in `config/env.ts`, so the API can't tell "no Redis" from config; certificates read the raw env var. Consider making `REDIS_URL` optional in the schema.
+- backend-learning → backend-payments: when you grant enrollment, nothing else is needed for learning. Learning writes `Notification` rows of type `CERTIFICATE_ISSUED` (title key `certificateIssued`, body = certificate publicId, data `{ certificateId, publicId, courseId }`) and `AuditLog` rows `ENROLLMENT_GRANTED` / `ENROLLMENT_REVOKED` (entityType `Enrollment`) directly via Prisma — please keep these shapes when you build the audit/notification modules.
+- backend-learning → frontend-student / frontend-admin / frontend-public: contract in `docs/api/ROUTES.md`; types in `packages/shared/src/schemas/learning.ts`. Extras beyond the coordinator contract: `GET /me/exam-attempts/:id`, `PUT /me/exam-attempts/:id/answers` (autosave), `POST /admin/certificate-templates/preview`.
+- backend-learning → qa: `apps/api/test/learning.e2e-spec.ts` (your path) covers locks, grading, exam unlock/timing, single certificate, verify, ownership denial, admin reports and grant/revoke. Only ran as "skipped" locally (no Postgres) — first real run is CI.
