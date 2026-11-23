@@ -94,4 +94,26 @@ test.describe('accounts @fullstack', () => {
     await page.goto('/admin');
     await expect(page).toHaveURL(/\/cabinet/);
   });
+
+  test('staff cannot enrol: the UI shows a notice and the API answers 403', async ({
+    page,
+    context,
+    baseURL,
+    request,
+  }) => {
+    const demo = await call(request, 'GET', `/courses/${DEMO_COURSE.slug}`);
+    const admin = await loginApi(request, ADMIN);
+    await call(request, 'POST', '/orders', {
+      token: admin,
+      data: { courseId: demo.id, provider: 'PAYME' },
+      expect: 403,
+    });
+    await signInBrowser(context, baseURL!, ADMIN);
+    await gotoReady(page, `/courses/${DEMO_COURSE.slug}`);
+    await expect(page.getByTestId('staff-enrol-notice')).toBeVisible();
+    await expect(page.getByTestId('course-cta')).toHaveCount(0);
+    await gotoReady(page, `/checkout/${demo.id}`);
+    await expect(page.getByTestId('staff-enrol-notice')).toBeVisible();
+    await expect(page.getByTestId('checkout-submit')).toHaveCount(0);
+  });
 });

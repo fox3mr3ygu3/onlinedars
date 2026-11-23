@@ -142,7 +142,8 @@
     "includes": "Kursga kiradi",
     "includesPractice": "Har bir darsda 4 ta amaliyot",
     "includesExam": "Yakuniy imtihon",
-    "includesCertificate": "Tekshiriladigan PDF sertifikat"
+    "includesCertificate": "Tekshiriladigan PDF sertifikat",
+    "staffCannotEnrol": "Administrator va kontent menejer hisoblari kursga yozila olmaydi. Kursni o'qish uchun talaba hisobi bilan kiring."
   },
   "teachers": {
     "title": "O'qituvchilar",
