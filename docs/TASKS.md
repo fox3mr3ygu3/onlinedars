@@ -36,11 +36,11 @@ the OpenAPI stubs — they don't need finished backend logic.
 
 **Owns:** `apps/api/src/modules/{courses,modules,lessons,practices,questions,directions,teachers,faq,files,settings}`
 
-- [ ] Public read endpoints: catalog with search + filters, course detail (program, modules, lesson count, price), directions, teachers, FAQ
-- [ ] Admin CRUD: courses (draft/publish/hide/archive, free/paid, price, `sequentialUnlock`), modules (reorder), lessons (materials: text/rich, images, files, optional video), practices, questions (5 types, options, correct answer, explanation)
-- [ ] **4×6 invariant**: max 4 practices per lesson, max 6 questions per practice; lesson/course publish blocked until complete; endpoint returns completeness counters
-- [ ] File upload to S3/MinIO with type/size limits
-- [ ] Settings (platform name, general params); roles: ADMIN + CONTENT_MANAGER for content, ADMIN only for settings
+- [x] Public read endpoints: catalog with search + filters, course detail (program, modules, lesson count, price), directions, teachers, FAQ
+- [x] Admin CRUD: courses (draft/publish/hide/archive, free/paid, price, `sequentialUnlock`), modules (reorder), lessons (materials: text/rich, images, files, optional video), practices, questions (5 types, options, correct answer, explanation)
+- [x] **4×6 invariant**: max 4 practices per lesson, max 6 questions per practice; lesson/course publish blocked until complete; endpoint returns completeness counters
+- [x] File upload to S3/MinIO with type/size limits
+- [x] Settings (platform name, general params); roles: ADMIN + CONTENT_MANAGER for content, ADMIN only for settings
 
 ## 3. `backend-learning` — progress, exams, certificates
 
@@ -152,3 +152,9 @@ Starts in Phase 0 together with architect; continues through launch and maintena
 - (done in Phase 0) devops → architect: add `S3_PUBLIC_URL` (public base URL for presigned links, e.g. `https://files.onlinedars.uz`) to `.env.example` and the config schema; the api should trust `X-Forwarded-For` from the proxy only (`app.set("trust proxy", 1)`).
 - devops → backend-learning: launch Puppeteer with `executablePath: process.env.PUPPETEER_EXECUTABLE_PATH` and args `--no-sandbox --disable-dev-shm-usage` (worker image, non-root).
 - devops → qa: put Playwright in `e2e/playwright.config.ts` with a `webServer` that starts web + api, and tag the smoke subset `@smoke` (CI runs `--grep @smoke`).
+- backend-content → backend-learning: strip answers with `toPublicQuestion()` from `apps/api/src/modules/questions/question.mapper.ts` (MC/TF/IMAGE: no `isCorrect`; MATCHING: shuffled `matchTargets`; FILL_BLANK: no options, only `blankCount`; never `explanation` before submit). Show students only `isPublished` lessons. Course `HIDDEN`/`ARCHIVED` is off the public catalog but enrolled students should keep access. Deleting a lesson cascades its LessonProgress.
+- backend-content → backend-payments: import `SettingsModule` and use `SettingsService.get('refundPolicy')` (`REVOKE_ACCESS` | `KEEP_ACCESS`) and `get('orderTtlMinutes')`. Only `PUBLISHED` courses should be purchasable. Course delete is refused when orders exist (FK Restrict + `COURSE_NOT_DELETABLE`).
+- backend-content → frontend-admin: `DELETE /admin/practices/:id` and `/admin/questions/:id` return `{ deleted, lessonUnpublished }` — show a notice when true. `POST /admin/lessons/:id/publish` 409 `LESSON_INCOMPLETE` carries the counters in `details`. Upload with multipart field `file` + `purpose` (`IMAGE`|`FILE`), limits in `packages/shared/src/schemas/files.ts`. PATCH question `options` replaces all options. Response types: `Admin*` in `packages/shared/src/schemas/content-admin.ts`.
+- backend-content → frontend-student / frontend-public: render lesson TEXT HTML through DOMPurify (server only does a regex backstop). Footer/contacts: `GET /settings/public`. Catalog accepts `search` (or `q`), `directionId` or `direction` (slug), `teacherId`, `level`, `isFree`, `sort` (`newest|popular|priceAsc|priceDesc|title`).
+- backend-content → qa: added `apps/api/test/content.e2e-spec.ts` (role denial, 4×6 via HTTP + triggers, publish rules, answer stripping, uploads, settings audit). It is yours from now on; it has only run in skip mode locally (no Postgres here).
+- backend-content → devops: new optional env `STORAGE_DRIVER`, `S3_REGION`, `UPLOAD_DIR` (in `.env.example`); add `S3_REGION` (and `STORAGE_DRIVER=s3`) to `infra/docker/prod.env.example`. Objects are read through `S3_PUBLIC_URL`, so the bucket needs an anonymous read policy on `uploads/*` only (certificate PDFs must stay private).

@@ -34,3 +34,8 @@ They keep working on everything else and mock or stub what's blocked. Tick an it
 - [ ] Optional: Telegram bot for deploy notifications → secrets `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` in both environments.
 - [ ] GHCR packages (`onlinedars-web`, `onlinedars-api`, `onlinedars-worker`) appear after the first merge to `main`. Keep them **private**; in each package's settings confirm the `onlinedars` repo has access (Actions). Nothing to do for the servers: deploys log in with the run's own token.
 - [ ] Decide the MinIO plan for production (community images are no longer published; see `docs/DECISIONS.md`).
+
+## File storage (added by backend-content, 2026-11-23)
+
+- [ ] Decide whether paid lesson files may be public-by-unguessable-URL (current v1 design) or must be private with short-lived signed links (more work, safer). If public is fine: set a MinIO/S3 bucket policy allowing anonymous `GetObject` on `uploads/*` only.
+- [ ] Without MinIO on a PC, put `STORAGE_DRIVER=local` in your `.env` so uploads go to `apps/api/.uploads/`.
