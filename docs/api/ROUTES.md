@@ -50,16 +50,17 @@ and the code disagree, the code wins — fix this file.
 
 ## Public (no sign-in)
 
-| Method | Path                                    | Notes                                                                                                                                                                                        |
-| ------ | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET    | `/courses`                              | published catalog. Query: `search` (or `q`), `directionId` or `direction` (slug), `teacherId`, `level`, `isFree`, `sort` (`newest\|popular\|priceAsc\|priceDesc\|title`), `page`, `pageSize` |
-| GET    | `/courses/:slugOrId`                    | course page by slug **or** id (checkout passes the id)                                                                                                                                       |
-| GET    | `/directions`                           | active directions                                                                                                                                                                            |
-| GET    | `/teachers`                             | active teachers                                                                                                                                                                              |
-| GET    | `/faq`                                  | active FAQ items                                                                                                                                                                             |
-| GET    | `/settings/public`                      | footer / contacts                                                                                                                                                                            |
-| GET    | `/files/:year/:month/:name`             | uploads when the local-disk (dev) or memory (test) storage driver is active; S3 serves its own                                                                                               |
-| GET    | `/certificates/verify/:certificateCode` | rate-limited 60/min/IP; input normalised (case, dashes, O→0, I/L→1) → `{ certificateId, fullName, courseTitle, issuedAt, isValid }`; 404 `CERTIFICATE_NOT_FOUND`                             |
+| Method | Path                                           | Notes                                                                                                                                                                                        |
+| ------ | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/courses`                                     | published catalog. Query: `search` (or `q`), `directionId` or `direction` (slug), `teacherId`, `level`, `isFree`, `sort` (`newest\|popular\|priceAsc\|priceDesc\|title`), `page`, `pageSize` |
+| GET    | `/courses/:slugOrId`                           | course page by slug **or** id (checkout passes the id)                                                                                                                                       |
+| GET    | `/courses/:slugOrId/lessons/:lessonId/preview` | free preview lesson: materials only, for anyone. Only a published `isPreview` lesson of a PUBLISHED course; else 404. No practices or answers                                                |
+| GET    | `/directions`                                  | active directions                                                                                                                                                                            |
+| GET    | `/teachers`                                    | active teachers                                                                                                                                                                              |
+| GET    | `/faq`                                         | active FAQ items                                                                                                                                                                             |
+| GET    | `/settings/public`                             | footer / contacts                                                                                                                                                                            |
+| GET    | `/files/:year/:month/:name`                    | uploads when the local-disk (dev) or memory (test) storage driver is active; S3 serves its own                                                                                               |
+| GET    | `/certificates/verify/:certificateCode`        | rate-limited 60/min/IP; input normalised (case, dashes, O→0, I/L→1) → `{ certificateId, fullName, courseTitle, issuedAt, isValid }`; 404 `CERTIFICATE_NOT_FOUND`                             |
 
 ## Student learning (STUDENT, own data only)
 
