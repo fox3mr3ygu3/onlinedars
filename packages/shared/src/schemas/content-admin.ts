@@ -186,6 +186,7 @@ export interface AdminLessonSummary {
   durationMinutes: number | null;
   position: number;
   isRequired: boolean;
+  isPreview: boolean;
   isPublished: boolean;
   publishedAt: string | null;
   practiceCount: number;
@@ -204,6 +205,7 @@ export interface AdminModule {
 }
 
 export interface AdminCourseDetail extends AdminCourseListItem {
+  introVideoUrl: string | null;
   shortDescription: string;
   description: string;
   goals: string[];

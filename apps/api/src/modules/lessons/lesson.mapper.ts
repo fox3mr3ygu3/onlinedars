@@ -11,6 +11,7 @@ export const lessonSummarySelect = {
   durationMinutes: true,
   position: true,
   isRequired: true,
+  isPreview: true,
   isPublished: true,
   publishedAt: true,
   practices: {
@@ -28,6 +29,7 @@ export type LessonSummaryRow = Pick<
   | 'durationMinutes'
   | 'position'
   | 'isRequired'
+  | 'isPreview'
   | 'isPublished'
   | 'publishedAt'
 > & { practices: PracticeCountRow[] };
@@ -42,6 +44,7 @@ export function toAdminLessonSummary(l: LessonSummaryRow): AdminLessonSummary {
     durationMinutes: l.durationMinutes,
     position: l.position,
     isRequired: l.isRequired,
+    isPreview: l.isPreview,
     isPublished: l.isPublished,
     publishedAt: iso(l.publishedAt),
     practiceCount: completeness.practices,

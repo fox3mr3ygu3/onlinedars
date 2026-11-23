@@ -1,4 +1,9 @@
-import { type CertificateVerify, type CourseLevel, type Paginated } from '@onlinedars/shared';
+import {
+  type CertificateVerify,
+  type CourseLevel,
+  type Paginated,
+  type PublicLessonPreview,
+} from '@onlinedars/shared';
 import { apiFetch, buildQuery, type ApiRequestOptions } from './client';
 
 /*
@@ -52,6 +57,8 @@ export interface CourseLessonOutline {
   id: string;
   title: string;
   durationMinutes: number | null;
+  /** Free preview: materials open without enrolling. */
+  isPreview?: boolean;
 }
 
 export interface CourseModuleOutline {
@@ -63,6 +70,8 @@ export interface CourseModuleOutline {
 
 export interface CourseDetail extends CourseCard {
   description: string;
+  /** Promo video (YouTube / Vimeo / direct link). */
+  introVideoUrl?: string | null;
   goals: string[];
   modules: CourseModuleOutline[];
   teachers: TeacherSummary[];
@@ -113,6 +122,14 @@ export async function getCourses(params: CatalogParams = {}): Promise<Paginated<
 /** `slugOrId`: the course page uses the slug; checkout passes the slug too when it has it. */
 export function getCourse(slugOrId: string): Promise<CourseDetail> {
   return apiFetch<CourseDetail>(`/courses/${encodeURIComponent(slugOrId)}`, cached);
+}
+
+/** Free preview lesson (materials only); 404 unless the lesson is a published preview. */
+export function getLessonPreview(slugOrId: string, lessonId: string): Promise<PublicLessonPreview> {
+  return apiFetch<PublicLessonPreview>(
+    `/courses/${encodeURIComponent(slugOrId)}/lessons/${encodeURIComponent(lessonId)}/preview`,
+    cached,
+  );
 }
 
 export async function getDirections(): Promise<Direction[]> {

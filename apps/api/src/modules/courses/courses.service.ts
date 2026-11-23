@@ -5,6 +5,7 @@ import {
   type PublicCourseCard,
   type PublicCourseDetail,
   type PublicCourseListQuery,
+  type PublicLessonPreview,
 } from '@onlinedars/shared';
 import type { Prisma } from '@prisma/client';
 import { AppException } from '../../common/errors/app.exception';
@@ -42,7 +43,14 @@ const detailInclude = {
       lessons: {
         where: { isPublished: true },
         orderBy: { position: 'asc' },
-        select: { id: true, title: true, summary: true, durationMinutes: true, position: true },
+        select: {
+          id: true,
+          title: true,
+          summary: true,
+          durationMinutes: true,
+          position: true,
+          isPreview: true,
+        },
       },
     },
   },
@@ -94,6 +102,7 @@ export function toPublicCourseDetail(c: DetailRow): PublicCourseDetail {
     goals: c.goals,
     sequentialUnlock: c.sequentialUnlock,
     hasExam: Boolean(c.exam?.isActive),
+    introVideoUrl: c.introVideoUrl,
     modules: modules.map((m) => ({
       id: m.id,
       title: m.title,
@@ -172,5 +181,54 @@ export class CoursesService {
     });
     if (!row) throw AppException.notFound();
     return toPublicCourseDetail(row);
+  }
+
+  /**
+   * Free preview: the materials of one lesson, for anyone (no sign-in). Only a published lesson
+   * marked `isPreview` in a PUBLISHED course; anything else is 404 (no hint that it exists).
+   * Never returns practices, questions or answers, and records no progress.
+   */
+  async getLessonPreview(slugOrId: string, lessonId: string): Promise<PublicLessonPreview> {
+    const row = await this.prisma.lesson.findFirst({
+      where: {
+        id: lessonId,
+        isPreview: true,
+        isPublished: true,
+        module: {
+          course: {
+            OR: [{ slug: slugOrId }, { id: slugOrId }],
+            status: CourseStatus.PUBLISHED,
+          },
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        summary: true,
+        durationMinutes: true,
+        module: {
+          select: {
+            course: { select: { id: true, slug: true, title: true, isFree: true, price: true } },
+          },
+        },
+        materials: {
+          orderBy: { position: 'asc' },
+          select: {
+            id: true,
+            type: true,
+            title: true,
+            content: true,
+            fileUrl: true,
+            mimeType: true,
+            sizeBytes: true,
+            videoUrl: true,
+            position: true,
+          },
+        },
+      },
+    });
+    if (!row) throw AppException.notFound();
+    const { module, materials, ...lesson } = row;
+    return { course: module.course, lesson, materials };
   }
 }

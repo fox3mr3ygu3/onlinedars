@@ -136,6 +136,23 @@ export function CourseForm({
               />
             )}
           />
+          <Field
+            label={t('courses.fields.introVideo')}
+            hint={t('courses.fields.introVideoHint')}
+            error={err('introVideoUrl')}
+          >
+            {(id, d) => (
+              <Input
+                id={id}
+                type="url"
+                inputMode="url"
+                placeholder="https://www.youtube.com/watch?v=..."
+                aria-describedby={d}
+                aria-invalid={!!formState.errors.introVideoUrl}
+                {...register('introVideoUrl')}
+              />
+            )}
+          </Field>
           <Field label={t('courses.fields.level')}>
             {(id) => (
               <NativeSelect id={id} {...register('level')}>

@@ -19,6 +19,7 @@ import {
   type Paginated,
   type PublicCourseCard,
   type PublicCourseDetail,
+  type PublicLessonPreview,
 } from '@onlinedars/shared';
 import { CurrentUser, Public, Roles } from '../../common/decorators';
 import { AdminCoursesService } from './admin-courses.service';
@@ -29,6 +30,7 @@ import {
   CourseStatusChangeDto,
   CourseUpdateDto,
   PublicCourseDetailDto,
+  PublicLessonPreviewDto,
   PublicCourseListDto,
   PublicCourseListQueryDto,
 } from './dto';
@@ -52,6 +54,20 @@ export class CoursesController {
   @ApiOkResponse({ type: PublicCourseDetailDto })
   get(@Param('slug') slug: string): Promise<PublicCourseDetail> {
     return this.courses.getPublicBySlug(slug);
+  }
+
+  @Public()
+  @Get(':slug/lessons/:lessonId/preview')
+  @ApiOperation({
+    summary:
+      'Free preview lesson: materials only (published isPreview lesson of a published course; else 404)',
+  })
+  @ApiOkResponse({ type: PublicLessonPreviewDto })
+  preview(
+    @Param('slug') slug: string,
+    @Param('lessonId') lessonId: string,
+  ): Promise<PublicLessonPreview> {
+    return this.courses.getLessonPreview(slug, lessonId);
   }
 }
 

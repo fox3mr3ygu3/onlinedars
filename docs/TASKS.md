@@ -144,7 +144,7 @@ Starts in Phase 0 together with architect; continues through launch and maintena
 Features agreed with the user but not started. When one is picked up, split it into the owner
 sections above and add a `docs/DECISIONS.md` entry if it brings a new dependency or service.
 
-- [ ] **Course intro video + free preview lessons (Udemy-style)** — added 2026-11-23. A visitor
+- [x] **Course intro video + free preview lessons (Udemy-style)** — added 2026-11-23. A visitor
       can watch a promo video and selected lessons before buying, then decide.
   - architect: `Course.introVideoUrl String?` and `Lesson.isPreview Boolean @default(false)`
     (additive migration); shared schemas for course input / public course and lesson input.

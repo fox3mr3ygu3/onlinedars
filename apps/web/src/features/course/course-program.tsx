@@ -1,9 +1,17 @@
-import { ChevronDown, PlayCircle } from 'lucide-react';
+import { ChevronDown, Eye, PlayCircle } from 'lucide-react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { CourseModuleOutline } from '@/lib/api/public';
 
 /** Program outline: modules as native <details> (no JS needed), lessons inside. */
-export function CourseProgram({ modules }: { modules: CourseModuleOutline[] }) {
+export function CourseProgram({
+  modules,
+  courseSlug,
+}: {
+  modules: CourseModuleOutline[];
+  /** Enables "free preview" links for lessons marked isPreview. */
+  courseSlug?: string;
+}) {
   const t = useTranslations('course');
   if (modules.length === 0) {
     return <p className="text-muted-foreground">{t('programEmpty')}</p>;
@@ -37,6 +45,16 @@ export function CourseProgram({ modules }: { modules: CourseModuleOutline[] }) {
                   <li key={l.id} className="flex items-center gap-2 text-sm">
                     <PlayCircle className="text-muted-foreground size-4 shrink-0" aria-hidden />
                     <span className="flex-1">{l.title}</span>
+                    {l.isPreview && courseSlug ? (
+                      <Link
+                        href={`/courses/${encodeURIComponent(courseSlug)}/preview/${encodeURIComponent(l.id)}`}
+                        className="text-primary inline-flex items-center gap-1 font-medium hover:underline"
+                        data-testid="lesson-preview-link"
+                      >
+                        <Eye className="size-4" aria-hidden />
+                        {t('freePreview')}
+                      </Link>
+                    ) : null}
                     {l.durationMinutes ? (
                       <span className="text-muted-foreground tabular-nums">
                         {t('minutes', { count: l.durationMinutes })}
