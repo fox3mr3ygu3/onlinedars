@@ -14,9 +14,9 @@ export abstract class CertificatePdfQueue {
 }
 
 /**
- * Redis URL from the raw environment. AppConfig gives REDIS_URL a localhost default, so we
- * look at the real variable: when it is not set (local dev without Redis, unit tests) PDF jobs
- * run inline in the API process instead of BullMQ.
+ * Redis URL from the environment (same rule as AppConfig: unset or blank = none). When it is not
+ * set (local dev without Redis, unit tests) PDF jobs run inline in the API process instead of
+ * BullMQ. A plain function so it can be unit-tested with a fake env.
  */
 export function redisUrlFromEnv(env: NodeJS.ProcessEnv = process.env): string | undefined {
   const v = env.REDIS_URL?.trim();
