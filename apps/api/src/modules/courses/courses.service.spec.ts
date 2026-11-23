@@ -118,7 +118,7 @@ describe('public catalog', () => {
     prisma.course.findFirst.mockResolvedValue(courseRow());
     const d = await service.getPublicBySlug('python');
     expect(prisma.course.findFirst.mock.calls[0]![0].where).toEqual({
-      slug: 'python',
+      OR: [{ slug: 'python' }, { id: 'python' }],
       status: CourseStatus.PUBLISHED,
     });
     expect(d.modules.map((m) => m.id)).toEqual(['m1']);
@@ -129,6 +129,16 @@ describe('public catalog', () => {
     }
     // The Prisma query itself must not load practices either.
     expect(JSON.stringify(prisma.course.findFirst.mock.calls[0]![0])).not.toContain('practices');
+  });
+
+  it('course detail also resolves by id (checkout passes the course id), still PUBLISHED only', async () => {
+    prisma.course.findFirst.mockResolvedValue(courseRow());
+    const d = await service.getPublicBySlug('c1');
+    expect(d.id).toBe('c1');
+    expect(prisma.course.findFirst.mock.calls[0]![0].where).toEqual({
+      OR: [{ slug: 'c1' }, { id: 'c1' }],
+      status: CourseStatus.PUBLISHED,
+    });
   });
 
   it('404 for a course that is not published', async () => {

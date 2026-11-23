@@ -9,6 +9,25 @@ Newest entry first. Each session adds one entry before ending, so work can conti
 - Blockers / questions: …
 -->
 
+## 2026-11-23 — qa — test/acceptance-e2e (paused, WIP)
+
+- Paused on the coordinator's instruction (user stopping). Work is committed as `wip:`; nothing ran in CI yet for the new parts.
+- Merged `origin/feat/phase-1-integration` twice (FILE_REQUIRED fix, ubuntu-24.04 runners). The last CI run before my changes (45099388320): lint, unit, API e2e, build, docker, audit green; Playwright smoke was still running when I paused.
+- Done (not yet run in CI):
+  - `.github/workflows/ci.yml`: new job `playwright-fullstack` ("Playwright full-stack (acceptance)", ubuntu-24.04, postgres:16 + redis:7, db generate/migrate/seed, build, `E2E_API=1 … --grep @fullstack`, test-only JWT/Payme/Click keys, STORAGE_DRIVER=memory, console SMS). Existing jobs unchanged.
+  - `e2e/acceptance/support.ts`: helpers (API calls, register/login, browser sign-in via the /api/v1 proxy + `od_role` cookie, building a 4×6 lesson / published course through the admin API, perfect answers from admin question data, Payme JSON-RPC calls with Basic auth).
+  - `e2e/acceptance/auth.spec.ts`: §13.1 register (email) in the UI → cabinet → profile; login form incl. a wrong password; §13.11 ownership/role denial through the API (other user's order, not-enrolled course/lesson, admin routes 403, anonymous 401) + middleware keeps a student out of /admin.
+  - `e2e/acceptance/catalog.spec.ts`: §13.2 catalog search → course page; empty search state; checkout opens by course id.
+  - API fix (mismatch): `GET /courses/:slug` now also resolves by id (`CoursesService.getPublicBySlug`, checkout passes the course id); unit test in `courses.service.spec.ts` (passes locally).
+- Left (next steps, in order):
+  1. `e2e/playwright.config.ts`: add `testIgnore` for `acceptance/**` in the mobile project (except a `acceptance/mobile-cabinet.spec.ts` smoke) and ignore that mobile spec in desktop.
+  2. Write `admin.spec.ts` (§13.3 create/edit course, module, lesson in the UI; §13.4 counters, 5th practice / 7th question rejected via API, publish disabled until 4×6, then publish), `learning.spec.ts` (§13.5–13.8: viewed + practice in the UI, rest via API with perfect answers, lock/progress checks in the course tree, exam unlock, failed then passed attempt, certificate listed, `/verify/{id}` valid, PDF 200 or 409 CERTIFICATE_PDF_PENDING, other user's PDF 404), `payment.spec.ts` (§13.9: UI checkout → intercept the Payme redirect, `?orderId=&status=success` alone grants nothing, CheckPerform → Create → Perform, poll page shows paid, course in cabinet, duplicate Perform → one enrollment), `mobile-cabinet.spec.ts` (§13.10).
+  3. Run `pnpm lint typecheck test build` locally, push, watch CI, fix web↔API mismatches the specs reveal (≤6 iterations), `test.fixme` what can't pass.
+  4. Dedupe `docs/api/ROUTES.md` into one document (note the new `/courses/:slugOrId`).
+  5. Tick qa items in TASKS.md (none ticked yet).
+- Known limits: certificate PDFs use their own S3 storage (not STORAGE_DRIVER), so in CI the PDF stays pending (no worker, no MinIO); specs must accept CERTIFICATE_PDF_PENDING. Static check done: web `learning-types.ts` is type-identical to the shared learning schemas.
+- Blockers / questions: none.
+
 ## 2026-11-23 — coordinator — feat/phase-0-foundation
 
 - Overnight autonomous run (user asleep, said carry on without confirmation; merge to `main` only after green CI).

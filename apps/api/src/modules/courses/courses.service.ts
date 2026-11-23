@@ -161,9 +161,13 @@ export class CoursesService {
     return paged(rows.map(toPublicCourseCard), total, q.page, q.pageSize);
   }
 
-  async getPublicBySlug(slug: string): Promise<PublicCourseDetail> {
+  /**
+   * Course page by slug; also resolves by id (checkout links carry the course id, see
+   * docs/api/ROUTES.md `GET /courses/:slugOrId`). Only PUBLISHED courses are visible.
+   */
+  async getPublicBySlug(slugOrId: string): Promise<PublicCourseDetail> {
     const row = await this.prisma.course.findFirst({
-      where: { slug, status: CourseStatus.PUBLISHED },
+      where: { OR: [{ slug: slugOrId }, { id: slugOrId }], status: CourseStatus.PUBLISHED },
       include: detailInclude,
     });
     if (!row) throw AppException.notFound();
