@@ -124,7 +124,7 @@ Hisobni almashtirishdan oldin yuqori o'ng burchakdagi **Chiqish** tugmasini bosi
 | 5.2.2 | Usulni tanlab **To'lovga o'tish**                     | «To'lov sahifasiga yo'naltirilmoqda…» → Payme/Click test sahifasi ochiladi.                                                                             |
 | 5.2.3 | ⚠️ Demo cheklovi                                      | Haqiqiy merchant kalitlari yo'q, to'lov **tasdiqlanmaydi** — bu kutilgan holat. Kursga kirish faqat to'lov tizimi serverdan tasdiqlagandagina ochiladi. |
 | 5.2.4 | To'lov holati sahifasi (`/checkout/result?orderId=…`) | «To'lov tekshirilmoqda…»; vaqt o'tsa «Tasdiq hali kelmadi» va **Qayta tekshirish**. Brauzer manzilidagi `status=success` kirish bermaydi.               |
-| 5.2.5 | Pullik kursni demo'da talabaga ochish                 | Admin: **Talabalar → talaba → Kursga kirish berish** (7.8).                                                                                             |
+| 5.2.5 | Pullik kursni demo'da talabaga ochish                 | Admin: **Talabalar → talaba → Kursga kirish berish** (7.14).                                                                                            |
 | 5.2.6 | Kabinet → **To'lovlar tarixi**                        | Buyurtma #raqam, kurs, summa, usul, sana, holat (**Kutilmoqda / To'langan / Bekor qilingan / Muvaffaqiyatsiz / Qaytarilgan**).                          |
 
 ---
