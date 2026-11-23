@@ -61,7 +61,7 @@ describe('OrderFulfillmentService', () => {
   it('REFUND_POLICY setting: default revoke, accepts "keep" or {value:"keep"}, ignores junk', async () => {
     const { kit, tx } = await setup();
     expect(await getRefundPolicy(tx)).toBe('revoke');
-    await kit.db.setting.create({ data: { key: 'REFUND_POLICY', value: { value: 'keep' } } });
+    await kit.db.setting.create({ data: { key: 'refundPolicy', value: { value: 'keep' } } });
     expect(await getRefundPolicy(tx)).toBe('keep');
     kit.db.setting.rows[0]!.value = 'keep';
     expect(await getRefundPolicy(tx)).toBe('keep');

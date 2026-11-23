@@ -165,8 +165,15 @@ export const notificationListSchema = paginated(notificationSchema).extend({
 });
 export type NotificationList = z.infer<typeof notificationListSchema>;
 
-/** Platform setting key and values for what happens to access after a refund. */
-export const REFUND_POLICY_SETTING_KEY = 'REFUND_POLICY';
-export const RefundPolicy = { REVOKE: 'revoke', KEEP: 'keep' } as const;
-export type RefundPolicy = (typeof RefundPolicy)[keyof typeof RefundPolicy];
-export const refundPolicySchema = z.enum(RefundPolicy);
+/**
+ * What happens to access after a refund. The admin edits it as the `refundPolicy` platform
+ * setting (values `REVOKE_ACCESS` / `KEEP_ACCESS`, see ./settings); payments normalises it to
+ * `revoke` / `keep`. Legacy lowercase values are still accepted.
+ */
+export const REFUND_POLICY_SETTING_KEY = 'refundPolicy';
+export const PaymentRefundPolicy = { REVOKE: 'revoke', KEEP: 'keep' } as const;
+export type PaymentRefundPolicy = (typeof PaymentRefundPolicy)[keyof typeof PaymentRefundPolicy];
+export const paymentRefundPolicySchema = z.preprocess(
+  (v) => (v === 'REVOKE_ACCESS' ? 'revoke' : v === 'KEEP_ACCESS' ? 'keep' : v),
+  z.enum(PaymentRefundPolicy),
+);

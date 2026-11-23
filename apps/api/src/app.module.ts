@@ -23,6 +23,17 @@ import { ProgressModule } from './modules/progress/progress.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { StudentsModule } from './modules/students/students.module';
 import { UsersModule } from './modules/users/users.module';
+// backend-content
+import { CoursesModule } from './modules/courses/courses.module';
+import { DirectionsModule } from './modules/directions/directions.module';
+import { FaqModule } from './modules/faq/faq.module';
+import { FilesModule } from './modules/files/files.module';
+import { LessonsModule } from './modules/lessons/lessons.module';
+import { ModulesModule } from './modules/modules/modules.module';
+import { PracticesModule } from './modules/practices/practices.module';
+import { QuestionsModule } from './modules/questions/questions.module';
+import { SettingsModule } from './modules/settings/settings.module';
+import { TeachersModule } from './modules/teachers/teachers.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -53,6 +64,18 @@ import { PrismaModule } from './prisma/prisma.module';
     CertificatesModule,
     ReportsModule,
     StudentsModule,
+
+    // backend-content
+    DirectionsModule,
+    TeachersModule,
+    FaqModule,
+    CoursesModule,
+    ModulesModule,
+    LessonsModule,
+    PracticesModule,
+    QuestionsModule,
+    FilesModule,
+    SettingsModule,
   ],
   providers: [
     { provide: APP_PIPE, useClass: ZodValidationPipe },

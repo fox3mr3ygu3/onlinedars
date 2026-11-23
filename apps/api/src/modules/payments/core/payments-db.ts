@@ -1,8 +1,8 @@
 import {
   type PaymentStatus,
   REFUND_POLICY_SETTING_KEY,
-  RefundPolicy,
-  refundPolicySchema,
+  PaymentRefundPolicy,
+  paymentRefundPolicySchema,
 } from '@onlinedars/shared';
 import type { Prisma } from '@prisma/client';
 
@@ -27,14 +27,14 @@ export const OPEN_STATUSES: readonly PaymentStatus[] = ['PENDING'];
  * Reads the `REFUND_POLICY` platform setting: `revoke` (default) removes course access after a
  * refund, `keep` leaves it. Accepts `"keep"` or `{ "value": "keep" }` as the stored JSON.
  */
-export async function getRefundPolicy(db: Pick<Tx, 'setting'>): Promise<RefundPolicy> {
+export async function getRefundPolicy(db: Pick<Tx, 'setting'>): Promise<PaymentRefundPolicy> {
   const row = await db.setting.findUnique({ where: { key: REFUND_POLICY_SETTING_KEY } });
   const raw: unknown =
     row?.value && typeof row.value === 'object' && !Array.isArray(row.value)
       ? (row.value as Record<string, unknown>).value
       : row?.value;
-  const parsed = refundPolicySchema.safeParse(raw);
-  return parsed.success ? parsed.data : RefundPolicy.REVOKE;
+  const parsed = paymentRefundPolicySchema.safeParse(raw);
+  return parsed.success ? parsed.data : PaymentRefundPolicy.REVOKE;
 }
 
 /** Order number sent to providers (Payme `account.order_id`, Click `merchant_trans_id`). */

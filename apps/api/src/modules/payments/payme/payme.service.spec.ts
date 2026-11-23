@@ -259,7 +259,7 @@ describe('PaymeService (Merchant API)', () => {
     });
 
     it('after perform with REFUND_POLICY keep: access stays', async () => {
-      await kit.db.setting.create({ data: { key: 'REFUND_POLICY', value: 'keep' } });
+      await kit.db.setting.create({ data: { key: 'refundPolicy', value: 'KEEP_ACCESS' } });
       const id = paymeTxId();
       await call(payme.create(id, order.number, order.amount));
       await call(payme.perform(id));

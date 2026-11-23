@@ -56,3 +56,8 @@ They keep working on everything else and mock or stub what's blocked. Tick an it
 
 - [ ] For local certificate PDFs: set `PUPPETEER_EXECUTABLE_PATH` in `.env` to your Chrome (e.g. `C:\Program Files\Google\Chrome\Application\chrome.exe`). Without it, certificates are still issued and verifiable; only the PDF download answers "being prepared". The worker Docker image already has Chromium.
 - [ ] Confirm with the client: exam retakes are blocked after a pass, and a timed-out exam is graded from the answers autosaved before the deadline.
+
+## File storage (added by backend-content, 2026-11-23)
+
+- [ ] Decide whether paid lesson files may be public-by-unguessable-URL (current v1 design) or must be private with short-lived signed links (more work, safer). If public is fine: set a MinIO/S3 bucket policy allowing anonymous `GetObject` on `uploads/*` only.
+- [ ] Without MinIO on a PC, put `STORAGE_DRIVER=local` in your `.env` so uploads go to `apps/api/.uploads/`.

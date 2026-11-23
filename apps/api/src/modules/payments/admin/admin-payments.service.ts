@@ -7,7 +7,7 @@ import {
   type Paginated,
   type PaymentListQuery,
   PaymentStatus,
-  type RefundPolicy,
+  type PaymentRefundPolicy,
 } from '@onlinedars/shared';
 import type { Prisma } from '@prisma/client';
 import { AppException } from '../../../common/errors/app.exception';
@@ -153,7 +153,7 @@ export class AdminPaymentsService {
       }
       const before = await this.snapshot(tx, orderId);
 
-      let refundPolicy: RefundPolicy | undefined;
+      let refundPolicy: PaymentRefundPolicy | undefined;
       if (input.status === PaymentStatus.PAID) {
         const res = await this.fulfillment.markPaid(tx, orderId, { from: [order.status], now });
         notificationId = res.notificationId;

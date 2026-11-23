@@ -3,7 +3,7 @@ import {
   EnrollmentSource,
   type PaymentProvider,
   PaymentStatus,
-  RefundPolicy,
+  PaymentRefundPolicy,
 } from '@onlinedars/shared';
 import {
   NotificationsService,
@@ -78,7 +78,7 @@ export class OrderFulfillmentService {
   async markRefunded(
     tx: Tx,
     orderId: string,
-    policy: RefundPolicy,
+    policy: PaymentRefundPolicy,
     now: Date = new Date(),
   ): Promise<RefundResult> {
     const res = await tx.order.updateMany({
@@ -86,7 +86,7 @@ export class OrderFulfillmentService {
       data: { status: PaymentStatus.REFUNDED, cancelledAt: now },
     });
     if (res.count !== 1) return { changed: false, accessRevoked: false };
-    if (policy !== RefundPolicy.REVOKE) return { changed: true, accessRevoked: false };
+    if (policy !== PaymentRefundPolicy.REVOKE) return { changed: true, accessRevoked: false };
     const revoked = await tx.enrollment.updateMany({
       where: { orderId, revokedAt: null },
       data: { revokedAt: now },
