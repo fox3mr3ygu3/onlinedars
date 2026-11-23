@@ -1,0 +1,30 @@
+name: Setup Node + pnpm
+description: Install pnpm (version from the root package.json "packageManager" field), Node and workspace dependencies with the pnpm store cached.
+
+inputs:
+  node-version:
+    description: Node.js version
+    required: false
+    default: '22'
+  install:
+    description: Run pnpm install --frozen-lockfile
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    # No "version" input: pnpm/action-setup reads "packageManager": "pnpm@9.15.9"
+    # from the root package.json, so there is one source of truth for the version.
+    - uses: pnpm/action-setup@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        # Without an install the pnpm store doesn't exist, and the post-step cache save fails.
+        cache: ${{ inputs.install == 'true' && 'pnpm' || '' }}
+
+    - name: Install dependencies
+      if: inputs.install == 'true'
+      shell: bash
+      run: pnpm install --frozen-lockfile

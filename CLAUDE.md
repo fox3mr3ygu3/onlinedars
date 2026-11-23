@@ -56,6 +56,18 @@ Native mobile apps, live video/webinars, HR/ERP/warehouse/payroll, complex gamif
 
 The user has approved this end-of-session commit + push to feature branches ("I'm done", "switching PCs" = run it). Pushing to `main`, merging PRs, or tagging releases still needs an explicit yes.
 
+## Working rules (set by the user, 2026-11-22)
+- **Push after every finished feature**, not only at session end, so another PC or agent can continue any time.
+- **Every new function gets tests** (unit tests for services/utils, API e2e for endpoints, Playwright for key UI flows). A feature isn't done until its tests pass locally or in CI.
+- Use as many parallel agents as the ownership split allows. Each parallel agent works in its own git worktree and branch.
+- Anything that needs a human (credentials, payments accounts, hosting, admin installs, repo settings, business decisions) goes into `docs/USER_ACTIONS.md`. Don't block on it: mock or stub it and continue.
+- Autonomous mode: when the user has said to carry on without confirmation, agents may open PRs and merge them into `main` **after CI is green**. Never force-push `main`, never tag releases, and never touch real payment or production systems.
+
+## Local environment notes
+- Package manager: pnpm 9 (`npm i -g pnpm@9` if missing).
+- GitHub CLI on Windows: `"/c/Program Files/GitHub CLI/gh.exe"` from Git Bash if `gh` isn't on PATH.
+- If Docker isn't installed on the current PC, run unit tests, typecheck and build locally. DB/Redis-backed e2e tests then run in GitHub Actions; push and check with `gh run watch`.
+
 ## Git & delivery
 - GitHub is the source of truth; the user works from several PCs. Pull at the start of a session and push before ending.
 - Never commit directly to `main`. Use a branch (`feat/…`, `fix/…`, `chore/…`), Conventional Commits, and a PR that needs green CI. Details: `docs/GIT_WORKFLOW.md`.

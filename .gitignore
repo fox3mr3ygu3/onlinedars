@@ -36,3 +36,12 @@ desktop.ini
 !.vscode/extensions.json
 .idea/
 *.log
+
+# Claude agent worktrees (per-PC)
+.claude/worktrees/
+
+# Local upload storage (STORAGE_DRIVER=local)
+.uploads/
+
+# Generated
+*.tsbuildinfo

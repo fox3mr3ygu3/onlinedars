@@ -1,0 +1,178 @@
+name: Deploy
+
+# main  -> build images (tag = commit sha)          -> deploy to staging
+# v*    -> build images (tags = sha + version)      -> deploy to production (manual approval)
+# manual -> redeploy an existing tag (rollback) to staging or production
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Where to deploy
+        type: choice
+        options: [staging, production]
+        required: true
+      image_tag:
+        description: Existing image tag to deploy (e.g. v1.1.0 or a full commit sha). Used for rollbacks.
+        type: string
+        required: true
+
+# Never run two deploys to the same environment at once; never cancel a running deploy.
+concurrency:
+  group: deploy-${{ github.event.inputs.environment || (startsWith(github.ref, 'refs/tags/v') && 'production' || 'staging') }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  images:
+    name: Build + push ${{ matrix.image }}
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - image: web
+            dockerfile: infra/docker/web.Dockerfile
+            target: runner
+          - image: api
+            dockerfile: infra/docker/api.Dockerfile
+            target: api
+          - image: worker
+            dockerfile: infra/docker/api.Dockerfile
+            target: worker
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Image name (GHCR needs lowercase)
+        id: name
+        run: echo "prefix=${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/onlinedars" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.name.outputs.prefix }}-${{ matrix.image }}
+          tags: |
+            type=sha,format=long,prefix=
+            type=raw,value=main,enable=${{ github.ref == 'refs/heads/main' }}
+            type=semver,pattern=v{{version}}
+            type=semver,pattern=v{{major}}.{{minor}}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          target: ${{ matrix.target }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            APP_VERSION=${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,scope=${{ matrix.image }},mode=max
+
+  staging:
+    name: Deploy to staging
+    needs: [images]
+    # Skipped (not failed) until the repo variable STAGING_HOST exists, i.e. until there is a server.
+    if: >-
+      always() && vars.STAGING_HOST != '' &&
+      ((github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.images.result == 'success') ||
+       (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read
+    environment:
+      name: staging
+      url: ${{ vars.STAGING_URL }}
+    env:
+      DEPLOY_HOST: ${{ vars.STAGING_HOST }}
+      DEPLOY_URL: ${{ vars.STAGING_URL }}
+      IMAGE_TAG: ${{ github.event.inputs.image_tag || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/ssh-deploy
+        with:
+          host: ${{ env.DEPLOY_HOST }}
+          user: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          env-file: ${{ secrets.ENV_FILE }}
+          registry-user: ${{ secrets.GHCR_USER }}
+          registry-token: ${{ secrets.GHCR_TOKEN }}
+          image-tag: ${{ env.IMAGE_TAG }}
+          health-url: ${{ env.DEPLOY_URL }}
+          backup: 'false'
+          telegram-bot-token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          telegram-chat-id: ${{ secrets.TELEGRAM_CHAT_ID }}
+          environment: staging
+
+  production:
+    name: Deploy to production
+    needs: [images]
+    # The "production" GitHub Environment carries the required-reviewer rule (manual approval).
+    if: >-
+      always() && vars.PRODUCTION_HOST != '' &&
+      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && needs.images.result == 'success') ||
+       (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL }}
+    env:
+      DEPLOY_HOST: ${{ vars.PRODUCTION_HOST }}
+      DEPLOY_URL: ${{ vars.PRODUCTION_URL }}
+      IMAGE_TAG: ${{ github.event.inputs.image_tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/ssh-deploy
+        with:
+          host: ${{ env.DEPLOY_HOST }}
+          user: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          env-file: ${{ secrets.ENV_FILE }}
+          registry-user: ${{ secrets.GHCR_USER }}
+          registry-token: ${{ secrets.GHCR_TOKEN }}
+          image-tag: ${{ env.IMAGE_TAG }}
+          health-url: ${{ env.DEPLOY_URL }}
+          backup: 'true'
+          telegram-bot-token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          telegram-chat-id: ${{ secrets.TELEGRAM_CHAT_ID }}
+          environment: production
+
+  skipped-notice:
+    name: Deploy targets not configured
+    needs: [images]
+    if: always() && (vars.STAGING_HOST == '' || vars.PRODUCTION_HOST == '')
+    runs-on: ubuntu-24.04
+    steps:
+      - run: |
+          echo "::notice::Deploy jobs are skipped until repo variables STAGING_HOST / PRODUCTION_HOST are set (see docs/DEPLOYMENT.md -> 'Turning on deploys')."
