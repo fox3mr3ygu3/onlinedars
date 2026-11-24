@@ -196,7 +196,7 @@ sections above and add a `docs/DECISIONS.md` entry if it brings a new dependency
     `/admin/access-requests` (approve / reject); course page "Kirish so'rash"; cabinet
     "Kirish so'rovlari"; admin "Kirish so'rovlari" page and dashboard tile.
   - Tests: API unit + e2e, web unit, Playwright smoke + full-stack (`acceptance/access-request`).
-- [ ] Update `docs/TEST_FLOWS.md` (tester guide, PR #23) for the new access flow (sections 3.2,
+- [x] Update `docs/TEST_FLOWS.md` (tester guide, PR #23) for the new access flow (sections 3.2,
       5, 6.5, 7, 8, 9).
 
 ## Requests

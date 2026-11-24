@@ -19,6 +19,19 @@ Newest entry first. Each session adds one entry before ending, so work can conti
 - Next: merge this PR (after #23/#24, or resolve small doc conflicts in TASKS/USER_ACTIONS/HANDOFF); update `docs/TEST_FLOWS.md` for the new flow; re-seed the dev DB (`pnpm db:migrate`, then the demo seed only adds to existing data).
 - Note: PR #24 (Netlify/Render demo) sets no payment env vars, so it still fits; its `render.yaml` sets `PAYMENT_RECHECK_INTERVAL_MINUTES`, which is now unused (harmless; drop it when merging).
 
+## 2026-11-23 (end of day) — coordinator — docs/public-repo-protection (PR #23)
+
+- **State:** `main` has everything from today (PRs #14, #18, #19–#22 merged). The repo is now **public** (free CI/CD) and `main` is **branch-protected**: PR + 9 green checks required, enforced for admins, no force push / delete.
+- **First thing next session:** check PR #23 (this branch, docs only: DECISIONS, USER_ACTIONS ticks, ROUTES preview route, this entry). Merge it when all 9 checks are green — the user approves merges per PR, so ask first. Also confirm the CI re-run on `main` (run 45168793140) finished green; Playwright smoke was still running at hand-off.
+- **Done today:** Playwright mock fix; login/register redirect fix; admin pages read the real API fields; staff can't enrol; audit overrides (12 → 3 unreachable); REDIS_URL optional; content-manager dashboard; ROUTES.md merged; intro video + free preview lessons (migration 0002); RichText SSR fix; `pnpm db:seed:demo`.
+- **This PC (D:\dev):** Docker Postgres on **5433** (`POSTGRES_PORT`), `STORAGE_DRIVER=local`, pnpm installed globally. The local DB has the demo data. Docker's disk (~11 GB) is still on **C:** (C: filled up once and crashed a build) — the user should move it via Docker Desktop → Settings → Resources → Advanced → Disk image location. Dev servers start from `.claude/launch.json` (untracked, local only).
+- **Rules learned:** run `@fullstack` Playwright only against the test DB (`onlinedars_test`), never against the dev servers (it creates courses/users there). Merge conflicts between parallel PRs tend to be in `uz.json` / `DECISIONS.md` (keep both sides).
+- **Open / next:**
+  - Dependabot: ~14 PRs open. The Prisma bump (#7) fails CI (needs code changes); hold the Postgres 19 / Redis 8 image bumps for a planned DB upgrade; review majors one by one. Optional: group Dependabot updates monthly in `.github/dependabot.yml`.
+  - Backlog in `docs/TASKS.md`: protected video hosting (needs a provider account); optionally give demo courses intro videos / preview lessons in the demo seed.
+  - **Deployment** is the remaining stage (server, GitHub environments + secrets, backups, monitoring) — see `docs/USER_ACTIONS.md` and `docs/DEPLOYMENT.md`.
+  - User decisions still open in `docs/USER_ACTIONS.md` (refund policy, exam retake policy, payment provider credentials, production file storage).
+
 ## 2026-11-23 — coordinator — PRs #19, #20, #21 + feat/demo-seed (new PC: D:dev)
 
 - New PC setup: repo at `D:dev` (user's choice, not C:devonlinedars). A local Windows PostgreSQL holds 5432, so Docker Postgres runs on **5433** (`POSTGRES_PORT` in `.env`). MinIO image is gone → `STORAGE_DRIVER=local`. pnpm installed globally for the user.

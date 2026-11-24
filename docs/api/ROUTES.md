@@ -50,16 +50,17 @@ and the code disagree, the code wins — fix this file.
 
 ## Public (no sign-in)
 
-| Method | Path                                    | Notes                                                                                                                                                            |
-| ------ | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET    | `/courses`                              | published catalog. Query: `search` (or `q`), `directionId` or `direction` (slug), `teacherId`, `level`, `sort` (`newest\|popular\|title`), `page`, `pageSize`    |
-| GET    | `/courses/:slugOrId`                    | course page by slug **or** id (no price)                                                                                                                         |
-| GET    | `/directions`                           | active directions                                                                                                                                                |
-| GET    | `/teachers`                             | active teachers                                                                                                                                                  |
-| GET    | `/faq`                                  | active FAQ items                                                                                                                                                 |
-| GET    | `/settings/public`                      | footer / contacts                                                                                                                                                |
-| GET    | `/files/:year/:month/:name`             | uploads when the local-disk (dev) or memory (test) storage driver is active; S3 serves its own                                                                   |
-| GET    | `/certificates/verify/:certificateCode` | rate-limited 60/min/IP; input normalised (case, dashes, O→0, I/L→1) → `{ certificateId, fullName, courseTitle, issuedAt, isValid }`; 404 `CERTIFICATE_NOT_FOUND` |
+| Method | Path                                           | Notes                                                                                                                                                            |
+| ------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/courses`                                     | published catalog. Query: `search` (or `q`), `directionId` or `direction` (slug), `teacherId`, `level`, `sort` (`newest\|popular\|title`), `page`, `pageSize`    |
+| GET    | `/courses/:slugOrId`                           | course page by slug **or** id (no price)                                                                                                                         |
+| GET    | `/courses/:slugOrId/lessons/:lessonId/preview` | free preview lesson: materials only, for anyone. Only a published `isPreview` lesson of a PUBLISHED course; else 404. No practices or answers                    |
+| GET    | `/directions`                                  | active directions                                                                                                                                                |
+| GET    | `/teachers`                                    | active teachers                                                                                                                                                  |
+| GET    | `/faq`                                         | active FAQ items                                                                                                                                                 |
+| GET    | `/settings/public`                             | footer / contacts                                                                                                                                                |
+| GET    | `/files/:year/:month/:name`                    | uploads when the local-disk (dev) or memory (test) storage driver is active; S3 serves its own                                                                   |
+| GET    | `/certificates/verify/:certificateCode`        | rate-limited 60/min/IP; input normalised (case, dashes, O→0, I/L→1) → `{ certificateId, fullName, courseTitle, issuedAt, isValid }`; 404 `CERTIFICATE_NOT_FOUND` |
 
 ## Student learning (STUDENT, own data only)
 
@@ -111,34 +112,34 @@ rejection or a revoked enrolment reopens it as `PENDING`.
 
 ## Admin content (ADMIN, CONTENT_MANAGER; settings ADMIN only)
 
-| Method                        | Path                                         | Notes                                                                                                                  |
-| ----------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| GET, POST                     | `/admin/courses`                             | list items carry `moduleCount`, `lessonCount`, `publishedLessonCount`, `enrollmentCount`                               |
-| GET, PATCH, DELETE            | `/admin/courses/:id`                         | delete is refused when enrolments or certificates exist (`COURSE_NOT_DELETABLE`)                                       |
-| POST                          | `/admin/courses/:id/status`                  | `{ status }` (DRAFT / PUBLISHED / HIDDEN / ARCHIVED)                                                                   |
-| GET, POST                     | `/admin/courses/:id/modules`                 | modules include their `lessons`                                                                                        |
-| PATCH                         | `/admin/courses/:id/modules/reorder`         | `{ ids[] }`                                                                                                            |
-| PATCH, DELETE                 | `/admin/modules/:id`                         |                                                                                                                        |
-| GET, POST                     | `/admin/modules/:id/lessons`                 |                                                                                                                        |
-| PATCH                         | `/admin/modules/:id/lessons/reorder`         | `{ ids[] }`                                                                                                            |
-| GET, PATCH, DELETE            | `/admin/lessons/:id`                         |                                                                                                                        |
-| GET                           | `/admin/lessons/:id/completeness`            | `{ practices, required: 4, questionsPerPractice: [{ practiceId, questions }], ready }`                                 |
-| POST                          | `/admin/lessons/:id/publish`                 | 409 `LESSON_INCOMPLETE` with the counters in `details` until 4 practices × 6 questions                                 |
-| POST                          | `/admin/lessons/:id/unpublish`               |                                                                                                                        |
-| GET, POST                     | `/admin/lessons/:id/materials`               | TEXT (sanitised HTML), IMAGE / FILE (uploaded url), VIDEO (YouTube / Vimeo / direct url)                               |
-| PATCH                         | `/admin/lessons/:id/materials/reorder`       | `{ ids[] }`                                                                                                            |
-| PATCH, DELETE                 | `/admin/materials/:id`                       |                                                                                                                        |
-| GET, POST                     | `/admin/lessons/:id/practices`               | a 5th practice → 409 `LESSON_PRACTICE_LIMIT`                                                                           |
-| PATCH                         | `/admin/lessons/:id/practices/reorder`       | `{ ids[] }`                                                                                                            |
-| GET, PATCH, DELETE            | `/admin/practices/:id`                       | DELETE → `{ deleted, lessonUnpublished }`                                                                              |
-| GET, POST                     | `/admin/practices/:id/questions`             | with correct answers; a 7th question → 409 `PRACTICE_QUESTION_LIMIT`                                                   |
-| PATCH                         | `/admin/practices/:id/questions/reorder`     | `{ ids[] }`                                                                                                            |
-| GET, PATCH, DELETE            | `/admin/questions/:id`                       | PATCH `options` replaces all options; DELETE → `{ deleted, lessonUnpublished }`                                        |
-| POST                          | `/admin/files`                               | multipart `file` + `purpose` (`IMAGE` ≤ 5 MB jpeg/png/webp/gif, `FILE` ≤ 50 MB pdf/Office/zip/txt/csv) → `{ id, url }` |
-| GET, POST; GET, PATCH, DELETE | `/admin/directions`, `/admin/directions/:id` |                                                                                                                        |
-| GET, POST; GET, PATCH, DELETE | `/admin/teachers`, `/admin/teachers/:id`     |                                                                                                                        |
-| GET, POST; GET, PATCH, DELETE | `/admin/faq`, `/admin/faq/:id`               |                                                                                                                        |
-| GET, PATCH                    | `/admin/settings`                            | ADMIN only; changes are audit-logged                                                                                   |
+| Method                        | Path                                         | Notes                                                                                                                             |
+| ----------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| GET, POST                     | `/admin/courses`                             | list items carry `moduleCount`, `lessonCount`, `publishedLessonCount`, `enrollmentCount`                                          |
+| GET, PATCH, DELETE            | `/admin/courses/:id`                         | `introVideoUrl` (YouTube / Vimeo / direct link); delete is refused when enrolments or certificates exist (`COURSE_NOT_DELETABLE`) |
+| POST                          | `/admin/courses/:id/status`                  | `{ status }` (DRAFT / PUBLISHED / HIDDEN / ARCHIVED)                                                                              |
+| GET, POST                     | `/admin/courses/:id/modules`                 | modules include their `lessons`                                                                                                   |
+| PATCH                         | `/admin/courses/:id/modules/reorder`         | `{ ids[] }`                                                                                                                       |
+| PATCH, DELETE                 | `/admin/modules/:id`                         |                                                                                                                                   |
+| GET, POST                     | `/admin/modules/:id/lessons`                 |                                                                                                                                   |
+| PATCH                         | `/admin/modules/:id/lessons/reorder`         | `{ ids[] }`                                                                                                                       |
+| GET, PATCH, DELETE            | `/admin/lessons/:id`                         |                                                                                                                                   |
+| GET                           | `/admin/lessons/:id/completeness`            | `{ practices, required: 4, questionsPerPractice: [{ practiceId, questions }], ready }`                                            |
+| POST                          | `/admin/lessons/:id/publish`                 | 409 `LESSON_INCOMPLETE` with the counters in `details` until 4 practices × 6 questions                                            |
+| POST                          | `/admin/lessons/:id/unpublish`               |                                                                                                                                   |
+| GET, POST                     | `/admin/lessons/:id/materials`               | TEXT (sanitised HTML), IMAGE / FILE (uploaded url), VIDEO (YouTube / Vimeo / direct url)                                          |
+| PATCH                         | `/admin/lessons/:id/materials/reorder`       | `{ ids[] }`                                                                                                                       |
+| PATCH, DELETE                 | `/admin/materials/:id`                       |                                                                                                                                   |
+| GET, POST                     | `/admin/lessons/:id/practices`               | a 5th practice → 409 `LESSON_PRACTICE_LIMIT`                                                                                      |
+| PATCH                         | `/admin/lessons/:id/practices/reorder`       | `{ ids[] }`                                                                                                                       |
+| GET, PATCH, DELETE            | `/admin/practices/:id`                       | DELETE → `{ deleted, lessonUnpublished }`                                                                                         |
+| GET, POST                     | `/admin/practices/:id/questions`             | with correct answers; a 7th question → 409 `PRACTICE_QUESTION_LIMIT`                                                              |
+| PATCH                         | `/admin/practices/:id/questions/reorder`     | `{ ids[] }`                                                                                                                       |
+| GET, PATCH, DELETE            | `/admin/questions/:id`                       | PATCH `options` replaces all options; DELETE → `{ deleted, lessonUnpublished }`                                                   |
+| POST                          | `/admin/files`                               | multipart `file` + `purpose` (`IMAGE` ≤ 5 MB jpeg/png/webp/gif, `FILE` ≤ 50 MB pdf/Office/zip/txt/csv) → `{ id, url }`            |
+| GET, POST; GET, PATCH, DELETE | `/admin/directions`, `/admin/directions/:id` |                                                                                                                                   |
+| GET, POST; GET, PATCH, DELETE | `/admin/teachers`, `/admin/teachers/:id`     |                                                                                                                                   |
+| GET, POST; GET, PATCH, DELETE | `/admin/faq`, `/admin/faq/:id`               |                                                                                                                                   |
+| GET, PATCH                    | `/admin/settings`                            | ADMIN only; changes are audit-logged                                                                                              |
 
 ## Admin learning
 
