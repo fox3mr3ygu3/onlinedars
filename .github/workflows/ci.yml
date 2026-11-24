@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: Generate Prisma client (types for typecheck)
         run: pnpm db:generate
@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: pnpm db:generate
       - run: pnpm test
@@ -82,7 +82,7 @@ jobs:
       SHADOW_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/onlinedars_shadow?schema=public
       REDIS_URL: redis://localhost:6379
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: pnpm db:generate
       - name: Apply migrations to a fresh database
@@ -104,7 +104,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - run: pnpm db:generate
       - run: pnpm build
@@ -139,7 +139,7 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/onlinedars_test?schema=public
       REDIS_URL: redis://localhost:6379
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # hashFiles() is not allowed in a job-level "if", so detect the suite in a step.
       - name: Detect Playwright suite
         id: detect
@@ -168,7 +168,7 @@ jobs:
         # playwright.config.* is expected to start web + api through its webServer option.
         run: pnpm exec playwright test --config e2e/playwright.config.* --grep @smoke --pass-with-no-tests
       - if: always() && steps.detect.outputs.present == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: |
@@ -214,7 +214,7 @@ jobs:
       STORAGE_DRIVER: memory
       # No ESKIZ_* → the console SMS provider is used.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
       - name: Prepare database
         run: |
@@ -227,7 +227,7 @@ jobs:
       - name: Run acceptance specs (@fullstack)
         run: pnpm exec playwright test --config e2e/playwright.config.ts --grep @fullstack
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-fullstack-report
           path: |
@@ -256,9 +256,9 @@ jobs:
             dockerfile: infra/docker/api.Dockerfile
             target: worker
     steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v6
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v7
         with:
           context: .
           file: ${{ matrix.dockerfile }}
@@ -274,7 +274,7 @@ jobs:
     # Reported, not blocking: a fresh advisory should not stop unrelated PRs. The job stays green;
     # findings show up as a warning annotation and in the job summary.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
         with:
           install: 'false'
