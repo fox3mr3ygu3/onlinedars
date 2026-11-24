@@ -5,8 +5,8 @@ import {
   Award,
   Bell,
   BookOpen,
-  CreditCard,
   GraduationCap,
+  KeyRound,
   LayoutDashboard,
   type LucideIcon,
   Menu,
@@ -23,14 +23,14 @@ import { meApi } from '@/lib/api/me';
 import { cn } from '@/lib/utils';
 
 type NavKey =
-  'dashboard' | 'courses' | 'results' | 'certificates' | 'payments' | 'notifications' | 'profile';
+  'dashboard' | 'courses' | 'results' | 'certificates' | 'requests' | 'notifications' | 'profile';
 
 const NAV: { key: NavKey; href: string; icon: LucideIcon }[] = [
   { key: 'dashboard', href: cabinetRoutes.dashboard, icon: LayoutDashboard },
   { key: 'courses', href: cabinetRoutes.courses, icon: BookOpen },
   { key: 'results', href: cabinetRoutes.results, icon: GraduationCap },
   { key: 'certificates', href: cabinetRoutes.certificates, icon: Award },
-  { key: 'payments', href: cabinetRoutes.payments, icon: CreditCard },
+  { key: 'requests', href: cabinetRoutes.requests, icon: KeyRound },
   { key: 'notifications', href: cabinetRoutes.notifications, icon: Bell },
   { key: 'profile', href: cabinetRoutes.profile, icon: User },
 ];

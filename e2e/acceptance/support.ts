@@ -20,7 +20,6 @@ export const CONTENT_MANAGER = { email: 'content@onlinedars.uz', password: SEED_
 export const DEMO_COURSE = { slug: 'veb-dasturlash-asoslari', title: 'Veb-dasturlash asoslari' };
 
 /** Test-only Payme key from the CI job env (never a real key). */
-export const PAYME_KEY = process.env.PAYME_KEY ?? 'e2e-payme-test-key';
 
 let seq = 0;
 /** Unique, slug-safe suffix per call (worker + time + counter). */
@@ -173,10 +172,9 @@ export const trueFalse = (n: number) => ({
 export async function createCourse(
   request: APIRequestContext,
   token: string,
-  input: { price?: number; title?: string } = {},
-): Promise<{ id: string; slug: string; title: string; price: number }> {
+  input: { title?: string } = {},
+): Promise<{ id: string; slug: string; title: string }> {
   const slug = uid('kurs');
-  const price = input.price ?? 0;
   const title = input.title ?? `E2E kurs ${slug.slice(-6)}`;
   const body = await call(request, 'POST', '/admin/courses', {
     token,
@@ -184,13 +182,11 @@ export async function createCourse(
       slug,
       title,
       shortDescription: 'Avtomatik test kursi',
-      isFree: price === 0,
-      price,
       sequentialUnlock: true,
     },
     expect: 201,
   });
-  return { id: body.id, slug, title, price };
+  return { id: body.id, slug, title };
 }
 
 export async function createModule(request: APIRequestContext, token: string, courseId: string) {
@@ -271,7 +267,7 @@ export async function completeLesson(
 export async function createPublishedCourse(
   request: APIRequestContext,
   token: string,
-  input: { price?: number } = {},
+  input: { title?: string } = {},
 ) {
   const course = await createCourse(request, token, input);
   const mod = await createModule(request, token, course.id);
@@ -285,28 +281,26 @@ export async function createPublishedCourse(
   return { ...course, moduleId: mod.id, lessonId: lesson.id };
 }
 
-// ---------------------------------------------------------------- payments
+// ---------------------------------------------------------------- course access
 
-export const paymeAuth = (key = PAYME_KEY) =>
-  `Basic ${Buffer.from(`Paycom:${key}`).toString('base64')}`;
-
-let rpcId = 1;
-/** Sends one Payme Merchant API call (as Payme's servers would) and returns the JSON-RPC body. */
-export async function payme(
+/**
+ * Gives a student a course the only way the platform allows: the student asks
+ * (POST /access-requests) and an admin approves it. Returns the request id.
+ */
+export async function grantAccess(
   request: APIRequestContext,
-  method: string,
-  params: Record<string, unknown>,
-): Promise<{ result?: any; error?: { code: number } }> {
-  const res = await request.post(`${API}/payments/payme`, {
-    headers: { Authorization: paymeAuth() },
-    data: { jsonrpc: '2.0', id: rpcId++, method, params },
+  studentToken: string,
+  courseId: string,
+): Promise<string> {
+  const req = await call<{ id: string }>(request, 'POST', '/access-requests', {
+    token: studentToken,
+    data: { courseId },
+    expect: 201,
   });
-  expect(res.status()).toBe(200);
-  return res.json();
+  const admin = await loginApi(request, ADMIN);
+  await call(request, 'POST', `/admin/access-requests/${req.id}/approve`, { token: admin });
+  return req.id;
 }
-
-export const paymeTxId = () =>
-  Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
 
 /** Waits for the page to settle enough for client components (session refresh, queries). */
 export async function gotoReady(page: Page, path: string): Promise<void> {

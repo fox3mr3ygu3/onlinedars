@@ -2,9 +2,8 @@ import { BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { CourseCard as CourseCardData } from '@/lib/api/public';
-import { Price } from './price';
 
-/** Catalog card: cover, name, short description, lesson count, price, link to the course page. */
+/** Catalog card: cover, name, short description, lesson count, link to the course page. */
 export function CourseCard({ course }: { course: CourseCardData }) {
   const t = useTranslations('catalog');
   return (
@@ -46,7 +45,7 @@ export function CourseCard({ course }: { course: CourseCardData }) {
           <span className="text-muted-foreground" data-testid="lesson-count">
             {t('lessons', { count: course.lessonCount })}
           </span>
-          <Price isFree={course.isFree} price={course.price} />
+          <span className="text-primary font-medium">{t('more')}</span>
         </div>
       </div>
     </article>

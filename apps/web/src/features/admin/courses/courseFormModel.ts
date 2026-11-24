@@ -1,8 +1,7 @@
 import { type CourseInput, CourseLevel } from '@onlinedars/shared';
 import type { AdminCourse } from '@/lib/api/admin/types';
-import { somToTiyin, tiyinToSom } from '../common/money';
 
-/** Course editor form state. Price is typed in so'm and sent as tiyin. */
+/** Course editor form state. Courses have no price: access is granted by admins. */
 export interface CourseFormValues {
   title: string;
   slug: string;
@@ -12,8 +11,6 @@ export interface CourseFormValues {
   coverImageUrl: string;
   introVideoUrl: string;
   level: CourseLevel;
-  isFree: boolean;
-  priceSom: string;
   sequentialUnlock: boolean;
   directionId: string;
   teacherIds: string[];
@@ -29,8 +26,6 @@ export const emptyCourseForm: CourseFormValues = {
   coverImageUrl: '',
   introVideoUrl: '',
   level: CourseLevel.BEGINNER,
-  isFree: false,
-  priceSom: '',
   sequentialUnlock: true,
   directionId: '',
   teacherIds: [],
@@ -50,8 +45,6 @@ export function toCourseInput(v: CourseFormValues): CourseInput {
     coverImageUrl: v.coverImageUrl || null,
     introVideoUrl: v.introVideoUrl.trim() || null,
     level: v.level,
-    isFree: v.isFree,
-    price: v.isFree ? 0 : somToTiyin(v.priceSom),
     sequentialUnlock: v.sequentialUnlock,
     directionId: v.directionId || null,
     teacherIds: v.teacherIds,
@@ -69,8 +62,6 @@ export function fromCourse(c: AdminCourse): CourseFormValues {
     coverImageUrl: c.coverImageUrl ?? '',
     introVideoUrl: c.introVideoUrl ?? '',
     level: c.level,
-    isFree: c.isFree,
-    priceSom: c.isFree ? '' : String(tiyinToSom(c.price)),
     sequentialUnlock: c.sequentialUnlock,
     directionId: c.directionId ?? c.direction?.id ?? '',
     teacherIds: c.teacherIds ?? c.teachers?.map((t) => t.id) ?? [],
@@ -81,7 +72,6 @@ export function fromCourse(c: AdminCourse): CourseFormValues {
 /** Maps a CourseInput issue path back to the form field. */
 export function courseFieldFor(path: PropertyKey[]): string {
   const k = String(path[0] ?? 'root');
-  if (k === 'price') return 'priceSom';
   if (k === 'goals') return 'goalsText';
   return k;
 }

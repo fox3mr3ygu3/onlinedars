@@ -45,8 +45,7 @@ export function CourseForm({
     defaultValues: course ? fromCourse(course) : emptyCourseForm,
     resolver: mappedZodResolver(courseInputSchema, toCourseInput, courseFieldFor),
   });
-  const { register, control, watch, setValue, formState } = form;
-  const isFree = watch('isFree');
+  const { register, control, setValue, formState } = form;
   const err = (k: keyof CourseFormValues) =>
     vmsg(formState.errors[k]?.message as string | undefined);
 
@@ -167,39 +166,12 @@ export function CourseForm({
         </div>
       </Section>
 
-      <Section title={t('courses.fields.price_column')}>
-        <div className="grid gap-4 md:grid-cols-2">
-          <CheckboxField
-            label={t('courses.fields.isFree')}
-            {...register('isFree', {
-              onChange: (e: { target: { checked: boolean } }) => {
-                if (e.target.checked) setValue('priceSom', '');
-              },
-            })}
-          />
-          <Field
-            label={t('courses.fields.price')}
-            hint={t('courses.fields.priceHint')}
-            error={err('priceSom')}
-          >
-            {(id, d) => (
-              <Input
-                id={id}
-                aria-describedby={d}
-                inputMode="numeric"
-                disabled={isFree}
-                aria-invalid={!!formState.errors.priceSom}
-                {...register('priceSom')}
-              />
-            )}
-          </Field>
-          <CheckboxField
-            className="md:col-span-2"
-            label={t('courses.fields.sequentialUnlock')}
-            hint={t('courses.fields.sequentialUnlockHint')}
-            {...register('sequentialUnlock')}
-          />
-        </div>
+      <Section>
+        <CheckboxField
+          label={t('courses.fields.sequentialUnlock')}
+          hint={t('courses.fields.sequentialUnlockHint')}
+          {...register('sequentialUnlock')}
+        />
       </Section>
 
       <Section>

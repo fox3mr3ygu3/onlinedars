@@ -6,7 +6,7 @@ import {
   CourseStatus,
   ExamAttemptStatus,
   type ExamReportRow,
-  PaymentStatus,
+  AccessRequestStatus,
   type ReportRangeQuery,
   Role,
 } from '@onlinedars/shared';
@@ -41,7 +41,7 @@ export class ReportsService {
       examAttempts,
       examsPassed,
       certificates,
-      paid,
+      pendingAccessRequests,
       recent,
     ] = await Promise.all([
       this.prisma.user.count({ where: { role: Role.STUDENT } }),
@@ -53,11 +53,7 @@ export class ReportsService {
       this.prisma.examAttempt.count({ where: { status: { not: ExamAttemptStatus.IN_PROGRESS } } }),
       this.prisma.examAttempt.count({ where: { passed: true } }),
       this.prisma.certificate.count({ where: { revokedAt: null } }),
-      this.prisma.order.aggregate({
-        where: { status: PaymentStatus.PAID },
-        _count: { _all: true },
-        _sum: { amount: true },
-      }),
+      this.prisma.accessRequest.count({ where: { status: AccessRequestStatus.PENDING } }),
       this.prisma.examAttempt.findMany({
         where: { status: { not: ExamAttemptStatus.IN_PROGRESS } },
         orderBy: { submittedAt: 'desc' },
@@ -82,8 +78,7 @@ export class ReportsService {
       examAttempts,
       examsPassed,
       certificates,
-      paidOrders: paid._count._all,
-      revenue: paid._sum.amount ?? 0,
+      pendingAccessRequests,
       recentResults: recent.map((r) => ({
         attemptId: r.id,
         studentId: r.user.id,

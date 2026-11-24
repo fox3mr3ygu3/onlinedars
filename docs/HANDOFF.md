@@ -9,6 +9,16 @@ Newest entry first. Each session adds one entry before ending, so work can conti
 - Blockers / questions: …
 -->
 
+## 2026-11-24 — coordinator — feat/admin-access-requests
+
+- Business change (user's decision): **courses open only by admin permission; online payments removed completely.** CLAUDE.md rule 8 rewritten; details in `docs/DECISIONS.md` (2026-11-24).
+- Student: course page "Kirish so'rash" → pending / rejected (with reason) / "Kursni ochish"; cabinet "Kirish so'rovlari". Admin: "Kirish so'rovlari" queue (approve, reject with reason), dashboard tile "Kutilayotgan so'rovlar"; the direct grant on the student page still works and closes an open request. All decisions audited + notified.
+- Removed: Payme/Click, orders, payments, re-check job, checkout, payment history, admin payments, course price/free flag, price filter, revenue, payment settings, payment k6 script, CI Payme/Click env.
+- DB: migration `0003_admin_access_only` (drops Order/Payment + price columns, adds AccessRequest; old PURCHASE/FREE enrolments → ADMIN). Run `pnpm db:migrate` after pulling. Demo seed rewritten (requests in every status).
+- Checks (local): API unit 336 + e2e 68, web unit 144, Playwright smoke + full-stack 65 (test DB), lint/typecheck/prettier clean.
+- Next: merge this PR (after #23/#24, or resolve small doc conflicts in TASKS/USER_ACTIONS/HANDOFF); update `docs/TEST_FLOWS.md` for the new flow; re-seed the dev DB (`pnpm db:migrate`, then the demo seed only adds to existing data).
+- Note: PR #24 (Netlify/Render demo) sets no payment env vars, so it still fits; its `render.yaml` sets `PAYMENT_RECHECK_INTERVAL_MINUTES`, which is now unused (harmless; drop it when merging).
+
 ## 2026-11-23 — coordinator — PRs #19, #20, #21 + feat/demo-seed (new PC: D:dev)
 
 - New PC setup: repo at `D:dev` (user's choice, not C:devonlinedars). A local Windows PostgreSQL holds 5432, so Docker Postgres runs on **5433** (`POSTGRES_PORT` in `.env`). MinIO image is gone → `STORAGE_DRIVER=local`. pnpm installed globally for the user.

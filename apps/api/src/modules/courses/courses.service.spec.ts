@@ -1,10 +1,6 @@
 import { CourseStatus, ErrorCode } from '@onlinedars/shared';
 import { beforeEach, describe, expect, it } from 'vitest';
-import {
-  AdminCoursesService,
-  assertCoursePublishable,
-  resolvePrice,
-} from './admin-courses.service';
+import { AdminCoursesService, assertCoursePublishable } from './admin-courses.service';
 import { catalogOrder, catalogWhere, CoursesService } from './courses.service';
 import {
   allKeys,
@@ -31,9 +27,6 @@ const courseRow = () => ({
   coverImageUrl: null,
   level: 'BEGINNER',
   status: 'PUBLISHED',
-  isFree: false,
-  price: 50_000_00,
-  currency: 'UZS',
   sequentialUnlock: true,
   directionId: 'd1',
   certificateTemplateId: null,
@@ -70,14 +63,14 @@ describe('public catalog', () => {
   });
 
   it('only ever queries PUBLISHED courses, whatever the filters', () => {
-    for (const q of [query(), query({ search: 'py', isFree: true, directionId: 'd1' })]) {
+    for (const q of [query(), query({ search: 'py', directionId: 'd1' })]) {
       expect(catalogWhere(q).status).toBe(CourseStatus.PUBLISHED);
     }
   });
 
-  it('builds search + filters (search or q alias, direction slug, teacher, level, isFree)', () => {
+  it('builds search + filters (search or q alias, direction slug, teacher, level)', () => {
     const w = catalogWhere(
-      query({ q: 'web', direction: 'it', teacherId: 't1', level: 'ADVANCED', isFree: false }),
+      query({ q: 'web', direction: 'it', teacherId: 't1', level: 'ADVANCED' }),
     );
     expect(w).toMatchObject({
       OR: [
@@ -87,7 +80,6 @@ describe('public catalog', () => {
       direction: { slug: 'it' },
       teachers: { some: { id: 't1' } },
       level: 'ADVANCED',
-      isFree: false,
     });
     expect(catalogWhere(query({ search: 'a', q: 'b' })).OR?.[0]).toEqual({
       title: { contains: 'a', mode: 'insensitive' },
@@ -95,7 +87,7 @@ describe('public catalog', () => {
   });
 
   it('orders by the requested sort', () => {
-    expect(catalogOrder('priceAsc')[0]).toEqual({ price: 'asc' });
+    expect(catalogOrder('title')[0]).toEqual({ title: 'asc' });
     expect(catalogOrder('popular')[0]).toEqual({ enrollments: { _count: 'desc' } });
   });
 
@@ -109,7 +101,6 @@ describe('public catalog', () => {
       lessonCount: 2,
       moduleCount: 1,
       durationMinutes: 10,
-      price: 5_000_000,
       publishedAt: '2026-11-01T00:00:00.000Z',
     });
   });
@@ -131,7 +122,7 @@ describe('public catalog', () => {
     expect(JSON.stringify(prisma.course.findFirst.mock.calls[0]![0])).not.toContain('practices');
   });
 
-  it('course detail also resolves by id (checkout passes the course id), still PUBLISHED only', async () => {
+  it('course detail also resolves by id (links may carry the course id), still PUBLISHED only', async () => {
     prisma.course.findFirst.mockResolvedValue(courseRow());
     const d = await service.getPublicBySlug('c1');
     expect(d.id).toBe('c1');
@@ -148,23 +139,6 @@ describe('public catalog', () => {
 });
 
 describe('admin course rules', () => {
-  it('resolvePrice: free = 0, paid > 0, switching to free resets price', async () => {
-    expect(resolvePrice({ isFree: false, price: 100 }, { isFree: true })).toEqual({
-      isFree: true,
-      price: 0,
-    });
-    expect(resolvePrice({ isFree: true, price: 0 }, { isFree: false, price: 500 })).toEqual({
-      isFree: false,
-      price: 500,
-    });
-    expect(
-      (await errorOf(() => resolvePrice({ isFree: true, price: 0 }, { price: 10 }))).code,
-    ).toBe(ErrorCode.VALIDATION_FAILED);
-    expect(
-      (await errorOf(() => resolvePrice({ isFree: true, price: 0 }, { isFree: false }))).code,
-    ).toBe(ErrorCode.VALIDATION_FAILED);
-  });
-
   it('assertCoursePublishable needs ≥1 lesson and all lessons published', async () => {
     expect(() =>
       assertCoursePublishable([
@@ -248,8 +222,6 @@ describe('admin course rules', () => {
           description: '',
           goals: [],
           level: 'BEGINNER',
-          isFree: true,
-          price: 0,
           sequentialUnlock: true,
           teacherIds: ['t1'],
         },
@@ -263,9 +235,9 @@ describe('admin course rules', () => {
       });
     });
 
-    it('delete is refused for a course with enrollments or orders', async () => {
+    it('delete is refused for a course with enrollments', async () => {
       prisma.course.findUnique.mockResolvedValue({
-        _count: { enrollments: 1, orders: 0, certificates: 0 },
+        _count: { enrollments: 1, certificates: 0 },
       });
       const e = await errorOf(() => service.remove('c1'));
       expect(e.code).toBe(ErrorCode.COURSE_NOT_DELETABLE);
@@ -274,7 +246,7 @@ describe('admin course rules', () => {
 
     it('delete works for an untouched course', async () => {
       prisma.course.findUnique.mockResolvedValue({
-        _count: { enrollments: 0, orders: 0, certificates: 0 },
+        _count: { enrollments: 0, certificates: 0 },
       });
       prisma.course.delete.mockResolvedValue({});
       await service.remove('c1');

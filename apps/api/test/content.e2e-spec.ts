@@ -134,8 +134,6 @@ describe.skipIf(!hasDb)('content e2e', () => {
         slug: slug('python'),
         title: `Python asoslari ${RUN}`,
         shortDescription: 'Python tilini noldan',
-        isFree: false,
-        price: 199_000_00,
         directionId: dir.body.id,
         teacherIds: [teacher.body.id],
       };
@@ -146,9 +144,9 @@ describe.skipIf(!hasDb)('content e2e', () => {
         .expect(201);
       expect(course.body).toMatchObject({
         status: 'DRAFT',
-        price: 199_000_00,
         sequentialUnlock: true,
       });
+      expect(course.body).not.toHaveProperty('price');
       courseId = course.body.id;
       const dup = await http
         .post('/api/v1/admin/courses')
@@ -158,12 +156,14 @@ describe.skipIf(!hasDb)('content e2e', () => {
       expect(dup.body.code).toBe(ErrorCode.SLUG_TAKEN);
     });
 
-    it('rejects a free course with a price', async () => {
-      await http
+    it('courses have no price: price fields are ignored', async () => {
+      const res = await http
         .patch(`/api/v1/admin/courses/${courseId}`)
         .set(auth('manager'))
         .send({ isFree: true, price: 100 })
-        .expect(400);
+        .expect(200);
+      expect(res.body).not.toHaveProperty('price');
+      expect(res.body).not.toHaveProperty('isFree');
     });
 
     it('creates a module and a lesson; incomplete lesson cannot be published', async () => {
@@ -260,7 +260,7 @@ describe.skipIf(!hasDb)('content e2e', () => {
         .expect(200);
       expect(course.body.status).toBe('PUBLISHED');
 
-      const list = await http.get(`/api/v1/courses?search=${RUN}&isFree=false`).expect(200);
+      const list = await http.get(`/api/v1/courses?search=${RUN}`).expect(200);
       expect(list.body.items.map((c: { id: string }) => c.id)).toContain(courseId);
       expect(list.body.items[0]).toMatchObject({ lessonCount: 1, durationMinutes: 15 });
     });

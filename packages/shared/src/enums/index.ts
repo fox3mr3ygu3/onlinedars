@@ -47,27 +47,20 @@ export const LessonMaterialType = {
 } as const;
 export type LessonMaterialType = (typeof LessonMaterialType)[keyof typeof LessonMaterialType];
 
-export const PaymentStatus = {
-  PENDING: 'PENDING',
-  PAID: 'PAID',
-  CANCELLED: 'CANCELLED',
-  FAILED: 'FAILED',
-  REFUNDED: 'REFUNDED',
-} as const;
-export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus];
-
-export const PaymentProvider = {
-  PAYME: 'PAYME',
-  CLICK: 'CLICK',
-} as const;
-export type PaymentProvider = (typeof PaymentProvider)[keyof typeof PaymentProvider];
-
 export const EnrollmentSource = {
-  PURCHASE: 'PURCHASE',
-  FREE: 'FREE',
+  /** Granted directly by an admin (Talabalar -> Kursga kirish berish). */
   ADMIN: 'ADMIN',
+  /** An admin approved the student's access request. */
+  ACCESS_REQUEST: 'ACCESS_REQUEST',
 } as const;
 export type EnrollmentSource = (typeof EnrollmentSource)[keyof typeof EnrollmentSource];
+
+export const AccessRequestStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+} as const;
+export type AccessRequestStatus = (typeof AccessRequestStatus)[keyof typeof AccessRequestStatus];
 
 export const ExamAttemptStatus = {
   IN_PROGRESS: 'IN_PROGRESS',
@@ -84,7 +77,8 @@ export const OtpPurpose = {
 export type OtpPurpose = (typeof OtpPurpose)[keyof typeof OtpPurpose];
 
 export const NotificationType = {
-  PAYMENT_SUCCESS: 'PAYMENT_SUCCESS',
+  ACCESS_GRANTED: 'ACCESS_GRANTED',
+  ACCESS_REJECTED: 'ACCESS_REJECTED',
   CERTIFICATE_ISSUED: 'CERTIFICATE_ISSUED',
   SYSTEM: 'SYSTEM',
 } as const;

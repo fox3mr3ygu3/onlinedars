@@ -17,7 +17,7 @@ import { CertificatesModule } from './modules/certificates/certificates.module';
 import { ExamsModule } from './modules/exams/exams.module';
 import { HealthModule } from './modules/health/health.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
-import { PaymentsModule } from './modules/payments/payments.module';
+import { AccessRequestsModule } from './modules/access-requests/access-requests.module';
 
 import { ProgressModule } from './modules/progress/progress.module';
 import { ReportsModule } from './modules/reports/reports.module';
@@ -56,7 +56,7 @@ import { PrismaModule } from './prisma/prisma.module';
     UsersModule,
     AuditModule,
     NotificationsModule,
-    PaymentsModule,
+    AccessRequestsModule,
 
     // backend-learning
     ProgressModule,

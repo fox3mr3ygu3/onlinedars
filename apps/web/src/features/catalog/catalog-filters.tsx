@@ -25,14 +25,14 @@ export function CatalogFilters({
   const t = useTranslations('catalog');
   const submitOnChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
     e.currentTarget.form?.requestSubmit();
-  const hasFilters = !!(state.search || state.directionId || state.price);
+  const hasFilters = !!(state.search || state.directionId);
 
   return (
     <form
       action="/courses"
       method="get"
       role="search"
-      className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_220px_160px_auto]"
+      className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_220px_auto]"
     >
       <div className="relative sm:col-span-2 lg:col-span-1">
         <label htmlFor="catalog-search" className="sr-only">
@@ -69,22 +69,6 @@ export function CatalogFilters({
               {d.name}
             </option>
           ))}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="catalog-price" className="sr-only">
-          {t('price')}
-        </label>
-        <select
-          id="catalog-price"
-          name="price"
-          defaultValue={state.price}
-          onChange={submitOnChange}
-          className={selectClass}
-        >
-          <option value="">{t('priceAll')}</option>
-          <option value="free">{t('priceFree')}</option>
-          <option value="paid">{t('pricePaid')}</option>
         </select>
       </div>
       <div className="flex gap-2 sm:col-span-2 lg:col-span-1">

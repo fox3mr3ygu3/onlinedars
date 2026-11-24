@@ -38,14 +38,14 @@ test.describe('admin content @fullstack', () => {
     await page.getByLabel('Nomi', { exact: true }).blur();
     const slug = await page.getByLabel('URL nomi (slug)').inputValue();
     expect(slug).toMatch(/^e2e-admin-kurs-/);
-    await page.getByLabel("Narxi (so'm)").fill('199000');
     await page.getByRole('button', { name: 'Yaratish' }).click();
     await expect(page).toHaveURL(/\/admin\/courses\/[^/]+\/modules/);
     const courseId = page.url().match(/\/admin\/courses\/([^/]+)\/modules/)![1]!;
 
     const token = await loginApi(request, CONTENT_MANAGER);
     const saved = await call(request, 'GET', `/admin/courses/${courseId}`, { token });
-    expect(saved).toMatchObject({ title, slug, price: 19_900_000, isFree: false, status: 'DRAFT' });
+    expect(saved).toMatchObject({ title, slug, status: 'DRAFT' });
+    expect(saved).not.toHaveProperty('price');
 
     // Edit through the API the editor uses, then the change shows in the admin course list.
     await call(request, 'PATCH', `/admin/courses/${courseId}`, {
@@ -65,7 +65,7 @@ test.describe('admin content @fullstack', () => {
     const token = await loginApi(request, ADMIN);
     const course = await call(request, 'POST', '/admin/courses', {
       token,
-      data: { slug: uid('kurs'), title: 'E2E 4x6 kurs', isFree: true, price: 0 },
+      data: { slug: uid('kurs'), title: 'E2E 4x6 kurs' },
       expect: 201,
     });
     const mod = await createModule(request, token, course.id);

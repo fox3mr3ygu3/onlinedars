@@ -30,7 +30,7 @@
 | Branch                | Purpose                                                                                                       |
 | --------------------- | ------------------------------------------------------------------------------------------------------------- |
 | `main`                | Always deployable. Protected: changes only through a Pull Request with green CI. Auto-deploys to **staging**. |
-| `feat/<area>-<short>` | New feature, e.g. `feat/payments-click`                                                                       |
+| `feat/<area>-<short>` | New feature, e.g. `feat/access-requests`                                                                      |
 | `fix/<short>`         | Bug fix                                                                                                       |
 | `chore/<short>`       | Tooling, dependencies, docs                                                                                   |
 | `hotfix/<short>`      | Urgent production fix, branched from the latest release tag                                                   |
@@ -50,7 +50,7 @@
 
 ## Commits
 
-- Use Conventional Commits: `feat(lessons): enforce 4x6 before publish`, `fix(payme): reject amount mismatch`.
+- Use Conventional Commits: `feat(lessons): enforce 4x6 before publish`, `fix(access): reject a second pending request`.
 - Each commit should build. Never commit `.env`, keys, database dumps or `node_modules`.
 
 ## Pull Requests

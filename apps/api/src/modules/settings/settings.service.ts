@@ -40,7 +40,7 @@ export class SettingsService {
     return mergeSettings(rows);
   }
 
-  /** Typed single value for other modules (e.g. payments: `refundPolicy`, `orderTtlMinutes`). */
+  /** Typed single value for other modules (e.g. `maintenanceMode`). */
   async get<K extends PlatformSettingKey>(key: K): Promise<PlatformSettings[K]> {
     return (await this.getAll())[key];
   }

@@ -6,7 +6,6 @@ import {
   missingPlaceholders,
   DEFAULT_CERTIFICATE_HTML,
 } from './certificates/preview';
-import { somToTiyin, tiyinToSom } from './common/money';
 import { dateInputToIso, formatDateTime } from './common/format';
 import { courseFieldFor, emptyCourseForm, slugify, toCourseInput } from './courses/courseFormModel';
 import { nextStatuses } from './courses/CourseStatus';
@@ -36,6 +35,7 @@ describe('admin messages', () => {
       pool: 1,
       list: 'x',
       course: 'x',
+      student: 'x',
       date: 'x',
     };
     for (const k of keys(messages.admin)) {
@@ -51,40 +51,13 @@ describe('admin messages', () => {
   });
 });
 
-describe("money: so'm shown, tiyin sent", () => {
-  it('converts', () => {
-    expect(somToTiyin('499 000')).toBe(49_900_000);
-    expect(somToTiyin('12,5')).toBe(1250);
-    expect(somToTiyin('abc')).toBe(0);
-    expect(somToTiyin(-5)).toBe(0);
-    expect(tiyinToSom(49_900_000)).toBe(499_000);
-  });
-
-  it('course form sends tiyin and forces 0 for free courses', () => {
-    const paid = toCourseInput({
-      ...emptyCourseForm,
-      title: 'Python',
-      slug: 'python',
-      priceSom: '499000',
-    });
-    expect(paid.price).toBe(49_900_000);
-    expect(courseInputSchema.safeParse(paid).success).toBe(true);
-
-    const free = toCourseInput({
-      ...emptyCourseForm,
-      title: 'Python',
-      slug: 'python',
-      isFree: true,
-      priceSom: '10',
-    });
-    expect(free.price).toBe(0);
-    expect(courseInputSchema.safeParse(free).success).toBe(true);
-
-    const r = courseInputSchema.safeParse(
-      toCourseInput({ ...emptyCourseForm, title: 'Py', slug: 'py', priceSom: '' }),
-    );
-    expect(r.success).toBe(false);
-    if (!r.success) expect(courseFieldFor(r.error.issues[0]!.path)).toBe('priceSom');
+describe('course form', () => {
+  it('sends no price: courses are opened by admins only', () => {
+    const input = toCourseInput({ ...emptyCourseForm, title: 'Python', slug: 'python' });
+    expect(input).not.toHaveProperty('price');
+    expect(input).not.toHaveProperty('isFree');
+    expect(courseInputSchema.safeParse(input).success).toBe(true);
+    expect(courseFieldFor(['goals'])).toBe('goalsText');
   });
 
   it('goals from lines, slugify', () => {

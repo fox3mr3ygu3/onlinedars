@@ -5,10 +5,6 @@ export const QUESTIONS_PER_PRACTICE = 6;
 /** 4 × 6 = 24 questions per lesson. */
 export const QUESTIONS_PER_LESSON = PRACTICES_PER_LESSON * QUESTIONS_PER_PRACTICE;
 
-/** All money is stored as integer tiyin (1 UZS = 100 tiyin). */
-export const CURRENCY = 'UZS';
-export const TIYIN_PER_SOM = 100;
-
 export const ACCESS_TOKEN_TTL_SECONDS = 15 * 60;
 export const REFRESH_TOKEN_TTL_DAYS = 30;
 export const REFRESH_COOKIE_NAME = 'od_refresh';

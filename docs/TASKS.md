@@ -54,9 +54,12 @@ the OpenAPI stubs — they don't need finished backend logic.
 - [x] Admin reports: per-course completion, exam results, activity; admin dashboard stats
 - [x] Admin students (added by coordinator): list/search, profile with progress + results, grant/revoke access (AuditLog)
 
-## 4. `backend-payments` — orders, Payme, Click, access
+## 4. `backend-payments` — course access (was: orders, Payme, Click)
 
-**Owns:** `apps/api/src/modules/{payments,audit,notifications}`, `apps/api/src/jobs/payment-recheck*`, `apps/api/src/jobs/notify*`, `docs/api/payments.md`
+> 2026-11-24: payments were removed. Courses are opened only by an admin (access requests). The
+> checklist below is history; the current scope is the access-request module.
+
+**Owns:** `apps/api/src/modules/{access-requests,audit,notifications}`, `apps/api/src/jobs/notify*`
 
 - [x] Order creation (unique orderId, amount from DB, UZS tiyin); free-course direct enrollment
 - [x] Payme Merchant API: CheckPerformTransaction, CreateTransaction, PerformTransaction, CancelTransaction, CheckTransaction, GetStatement; Basic-auth check
@@ -182,6 +185,19 @@ sections above and add a `docs/DECISIONS.md` entry if it brings a new dependency
   - Done when: catalog, course pages, teachers, FAQ, student cabinet (for a demo student with
     progress), and every admin page (dashboard, lists, reports, payments, audit) show realistic
     data; `docs/GIT_WORKFLOW.md` "Setting up a new PC" mentions the demo seed.
+
+- [x] **Admin-granted access only; remove payments** — decided by the user 2026-11-24.
+  - All courses (no free/paid split) are opened only by an ADMIN: direct grant, or approving a
+    student's access request. Rejections need a reason the student sees. Audited + notifications.
+  - Removed completely: Payme/Click, orders, payments, re-check job, checkout, payment history,
+    admin payments, course price, price filter, revenue tile, payment settings.
+  - New: `AccessRequest` model + migration `0003_admin_access_only`; `POST /access-requests`,
+    `GET /me/access-requests`, `GET /me/course-access/:courseId`, admin queue
+    `/admin/access-requests` (approve / reject); course page "Kirish so'rash"; cabinet
+    "Kirish so'rovlari"; admin "Kirish so'rovlari" page and dashboard tile.
+  - Tests: API unit + e2e, web unit, Playwright smoke + full-stack (`acceptance/access-request`).
+- [ ] Update `docs/TEST_FLOWS.md` (tester guide, PR #23) for the new access flow (sections 3.2,
+      5, 6.5, 7, 8, 9).
 
 ## Requests
 

@@ -10,7 +10,7 @@ test.describe('auth pages @smoke', () => {
         ? json(r, 401, { statusCode: 401, code: 'INVALID_CREDENTIALS', message: 'x' })
         : json(r, 200, authBody);
     });
-    await page.goto('/login?next=/cabinet/payments');
+    await page.goto('/login?next=/cabinet/requests');
     await page.waitForLoadState('networkidle');
     await page.getByLabel('Email yoki telefon raqam').fill('abc');
     await page.getByRole('button', { name: 'Kirish' }).click();
@@ -22,7 +22,7 @@ test.describe('auth pages @smoke', () => {
     await expect(page.locator('form [role=alert]')).toContainText("Login yoki parol noto'g'ri");
 
     await page.getByRole('button', { name: 'Kirish' }).click();
-    await expect(page).toHaveURL(/\/cabinet\/payments$/);
+    await expect(page).toHaveURL(/\/cabinet\/requests$/);
     const cookies = await page.context().cookies();
     expect(cookies.find((c) => c.name === 'od_role')?.value).toBe('STUDENT');
   });
@@ -55,7 +55,7 @@ test.describe('auth pages @smoke', () => {
   test('protected pages send signed-out users to login', async ({ page }) => {
     await page.goto('/cabinet');
     await expect(page).toHaveURL(/\/login\?next=%2Fcabinet$/);
-    await page.goto('/checkout/c1');
-    await expect(page).toHaveURL(/\/login\?next=%2Fcheckout%2Fc1$/);
+    await page.goto('/cabinet/requests');
+    await expect(page).toHaveURL(/\/login\?next=%2Fcabinet%2Frequests$/);
   });
 });

@@ -12,8 +12,7 @@ const dashboard = {
   examAttempts: 40,
   examsPassed: 30,
   certificates: 28,
-  paidOrders: 90,
-  revenue: 4_491_000_000,
+  pendingAccessRequests: 3,
   recentResults: [],
 };
 
@@ -47,7 +46,7 @@ test.describe('admin panel @smoke', () => {
     if (isMobile) await page.getByRole('button', { name: 'Menyuni ochish' }).click();
     const nav = page.getByRole('navigation', { name: 'Boshqaruv paneli' }).last();
     await expect(nav.getByRole('link', { name: 'Kurslar' })).toBeVisible();
-    await expect(nav.getByRole('link', { name: "To'lovlar" })).toHaveCount(0);
+    await expect(nav.getByRole('link', { name: "Kirish so'rovlari" })).toHaveCount(0);
     await expect(nav.getByRole('link', { name: 'Sozlamalar' })).toHaveCount(0);
     await expect(page.getByText('Talabalar').first()).toBeVisible(); // dashboard stat, not a menu link
   });
@@ -58,8 +57,9 @@ test.describe('admin panel @smoke', () => {
     await page.goto('/admin');
     await expect(page.getByText('860')).toBeVisible();
     await expect(page.getByText('75%')).toBeVisible();
+    await expect(page.getByTestId('dashboard-pending-requests')).toContainText('3');
     if (isMobile) await page.getByRole('button', { name: 'Menyuni ochish' }).click();
-    await expect(page.getByRole('link', { name: "To'lovlar" }).last()).toBeVisible();
+    await expect(page.getByRole('link', { name: "Kirish so'rovlari" }).last()).toBeVisible();
   });
 
   test('practice editor: counters, add disabled at 4/4, publish disabled until 4×6', async ({
@@ -100,48 +100,51 @@ test.describe('admin panel @smoke', () => {
     await expect(page.getByRole('button', { name: 'Darsni nashr qilish' })).toBeEnabled();
   });
 
-  test('payment status change requires a reason and sends it', async ({ page }) => {
+  test('access requests: approve, and reject only with a reason', async ({ page }) => {
     const api = await mockApi(page, 'ADMIN');
-    // Same shape as GET /admin/payments items (shared AdminPaymentView).
-    const payment = {
-      orderId: 'ord1',
-      number: 1042,
+    // Same shape as GET /admin/access-requests items (shared AdminAccessRequest).
+    const req = {
+      id: 'r1',
       courseId: 'c1',
       courseTitle: 'Python',
       courseSlug: 'python',
+      status: 'PENDING',
+      message: 'Iltimos',
+      decisionReason: null,
+      decidedAt: null,
+      createdAt: '2026-11-24T10:00:00.000Z',
+      updatedAt: '2026-11-24T10:00:00.000Z',
       student: { id: 's1', fullName: 'Aliyev Vali', email: null, phone: '+998901234567' },
-      amount: 49_900_000,
-      currency: 'UZS',
-      provider: 'PAYME',
-      status: 'PAID',
-      enrolled: true,
-      createdAt: '2026-11-20T10:00:00.000Z',
-      paidAt: '2026-11-20T10:01:00.000Z',
-      cancelledAt: null,
-      expiresAt: null,
-      transactions: [],
+      decidedBy: null,
     };
-    api.on('GET', '/admin/payments', page1([payment]));
+    const req2 = { ...req, id: 'r2', courseTitle: 'SQL', courseId: 'c2' };
+    api.on('GET', '/admin/access-requests', {
+      ...page1([req, req2]),
+      pendingCount: 2,
+    });
     api.on('GET', '/admin/courses', page1([]));
-    api.on('PATCH', '/admin/payments/ord1/status', (_r, body) => ({
-      ...payment,
-      ...(body as object),
+    api.on('POST', '/admin/access-requests/r1/approve', { ...req, status: 'APPROVED' });
+    api.on('POST', '/admin/access-requests/r2/reject', (_r, body) => ({
+      ...req2,
+      status: 'REJECTED',
+      decisionReason: (body as { reason: string }).reason,
     }));
 
-    await page.goto('/admin/payments');
-    await expect(page.getByText('499 000')).toBeVisible();
-    await page.getByRole('button', { name: "Holatni o'zgartirish" }).click();
-    const dialog = page.getByRole('dialog');
-    await dialog.getByRole('button', { name: "Holatni o'zgartirish" }).click();
-    await expect(dialog.getByText('Sababni kiriting (kamida 5 ta belgi)')).toBeVisible();
-    expect(api.calls.some((c) => c.method === 'PATCH')).toBe(false);
+    await page.goto('/admin/access-requests');
+    await expect(page.getByTestId('pending-count')).toHaveText("2 ta so'rov kutilmoqda");
+    await page.getByTestId('access-request-r1').getByRole('button', { name: 'Tasdiqlash' }).click();
+    await expect.poll(() => api.calls.some((c) => c.path.endsWith('/r1/approve'))).toBe(true);
 
-    await dialog.getByLabel('Yangi holat').selectOption('REFUNDED');
-    await dialog.getByLabel('Sabab').fill('Mijoz talabi bilan qaytarildi');
-    await dialog.getByRole('button', { name: "Holatni o'zgartirish" }).click();
+    await page.getByTestId('access-request-r2').getByRole('button', { name: 'Rad etish' }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('button', { name: 'Rad etish' }).click();
+    await expect(dialog.getByText('Sababni kiriting (kamida 3 ta belgi)')).toBeVisible();
+    expect(api.calls.some((c) => c.path.endsWith('/reject'))).toBe(false);
+    await dialog.getByLabel('Sabab').fill("Guruh to'lgan");
+    await dialog.getByRole('button', { name: 'Rad etish' }).click();
     await expect(dialog).toBeHidden();
-    const patch = api.calls.find((c) => c.method === 'PATCH');
-    expect(patch?.body).toEqual({ status: 'REFUNDED', reason: 'Mijoz talabi bilan qaytarildi' });
+    const reject = api.calls.find((c) => c.path.endsWith('/r2/reject'));
+    expect(reject?.body).toEqual({ reason: "Guruh to'lgan" });
   });
 
   test('settings page is hidden for content managers', async ({ page }) => {
@@ -152,7 +155,7 @@ test.describe('admin panel @smoke', () => {
 });
 
 test.describe('admin course editor', () => {
-  test('creates a paid course sending price in tiyin @smoke', async ({ page }) => {
+  test('creates a course without any price @smoke', async ({ page }) => {
     const api = await mockApi(page, 'ADMIN');
     api.on(
       'GET',
@@ -179,18 +182,14 @@ test.describe('admin course editor', () => {
     await page.getByLabel('Nomi', { exact: true }).fill('Python asoslari');
     await page.getByLabel('Nomi', { exact: true }).blur();
     await expect(page.getByLabel('URL nomi (slug)')).toHaveValue('python-asoslari');
-    await page.getByRole('button', { name: 'Yaratish' }).click();
-    await expect(page.getByText('Pullik kurs narxini kiriting')).toBeVisible();
-
-    await page.getByLabel("Narxi (so'm)").fill('499000');
+    await expect(page.getByLabel("Narxi (so'm)")).toHaveCount(0);
     await page.getByRole('button', { name: 'Yaratish' }).click();
     await expect(page).toHaveURL(/\/admin\/courses\/c9\/modules/);
     const post = api.calls.find((c) => c.method === 'POST' && c.path === '/admin/courses');
     expect(post?.body).toMatchObject({
       title: 'Python asoslari',
-      isFree: false,
-      price: 49_900_000,
       sequentialUnlock: true,
     });
+    expect(post?.body).not.toHaveProperty('price');
   });
 });
