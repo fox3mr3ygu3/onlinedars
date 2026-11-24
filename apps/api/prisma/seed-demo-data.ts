@@ -15,7 +15,6 @@ export interface DemoCourse {
   teachers: string[]; // teacher slugs
   level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
   /** so'm; 0 = free */
-  priceSom: number;
   status: 'PUBLISHED' | 'DRAFT' | 'HIDDEN';
   /** cover colour (hex without #) */
   color: string;
@@ -101,7 +100,6 @@ export const DEMO_COURSES: DemoCourse[] = [
     direction: 'dasturlash',
     teachers: ['dilnoza-rahimova'],
     level: 'BEGINNER',
-    priceSom: 499_000,
     status: 'PUBLISHED',
     color: '2563eb',
     modules: [
@@ -173,7 +171,6 @@ export const DEMO_COURSES: DemoCourse[] = [
     direction: 'dasturlash',
     teachers: ['jasur-tursunov'],
     level: 'INTERMEDIATE',
-    priceSom: 599_000,
     status: 'PUBLISHED',
     color: 'ca8a04',
     modules: [
@@ -245,7 +242,6 @@ export const DEMO_COURSES: DemoCourse[] = [
     direction: 'dasturlash',
     teachers: ['jasur-tursunov'],
     level: 'ADVANCED',
-    priceSom: 799_000,
     status: 'PUBLISHED',
     color: '0891b2',
     modules: [
@@ -312,7 +308,6 @@ export const DEMO_COURSES: DemoCourse[] = [
     direction: 'mobil',
     teachers: ['bekzod-aliyev'],
     level: 'INTERMEDIATE',
-    priceSom: 699_000,
     status: 'PUBLISHED',
     color: '7c3aed',
     modules: [
@@ -374,7 +369,7 @@ export const DEMO_COURSES: DemoCourse[] = [
     title: "SQL va ma'lumotlar bazasi",
     shortDescription: "So'rovlar yozish, jadvallarni bog'lash va ma'lumotlarni tahlil qilish.",
     description:
-      "Bepul kurs: relyatsion ma'lumotlar bazasi tushunchasi, SELECT so'rovlari, filtrlash, guruhlash va JOIN orqali bir nechta jadval bilan ishlash.",
+      "Relyatsion ma'lumotlar bazasi tushunchasi, SELECT so'rovlari, filtrlash, guruhlash va JOIN orqali bir nechta jadval bilan ishlash.",
     goals: [
       "SELECT so'rovlari",
       'Filtrlash va saralash',
@@ -384,7 +379,6 @@ export const DEMO_COURSES: DemoCourse[] = [
     direction: 'malumotlar',
     teachers: ['dilnoza-rahimova'],
     level: 'BEGINNER',
-    priceSom: 0,
     status: 'PUBLISHED',
     color: '059669',
     modules: [
@@ -456,7 +450,6 @@ export const DEMO_COURSES: DemoCourse[] = [
     direction: 'dizayn',
     teachers: ['malika-yusupova'],
     level: 'BEGINNER',
-    priceSom: 449_000,
     status: 'PUBLISHED',
     color: 'db2777',
     modules: [
@@ -523,7 +516,6 @@ export const DEMO_COURSES: DemoCourse[] = [
     direction: 'marketing',
     teachers: ['nodira-karimova'],
     level: 'BEGINNER',
-    priceSom: 399_000,
     status: 'PUBLISHED',
     color: 'ea580c',
     modules: [
@@ -585,7 +577,7 @@ export const DEMO_COURSES: DemoCourse[] = [
     title: 'Git va GitHub',
     shortDescription: 'Kod versiyalarini boshqarish va jamoada ishlash.',
     description:
-      "Bepul kurs: Git buyruqlari, tarmoqlar (branch), birlashtirish va GitHub'da pull request orqali jamoaviy ish.",
+      "Git buyruqlari, tarmoqlar (branch), birlashtirish va GitHub'da pull request orqali jamoaviy ish.",
     goals: [
       'Git asosiy buyruqlari',
       'Branch bilan ishlash',
@@ -595,7 +587,6 @@ export const DEMO_COURSES: DemoCourse[] = [
     direction: 'dasturlash',
     teachers: ['aziz-karimov'],
     level: 'BEGINNER',
-    priceSom: 0,
     status: 'PUBLISHED',
     color: '334155',
     modules: [
@@ -661,7 +652,6 @@ export const DEMO_COURSES: DemoCourse[] = [
     direction: 'dasturlash',
     teachers: ['aziz-karimov'],
     level: 'INTERMEDIATE',
-    priceSom: 549_000,
     status: 'DRAFT',
     color: '1d4ed8',
     modules: [
@@ -696,7 +686,6 @@ export const DEMO_COURSES: DemoCourse[] = [
     direction: 'dasturlash',
     teachers: ['jasur-tursunov'],
     level: 'BEGINNER',
-    priceSom: 99_000,
     status: 'HIDDEN',
     color: '64748b',
     modules: [
@@ -725,12 +714,13 @@ export const DEMO_COURSES: DemoCourse[] = [
 
 export const DEMO_FAQ = [
   {
-    question: "To'lovni qaytarib olsa bo'ladimi?",
-    answer: "Ha, xariddan keyin 14 kun ichida murojaat qilsangiz, to'lov qaytariladi.",
+    question: 'Kursga kirish qancha vaqtda ochiladi?',
+    answer:
+      "So'rov yuborganingizdan keyin administrator uni odatda bir ish kuni ichida ko'rib chiqadi.",
   },
   {
     question: 'Kursga qancha vaqt kirish mumkin?',
-    answer: 'Sotib olingan kursga muddatsiz kirish beriladi.',
+    answer: 'Administrator bergan kursga kirish muddatsiz amal qiladi.',
   },
   {
     question: "Darslarni telefonda ko'rsa bo'ladimi?",

@@ -50,7 +50,7 @@ export class CoursesController {
 
   @Public()
   @Get(':slug')
-  @ApiOperation({ summary: 'Course page: description, goals, program, price (published only)' })
+  @ApiOperation({ summary: 'Course page: description, goals, program (published only)' })
   @ApiOkResponse({ type: PublicCourseDetailDto })
   get(@Param('slug') slug: string): Promise<PublicCourseDetail> {
     return this.courses.getPublicBySlug(slug);
@@ -120,7 +120,7 @@ export class AdminCoursesController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
-    summary: 'Delete a course without enrollments/orders (else COURSE_NOT_DELETABLE)',
+    summary: 'Delete a course without enrollments/certificates (else COURSE_NOT_DELETABLE)',
   })
   remove(@Param('id') id: string): Promise<void> {
     return this.courses.remove(id);

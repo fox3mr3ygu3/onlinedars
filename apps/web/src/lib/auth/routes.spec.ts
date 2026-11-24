@@ -16,8 +16,8 @@ describe('resolveRouteAccess (middleware rules)', () => {
     expect(resolveRouteAccess('/admin/courses', '', undefined)).toBe(
       '/login?next=%2Fadmin%2Fcourses',
     );
-    expect(resolveRouteAccess('/checkout/result', '?orderId=o1', undefined)).toBe(
-      '/login?next=%2Fcheckout%2Fresult%3ForderId%3Do1',
+    expect(resolveRouteAccess('/cabinet/requests', '?x=1', undefined)).toBe(
+      '/login?next=%2Fcabinet%2Frequests%3Fx%3D1',
     );
   });
 
@@ -37,9 +37,9 @@ describe('resolveRouteAccess (middleware rules)', () => {
     expect(resolveRouteAccess('/admin', '', 'STUDENT')).toBe('/cabinet');
   });
 
-  it('/checkout needs any signed-in role', () => {
-    expect(resolveRouteAccess('/checkout/c1', '', 'STUDENT')).toBeNull();
-    expect(resolveRouteAccess('/checkout/c1', '', 'ADMIN')).toBeNull();
+  it('public pages (incl. the removed /checkout) are not guarded', () => {
+    expect(resolveRouteAccess('/courses/python', '', undefined)).toBeNull();
+    expect(resolveRouteAccess('/checkout/c1', '', undefined)).toBeNull();
   });
 });
 
@@ -51,10 +51,10 @@ describe('middleware', () => {
   }
 
   it('redirects to login without the role cookie', () => {
-    const res = middleware(req('/cabinet/payments'));
+    const res = middleware(req('/cabinet/requests'));
     expect(res.status).toBe(307);
     expect(res.headers.get('location')).toBe(
-      'http://localhost:3000/login?next=%2Fcabinet%2Fpayments',
+      'http://localhost:3000/login?next=%2Fcabinet%2Frequests',
     );
   });
 

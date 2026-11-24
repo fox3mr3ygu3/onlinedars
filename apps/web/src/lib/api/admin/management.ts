@@ -1,11 +1,11 @@
 import type {
-  AdminPaymentStatusChange,
   CertificateTemplateInput,
   DirectionInput,
   ExamConfigInput,
   FaqInput,
-  PaymentProvider,
-  PaymentStatus,
+  AccessRequestStatus,
+  AdminAccessRequest,
+  AdminAccessRequestList,
   QuestionInput,
   TeacherInput,
 } from '@onlinedars/shared';
@@ -20,7 +20,6 @@ import type {
   AdminExam,
   AdminFaq,
   AdminMe,
-  AdminPayment,
   AdminQuestion,
   AdminSettings,
   AdminStudentDetail,
@@ -127,21 +126,23 @@ export const grantEnrollment = (studentId: string, courseId: string) =>
 export const revokeEnrollment = (studentId: string, courseId: string) =>
   adminFetch<void>(`/admin/students/${studentId}/enrollments/${courseId}`, { method: 'DELETE' });
 
-// ---------- payments ----------
-export interface PaymentListQuery {
-  status?: PaymentStatus | '';
-  provider?: PaymentProvider | '';
+// ---------- access requests ----------
+export interface AccessRequestListQuery {
+  status?: AccessRequestStatus | '';
   courseId?: string;
   search?: string;
-  from?: string;
-  to?: string;
   page?: number;
   pageSize?: number;
 }
-export const listPayments = (q: PaymentListQuery = {}) =>
-  adminFetch<Paginated<AdminPayment>>(`/admin/payments${qs({ ...q })}`);
-export const changePaymentStatus = (id: string, body: AdminPaymentStatusChange) =>
-  adminFetch<AdminPayment>(`/admin/payments/${id}/status`, { method: 'PATCH', body });
+export const listAccessRequests = (q: AccessRequestListQuery = {}) =>
+  adminFetch<AdminAccessRequestList>(`/admin/access-requests${qs({ ...q })}`);
+export const approveAccessRequest = (id: string) =>
+  adminFetch<AdminAccessRequest>(`/admin/access-requests/${id}/approve`, { method: 'POST' });
+export const rejectAccessRequest = (id: string, reason: string) =>
+  adminFetch<AdminAccessRequest>(`/admin/access-requests/${id}/reject`, {
+    method: 'POST',
+    body: { reason },
+  });
 
 // ---------- audit ----------
 export interface AuditQuery {

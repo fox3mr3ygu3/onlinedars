@@ -13,8 +13,13 @@ import {
 import type { Prisma } from '@prisma/client';
 import { AppException } from '../../common/errors/app.exception';
 import { PrismaService } from '../../prisma/prisma.service';
+import { AccessRequestsService } from '../access-requests/access-requests.service';
 import { CertificatesService, itemSelect } from '../certificates/certificates.service';
 import { toResultSummary } from '../exams/exams.service';
+import {
+  accessGrantedNotification,
+  NotificationsService,
+} from '../notifications/notifications.service';
 import { CourseStateService } from '../progress/course-state.service';
 import { percentOf } from '../progress/grading/grading';
 
@@ -80,6 +85,7 @@ export class StudentsService {
     private readonly prisma: PrismaService,
     private readonly state: CourseStateService,
     private readonly certificates: CertificatesService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async list(q: AdminStudentsQuery): Promise<Paginated<AdminStudentListItem>> {
@@ -194,16 +200,19 @@ export class StudentsService {
     };
   }
 
-  /** Grants access (source ADMIN) or restores a revoked enrollment. Audited. */
+  /**
+   * Grants access (source ADMIN) or restores a revoked enrollment. Audited; closes an open
+   * access request for the course and notifies the student.
+   */
   async grant(studentId: string, input: GrantEnrollmentInput, meta: AuditMeta) {
     await this.findStudent(studentId);
     const course = await this.prisma.course.findUnique({
       where: { id: input.courseId },
-      select: { id: true },
+      select: { id: true, title: true, slug: true },
     });
     if (!course) throw AppException.notFound();
 
-    return this.prisma.$transaction(async (tx) => {
+    const { result, notificationId } = await this.prisma.$transaction(async (tx) => {
       const before = await tx.enrollment.findUnique({
         where: { userId_courseId: { userId: studentId, courseId: input.courseId } },
       });
@@ -231,12 +240,27 @@ export class StudentsService {
           userAgent: meta.userAgent ?? null,
         },
       });
+      await AccessRequestsService.closeOpenRequest(tx, studentId, input.courseId, meta.actorId);
+      const n = await this.notifications.create(
+        accessGrantedNotification({
+          userId: studentId,
+          courseId: course.id,
+          courseTitle: course.title,
+          courseSlug: course.slug,
+        }),
+        tx,
+      );
       return {
-        courseId: after.courseId,
-        enrolledAt: after.enrolledAt.toISOString(),
-        source: after.source,
+        result: {
+          courseId: after.courseId,
+          enrolledAt: after.enrolledAt.toISOString(),
+          source: after.source,
+        },
+        notificationId: n.id,
       };
     });
+    await this.notifications.deliver(notificationId);
+    return result;
   }
 
   /** Revokes access (keeps progress and certificates). Audited. */

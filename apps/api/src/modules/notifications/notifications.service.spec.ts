@@ -2,12 +2,12 @@ import { ErrorCode } from '@onlinedars/shared';
 import { describe, expect, it, vi } from 'vitest';
 import { AppException } from '../../common/errors/app.exception';
 import type { PrismaService } from '../../prisma/prisma.service';
-import { createPaymentsFakeDb } from '../payments/testing/payments-fake-db';
+import { createMemoryDb } from '../../testing/memory-db';
 import { EmailSender, NotificationSmsSender } from './channels';
-import { NotificationsService, paymentSuccessNotification } from './notifications.service';
+import { accessGrantedNotification, NotificationsService } from './notifications.service';
 
 function setup() {
-  const db = createPaymentsFakeDb();
+  const db = createMemoryDb();
   const email = { send: vi.fn(async () => undefined) } as unknown as EmailSender;
   const sms = { send: vi.fn(async () => undefined) } as unknown as NotificationSmsSender;
   const service = new NotificationsService(db as unknown as PrismaService, email, sms);
@@ -15,13 +15,11 @@ function setup() {
 }
 
 const note = (userId: string) =>
-  paymentSuccessNotification({
+  accessGrantedNotification({
     userId,
     courseId: 'c1',
     courseTitle: 'Python',
     courseSlug: 'python',
-    orderId: 'o1',
-    orderNumber: 1001,
   });
 
 describe('NotificationsService', () => {
@@ -35,7 +33,7 @@ describe('NotificationsService', () => {
     expect(page.total).toBe(2);
     expect(page.unreadCount).toBe(2);
     expect(page.items[0]?.title).toBe('second');
-    expect(page.items[0]?.data).toMatchObject({ courseId: 'c1', orderNumber: 1001 });
+    expect(page.items[0]?.data).toMatchObject({ courseId: 'c1', courseSlug: 'python' });
   });
 
   it("marks read; another user's notification → 404 (no leak)", async () => {

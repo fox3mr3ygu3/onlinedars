@@ -5,14 +5,6 @@
 import { z } from 'zod';
 import { toPatchSchema } from './content-admin';
 
-export const RefundPolicy = {
-  /** A refunded payment revokes course access. */
-  REVOKE_ACCESS: 'REVOKE_ACCESS',
-  /** A refunded payment keeps course access. */
-  KEEP_ACCESS: 'KEEP_ACCESS',
-} as const;
-export type RefundPolicy = (typeof RefundPolicy)[keyof typeof RefundPolicy];
-
 const nullableText = (max: number) => z.string().trim().max(max).nullable();
 
 export const platformSettingsSchema = z.object({
@@ -26,15 +18,6 @@ export const platformSettingsSchema = z.object({
   logoUrl: z.url().max(2048).nullable().default(null),
   /** When true the web shows a maintenance banner. */
   maintenanceMode: z.boolean().default(false),
-  /** Unpaid orders expire after this many minutes (used by backend-payments). */
-  orderTtlMinutes: z
-    .number()
-    .int()
-    .min(5)
-    .max(7 * 24 * 60)
-    .default(60),
-  /** What happens to access when a payment is refunded (used by backend-payments). */
-  refundPolicy: z.enum(RefundPolicy).default(RefundPolicy.REVOKE_ACCESS),
 });
 export type PlatformSettings = z.infer<typeof platformSettingsSchema>;
 export type PlatformSettingKey = keyof PlatformSettings;

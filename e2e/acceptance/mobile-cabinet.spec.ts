@@ -1,5 +1,12 @@
 import { expect, type Page, test } from '@playwright/test';
-import { call, DEMO_COURSE, gotoReady, registerStudent, signInBrowser } from './support';
+import {
+  call,
+  DEMO_COURSE,
+  gotoReady,
+  grantAccess,
+  registerStudent,
+  signInBrowser,
+} from './support';
 
 async function noHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(
@@ -9,7 +16,7 @@ async function noHorizontalScroll(page: Page) {
 }
 
 /**
- * §13.10 the student cabinet on a 375px phone against the real API: join the seeded demo course,
+ * §13.10 the student cabinet on a 375px phone against the real API: get the seeded demo course,
  * navigate with the mobile menu, open the course tree and the first lesson, no horizontal scroll.
  * Runs only in the `mobile` Playwright project.
  */
@@ -17,10 +24,7 @@ test.describe('mobile cabinet @fullstack', () => {
   test('a student studies from a phone', async ({ page, context, baseURL, request }) => {
     const demo = await call(request, 'GET', `/courses/${DEMO_COURSE.slug}`);
     const student = await registerStudent(request, 'Telefon');
-    await call(request, 'POST', '/orders', {
-      token: student.token,
-      data: { courseId: demo.id, provider: 'PAYME' },
-    });
+    await grantAccess(request, student.token, demo.id);
     await signInBrowser(context, baseURL!, student);
 
     await gotoReady(page, '/cabinet');

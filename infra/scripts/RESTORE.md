@@ -56,7 +56,7 @@ $C run --rm --entrypoint /bin/sh minio-init -c '
 
 1. Copy last night's production dump to staging (never the other way round).
 2. Run section 1 on staging.
-3. Log in as a test student and admin, open a course, check payments list and a certificate verify URL.
+3. Log in as a test student and admin, open a course, check the access-request list and a certificate verify URL.
 4. Write the result below.
 
 | Date | Who | Dump | Duration | Result |

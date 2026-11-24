@@ -5,9 +5,7 @@
     "save": "Saqlash",
     "cancel": "Bekor qilish",
     "close": "Yopish",
-    "back": "Orqaga",
-    "som": "so'm",
-    "free": "Bepul"
+    "back": "Orqaga"
   },
   "meta": {
     "title": "OnlineDars — onlayn ta'lim platformasi",
@@ -29,11 +27,11 @@
     "heroTitle": "Bilimingizni OnlineDars bilan oshiring",
     "heroSubtitle": "Darslar, interaktiv amaliyotlar va tasdiqlangan sertifikat — barchasi bir joyda.",
     "browseCourses": "Kurslarni ko'rish",
-    "startFree": "Bepul boshlash",
+    "startFree": "Ro'yxatdan o'tish",
     "metaTitle": "Onlayn kurslar, amaliyot va sertifikat",
     "stepsTitle": "Qanday ishlaydi",
     "step1Title": "Kursni tanlang",
-    "step1Text": "Katalogdan o'zingizga mos yo'nalish va kursni toping.",
+    "step1Text": "Katalogdan mos kursni toping va kirish so'rang — administrator tasdiqlagach, kurs ochiladi.",
     "step2Title": "O'rganing va mashq qiling",
     "step2Text": "Har bir darsdan keyin 4 ta interaktiv amaliyot bilan bilimingizni mustahkamlang.",
     "step3Title": "Sertifikat oling",
@@ -44,7 +42,7 @@
     "coursesAll": "Barcha kurslar",
     "coursesEmpty": "Kurslar tez orada qo'shiladi.",
     "ctaTitle": "Bugun o'rganishni boshlang",
-    "ctaText": "Ro'yxatdan o'ting va birinchi darsni hoziroq oching.",
+    "ctaText": "Ro'yxatdan o'ting, kursni tanlang va kirish so'rang.",
     "ctaButton": "Ro'yxatdan o'tish",
     "verifyTitle": "Sertifikatni tekshirish",
     "verifyText": "Sertifikat ID raqamini kiriting va uning haqiqiyligini tekshiring."
@@ -101,16 +99,11 @@
     "searchButton": "Qidirish",
     "direction": "Yo'nalish",
     "allDirections": "Barcha yo'nalishlar",
-    "price": "Narx",
-    "priceAll": "Barchasi",
-    "priceFree": "Bepul",
-    "pricePaid": "Pullik",
     "reset": "Tozalash",
     "results": "{total, plural, =0 {Kurs topilmadi} other {# ta kurs}}",
     "empty": "So'rovingiz bo'yicha kurs topilmadi. Filtrlarni o'zgartirib ko'ring.",
     "loadError": "Kurslarni yuklab bo'lmadi. Birozdan so'ng qayta urinib ko'ring.",
     "lessons": "{count, plural, other {# ta dars}}",
-    "free": "Bepul",
     "more": "Batafsil",
     "prev": "Oldingi",
     "next": "Keyingi",
@@ -135,10 +128,6 @@
     "lessons": "Darslar",
     "modules": "Modullar",
     "level": "Daraja",
-    "price": "Narx",
-    "free": "Bepul",
-    "buy": "Sotib olish",
-    "start": "Bepul boshlash",
     "includes": "Kursga kiradi",
     "includesPractice": "Har bir darsda 4 ta amaliyot",
     "includesExam": "Yakuniy imtihon",
@@ -148,10 +137,27 @@
     "previewLabel": "Bepul ko'rish darsi",
     "previewBackToCourse": "Kurs sahifasiga qaytish",
     "previewCtaTitle": "Kursni davom ettirmoqchimisiz?",
-    "previewCtaText": "Bu dars hamma uchun ochiq. Amaliyotlar, yakuniy imtihon va sertifikat kursga yozilgandan so'ng ochiladi.",
-    "previewCtaButton": "Kursga yozilish",
+    "previewCtaText": "Bu dars hamma uchun ochiq. Amaliyotlar, yakuniy imtihon va sertifikat administrator kursga kirish bergandan so'ng ochiladi.",
+    "previewCtaButton": "Kirish so'rash",
     "previewNotFound": "Bu dars bepul ko'rish uchun ochiq emas",
-    "staffCannotEnrol": "Administrator va kontent menejer hisoblari kursga yozila olmaydi. Kursni o'qish uchun talaba hisobi bilan kiring."
+    "staffCannotEnrol": "Administrator va kontent menejer hisoblari kursga yozila olmaydi. Kursni o'qish uchun talaba hisobi bilan kiring.",
+    "access": {
+      "title": "Kursga kirish",
+      "note": "Kursga kirish administrator tomonidan beriladi. So'rov yuboring — tasdiqlangach, kurs kabinetingizda paydo bo'ladi.",
+      "request": "Kirish so'rash",
+      "requesting": "Yuborilmoqda...",
+      "loginToRequest": "Kirish so'rash uchun tizimga kiring",
+      "pendingTitle": "So'rov yuborildi",
+      "pendingText": "Administrator so'rovingizni ko'rib chiqmoqda. Natija bildirishnomalarda ko'rinadi.",
+      "pendingSince": "Yuborilgan: {date}",
+      "rejectedTitle": "So'rov rad etildi",
+      "rejectedReason": "Sabab: {reason}",
+      "requestAgain": "Qayta so'rash",
+      "enrolledTitle": "Siz bu kursga yozilgansiz",
+      "openCourse": "Kursni ochish",
+      "sent": "So'rov yuborildi. Administrator tasdiqlashini kuting.",
+      "loadError": "Holatni yuklab bo'lmadi. Sahifani yangilang."
+    }
   },
   "teachers": {
     "title": "O'qituvchilar",
@@ -172,46 +178,6 @@
     "metaDescription": "OnlineDars haqida ko'p beriladigan savollar va javoblar.",
     "empty": "Savollar tez orada qo'shiladi.",
     "loadError": "Ma'lumotlarni yuklab bo'lmadi. Birozdan so'ng qayta urinib ko'ring."
-  },
-  "checkout": {
-    "title": "Buyurtmani rasmiylashtirish",
-    "summary": "Buyurtma",
-    "course": "Kurs",
-    "total": "Jami",
-    "free": "Bepul",
-    "lessons": "{count, plural, other {# ta dars}}",
-    "chooseProvider": "To'lov usulini tanlang",
-    "providerPAYME": "Payme",
-    "providerCLICK": "Click",
-    "providerHintPAYME": "Payme ilovasi yoki karta orqali",
-    "providerHintCLICK": "Click ilovasi yoki karta orqali",
-    "pay": "To'lovga o'tish",
-    "startFree": "Kursni boshlash",
-    "redirecting": "To'lov sahifasiga yo'naltirilmoqda...",
-    "secureNote": "To'lov Payme yoki Click sahifasida amalga oshiriladi. Kursga kirish to'lov tizimi to'lovni tasdiqlagandan so'ng ochiladi.",
-    "notFound": "Kurs topilmadi",
-    "backToCourse": "Kursga qaytish",
-    "resultTitle": "To'lov holati",
-    "statusChecking": "To'lov tekshirilmoqda...",
-    "statusCheckingText": "To'lov tizimidan tasdiq kutilmoqda. Bu sahifani yopmang.",
-    "statusPaid": "To'lov tasdiqlandi",
-    "statusPaidText": "Kurs kabinetingizga qo'shildi. O'qishni boshlashingiz mumkin.",
-    "statusFailed": "To'lov amalga oshmadi",
-    "statusFailedText": "To'lov rad etildi yoki xatolik yuz berdi. Qayta urinib ko'ring.",
-    "statusCancelled": "To'lov bekor qilindi",
-    "statusCancelledText": "Buyurtma bekor qilindi. Xohlasangiz, qaytadan buyurtma bering.",
-    "statusRefunded": "To'lov qaytarildi",
-    "statusRefundedText": "Ushbu buyurtma bo'yicha mablag' qaytarilgan.",
-    "statusTimeout": "Tasdiq hali kelmadi",
-    "statusTimeoutText": "To'lov tizimi hali javob bermadi. Bir necha daqiqadan so'ng to'lovlar tarixini tekshiring yoki qayta tekshiring.",
-    "checkAgain": "Qayta tekshirish",
-    "goToCourse": "Kursga o'tish",
-    "goToCabinet": "Kabinetga o'tish",
-    "paymentHistory": "To'lovlar tarixi",
-    "tryAgain": "Qayta urinish",
-    "orderNumber": "Buyurtma",
-    "amount": "Summa",
-    "missingOrder": "Buyurtma raqami ko'rsatilmagan."
   },
   "verify": {
     "title": "Sertifikatni tekshirish",
@@ -265,7 +231,7 @@
       "courses": "Kurslarim",
       "results": "Natijalar",
       "certificates": "Sertifikatlar",
-      "payments": "To'lovlar tarixi",
+      "requests": "Kirish so'rovlari",
       "notifications": "Bildirishnomalar",
       "profile": "Profil",
       "catalog": "Kurslar katalogi",
@@ -339,6 +305,24 @@
       "prev": "Oldingi",
       "next": "Keyingi",
       "page": "{page}/{pages}-sahifa"
+    },
+    "requests": {
+      "title": "Kirish so'rovlari",
+      "subtitle": "Kurslarga yuborgan so'rovlaringiz va ularning holati",
+      "empty": "Siz hali hech qaysi kursga so'rov yubormagansiz.",
+      "toCatalog": "Kurslar katalogi",
+      "course": "Kurs",
+      "sentAt": "Yuborilgan",
+      "status": "Holati",
+      "decidedAt": "Ko'rib chiqilgan: {date}",
+      "reason": "Sabab: {reason}",
+      "openCourse": "Kursni ochish",
+      "requestAgain": "Qayta so'rash",
+      "statuses": {
+        "PENDING": "Kutilmoqda",
+        "APPROVED": "Tasdiqlangan",
+        "REJECTED": "Rad etilgan"
+      }
     }
   },
   "admin": {
@@ -373,7 +357,7 @@
       "teachers": "O'qituvchilar",
       "faq": "Savol-javob",
       "students": "Talabalar",
-      "payments": "To'lovlar",
+      "accessRequests": "Kirish so'rovlari",
       "reports": "Hisobotlar",
       "settings": "Sozlamalar",
       "audit": "Audit jurnali"
@@ -415,7 +399,6 @@
       "totalCount": "Jami: {count}",
       "dateFrom": "Sanadan",
       "dateTo": "Sanagacha",
-      "som": "so'm",
       "moveUp": "Yuqoriga ko'chirish",
       "moveDown": "Pastga ko'chirish",
       "dragHandle": "Sudrab tartibni o'zgartirish (yoki Alt + ↑/↓)",
@@ -430,7 +413,10 @@
       "preview": "Ko'rib chiqish",
       "details": "Batafsil",
       "minutes": "daqiqa",
-      "percent": "%"
+      "percent": "%",
+      "student": "Talaba",
+      "course": "Kurs",
+      "date": "Sana"
     },
     "dashboard": {
       "title": "Bosh sahifa",
@@ -440,7 +426,7 @@
       "examsTaken": "Topshirilgan imtihonlar",
       "examsPassed": "Muvaffaqiyatli imtihonlar",
       "certificatesIssued": "Berilgan sertifikatlar",
-      "revenue": "Tushum",
+      "pendingRequests": "Kutilayotgan so'rovlar",
       "passRate": "O'tish darajasi",
       "quickLinks": "Tezkor havolalar",
       "newCourse": "Yangi kurs",
@@ -464,9 +450,6 @@
         "goalsHint": "Har bir qatorga bitta maqsad",
         "coverImage": "Muqova rasmi",
         "level": "Daraja",
-        "isFree": "Bepul kurs",
-        "price": "Narxi (so'm)",
-        "priceHint": "Narx so'mda kiritiladi, tizimda tiyinda saqlanadi",
         "sequentialUnlock": "Darslarni ketma-ket ochish",
         "sequentialUnlockHint": "Yoqilgan bo'lsa, keyingi dars oldingisi tugagandan so'ng ochiladi",
         "direction": "Yo'nalish",
@@ -474,12 +457,11 @@
         "certificateTemplate": "Sertifikat shabloni",
         "defaultTemplate": "Standart shablon",
         "status": "Holati",
-        "price_column": "Narx",
         "lessons": "Darslar",
         "students": "Talabalar",
         "updatedAt": "Yangilangan",
         "introVideo": "Tanishtiruv videosi",
-        "introVideoHint": "YouTube yoki Vimeo havolasi. Kurs sahifasida hamma uchun ko'rinadi — xarid qilishdan oldin kursni tanishtiradi."
+        "introVideoHint": "YouTube yoki Vimeo havolasi. Kurs sahifasida hamma uchun ko'rinadi — kursga yozilishdan oldin kursni tanishtiradi."
       },
       "levels": {
         "BEGINNER": "Boshlang'ich",
@@ -531,7 +513,7 @@
         "summary": "Qisqa mazmuni",
         "durationMinutes": "Davomiyligi (daqiqa)",
         "isRequired": "Majburiy dars (imtihon uchun talab qilinadi)",
-        "isPreview": "Bepul ko'rish (kursni sotib olmaganlar ham dars materiallarini ko'ra oladi)"
+        "isPreview": "Bepul ko'rish (kursga yozilmaganlar ham dars materiallarini ko'ra oladi)"
       },
       "published": "Nashr qilingan",
       "draft": "Qoralama",
@@ -732,9 +714,8 @@
       "noEnrollments": "Talaba hali hech qaysi kursga yozilmagan",
       "noResults": "Hali natijalar yo'q",
       "sources": {
-        "PURCHASE": "Xarid",
-        "FREE": "Bepul",
-        "ADMIN": "Administrator"
+        "ADMIN": "Administrator",
+        "ACCESS_REQUEST": "So'rov orqali"
       },
       "resultKinds": {
         "PRACTICE": "Amaliyot",
@@ -744,43 +725,36 @@
       "failed": "O'tmadi",
       "blocked": "Bloklangan"
     },
-    "payments": {
-      "title": "To'lovlar",
-      "searchPlaceholder": "Buyurtma raqami, talaba yoki telefon",
+    "accessRequests": {
+      "title": "Kirish so'rovlari",
+      "subtitle": "Talabalar kursga kirish so'raydi. Tasdiqlasangiz, kurs talaba kabinetida ochiladi.",
+      "pending": "{count} ta so'rov kutilmoqda",
+      "searchPlaceholder": "Talaba (ism, telefon, email) yoki kurs nomi",
+      "allCourses": "Barcha kurslar",
+      "statuses": {
+        "PENDING": "Kutilmoqda",
+        "APPROVED": "Tasdiqlangan",
+        "REJECTED": "Rad etilgan"
+      },
       "fields": {
-        "orderId": "Buyurtma",
         "student": "Talaba",
         "course": "Kurs",
-        "amount": "Summa",
-        "provider": "To'lov usuli",
-        "createdAt": "Sana",
-        "status": "Holati"
+        "message": "Izoh",
+        "createdAt": "Yuborilgan",
+        "status": "Holati",
+        "decision": "Qaror"
       },
-      "status": {
-        "PENDING": "Kutilmoqda",
-        "PAID": "To'langan",
-        "CANCELLED": "Bekor qilingan",
-        "FAILED": "Muvaffaqiyatsiz",
-        "REFUNDED": "Qaytarilgan"
-      },
-      "providers": {
-        "PAYME": "Payme",
-        "CLICK": "Click"
-      },
-      "allCourses": "Barcha kurslar",
-      "changeStatus": "Holatni o'zgartirish",
-      "dialog": {
-        "title": "To'lov holatini qo'lda o'zgartirish",
-        "description": "Bu amal audit jurnaliga yoziladi. Kursga kirish faqat to'lov tizimi tasdiqlagan to'lovlar orqali beriladi — qo'lda o'zgartirishni faqat zarur hollarda bajaring.",
-        "current": "Joriy holat",
-        "newStatus": "Yangi holat",
-        "reason": "Sabab",
-        "reasonPlaceholder": "Masalan: to'lov tizimi bilan solishtirish natijasida qaytarildi",
-        "reasonRequired": "Sababni kiriting (kamida 5 ta belgi)",
-        "sameStatus": "Yangi holat joriy holatdan farq qilishi kerak",
-        "submit": "Holatni o'zgartirish",
-        "success": "To'lov holati o'zgartirildi"
-      }
+      "decidedBy": "{name}, {date}",
+      "approve": "Tasdiqlash",
+      "approved": "Kursga kirish berildi",
+      "reject": "Rad etish",
+      "rejected": "So'rov rad etildi",
+      "rejectTitle": "So'rovni rad etish",
+      "rejectText": "«{course}» kursiga {student} so'rovi rad etiladi. Sababni talaba ko'radi.",
+      "reason": "Sabab",
+      "reasonPlaceholder": "Masalan: guruh to'lgan, keyingi oqimda qayta so'rang",
+      "reasonRequired": "Sababni kiriting (kamida 3 ta belgi)",
+      "empty": "So'rovlar yo'q"
     },
     "reports": {
       "title": "Hisobotlar",
@@ -812,7 +786,6 @@
         "supportPhone": "Qo'llab-quvvatlash telefoni",
         "supportEmail": "Qo'llab-quvvatlash emaili",
         "supportTelegram": "Telegram havolasi",
-        "refundPolicyDays": "To'lovni qaytarish muddati (kun)",
         "certificateVerifyBaseUrl": "Sertifikatni tekshirish manzili (asosiy URL)",
         "maintenanceMode": "Texnik ishlar rejimi"
       },
@@ -887,8 +860,6 @@
     "passwordMax": "Parol juda uzun",
     "slug": "Faqat kichik lotin harflari, raqamlar va chiziqcha",
     "empty": "Hech narsa o'zgartirilmadi",
-    "freeCoursePrice": "Bepul kursning narxi 0 bo'lishi kerak",
-    "paidCoursePrice": "Pullik kurs narxini kiriting",
     "imageRequired": "Rasm majburiy",
     "minOptions": "Kamida 2 ta variant kerak",
     "noCorrectOption": "Kamida bitta to'g'ri javobni belgilang",
@@ -923,7 +894,7 @@
     "LESSON_INCOMPLETE": "Darsni nashr qilish uchun 4 ta amaliyot × 6 ta savol to'liq bo'lishi kerak",
     "SLUG_TAKEN": "Bu manzil (slug) band. Boshqasini tanlang.",
     "COURSE_INCOMPLETE": "Kursni nashr qilish uchun kamida bitta dars bo'lishi va barcha darslar nashr qilingan bo'lishi kerak",
-    "COURSE_NOT_DELETABLE": "Kursda o'quvchilar yoki to'lovlar bor. O'chirish o'rniga arxivlang.",
+    "COURSE_NOT_DELETABLE": "Kursda o'quvchilar yoki sertifikatlar bor. O'chirish o'rniga arxivlang.",
     "REORDER_MISMATCH": "Tartib ro'yxati joriy elementlarga mos kelmadi. Sahifani yangilang.",
     "FILE_REQUIRED": "Faylni tanlang",
     "FILE_TOO_LARGE": "Fayl hajmi juda katta",
@@ -937,11 +908,11 @@
     "EXAM_ATTEMPT_CLOSED": "Bu imtihon urinishi yakunlangan",
     "CERTIFICATE_NOT_FOUND": "Sertifikat topilmadi",
     "CERTIFICATE_PDF_PENDING": "Sertifikat PDF fayli tayyorlanmoqda. Birozdan so'ng qayta urinib ko'ring.",
-    "ORDER_NOT_FOUND": "Buyurtma topilmadi",
     "ALREADY_ENROLLED": "Siz bu kursga allaqachon yozilgansiz",
-    "COURSE_NOT_PURCHASABLE": "Bu kursni hozircha sotib olib bo'lmaydi",
-    "PAYMENT_PROVIDER_UNAVAILABLE": "Bu to'lov usuli hozircha ishlamayapti. Boshqa usulni tanlang.",
-    "INVALID_STATUS_TRANSITION": "To'lov holatini bunday o'zgartirib bo'lmaydi"
+    "COURSE_NOT_AVAILABLE": "Bu kursga hozircha so'rov yuborib bo'lmaydi",
+    "ACCESS_REQUEST_PENDING": "So'rovingiz allaqachon yuborilgan va ko'rib chiqilmoqda",
+    "ACCESS_REQUEST_NOT_FOUND": "So'rov topilmadi",
+    "ACCESS_REQUEST_DECIDED": "Bu so'rov allaqachon ko'rib chiqilgan"
   },
   "lesson": {
     "back": "Kursga qaytish",
@@ -1092,29 +1063,6 @@
     "downloading": "Yuklanmoqda...",
     "pending": "PDF tayyorlanmoqda",
     "verify": "Tekshirish sahifasi"
-  },
-  "payments": {
-    "title": "To'lovlar tarixi",
-    "empty": "Hali to'lovlar yo'q",
-    "order": "Buyurtma #{number}",
-    "course": "Kurs",
-    "amount": "Summa",
-    "method": "To'lov usuli",
-    "date": "Sana",
-    "status": "Holat",
-    "providers": {
-      "PAYME": "Payme",
-      "CLICK": "Click",
-      "none": "—"
-    },
-    "statuses": {
-      "PENDING": "Kutilmoqda",
-      "PAID": "To'langan",
-      "CANCELLED": "Bekor qilingan",
-      "FAILED": "Muvaffaqiyatsiz",
-      "REFUNDED": "Qaytarilgan"
-    },
-    "openCourse": "Kursni ochish"
   },
   "notifications": {
     "title": "Bildirishnomalar",

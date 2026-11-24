@@ -1,6 +1,6 @@
 ---
 name: backend-payments
-description: OnlineDars payments: orders, Payme and Click integrations, idempotent callbacks, enrollment, audit log, notifications.
+description: OnlineDars course access: access requests (student asks, admin approves/rejects), enrollment grants/revokes, audit log, notifications. (Payments were removed 2026-11-24; the name is kept so existing references work.)
 skills:
   - onlinedars-stack
 ---

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { CourseLevel, CourseStatus, LessonMaterialType, QuestionType } from '../enums';
-import { idSchema, paginationQuerySchema, slugSchema, tiyinSchema } from './common';
+import { idSchema, paginationQuerySchema, slugSchema } from './common';
 
 const title = z.string().trim().min(2).max(200);
 const optionalText = (max: number) => z.string().trim().max(max).nullable().optional();
@@ -37,33 +37,21 @@ export const faqInputSchema = z.object({
 export type FaqInput = z.infer<typeof faqInputSchema>;
 
 // ---------- courses ----------
-export const courseInputSchema = z
-  .object({
-    slug: slugSchema,
-    title,
-    shortDescription: z.string().trim().max(500).default(''),
-    description: z.string().trim().max(50000).default(''),
-    goals: z.array(z.string().trim().min(1).max(300)).max(30).default([]),
-    coverImageUrl: urlOrNull,
-    /** Promo video for the public course page (YouTube / Vimeo / direct link). */
-    introVideoUrl: urlOrNull,
-    level: z.enum(CourseLevel).default(CourseLevel.BEGINNER),
-    isFree: z.boolean().default(false),
-    /** Price in tiyin. Must be 0 for free courses and > 0 for paid ones. */
-    price: tiyinSchema.default(0),
-    sequentialUnlock: z.boolean().default(true),
-    directionId: idSchema.nullable().optional(),
-    teacherIds: z.array(idSchema).max(20).default([]),
-    certificateTemplateId: idSchema.nullable().optional(),
-  })
-  .superRefine((v, ctx) => {
-    if (v.isFree && v.price !== 0) {
-      ctx.addIssue({ code: 'custom', path: ['price'], message: 'validation.freeCoursePrice' });
-    }
-    if (!v.isFree && v.price <= 0) {
-      ctx.addIssue({ code: 'custom', path: ['price'], message: 'validation.paidCoursePrice' });
-    }
-  });
+export const courseInputSchema = z.object({
+  slug: slugSchema,
+  title,
+  shortDescription: z.string().trim().max(500).default(''),
+  description: z.string().trim().max(50000).default(''),
+  goals: z.array(z.string().trim().min(1).max(300)).max(30).default([]),
+  coverImageUrl: urlOrNull,
+  /** Promo video for the public course page (YouTube / Vimeo / direct link). */
+  introVideoUrl: urlOrNull,
+  level: z.enum(CourseLevel).default(CourseLevel.BEGINNER),
+  sequentialUnlock: z.boolean().default(true),
+  directionId: idSchema.nullable().optional(),
+  teacherIds: z.array(idSchema).max(20).default([]),
+  certificateTemplateId: idSchema.nullable().optional(),
+});
 export type CourseInput = z.infer<typeof courseInputSchema>;
 
 export const courseStatusChangeSchema = z.object({ status: z.enum(CourseStatus) });
@@ -73,11 +61,7 @@ export const catalogQuerySchema = paginationQuerySchema.extend({
   q: z.string().trim().max(100).optional(),
   directionId: idSchema.optional(),
   level: z.enum(CourseLevel).optional(),
-  isFree: z
-    .enum(['true', 'false'])
-    .transform((v) => v === 'true')
-    .optional(),
-  sort: z.enum(['newest', 'popular', 'priceAsc', 'priceDesc']).default('newest'),
+  sort: z.enum(['newest', 'popular']).default('newest'),
 });
 export type CatalogQuery = z.infer<typeof catalogQuerySchema>;
 

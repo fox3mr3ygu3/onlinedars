@@ -1,7 +1,7 @@
 // OnlineDars database schema.
 // Hierarchy: Course → Module → Lesson → Practice → Question (CLAUDE.md rule 1).
 // The 4 practices × 6 questions rule is enforced by DB triggers in migration 0001_init
-// and by the content services. Money is integer tiyin, currency UZS.
+// and by the content services. Course access is granted only by admins (no payments).
 // Enum values must match packages/shared/src/enums (checked by a unit test).
 
 generator client {
@@ -49,23 +49,15 @@ enum LessonMaterialType {
   VIDEO
 }
 
-enum PaymentStatus {
-  PENDING
-  PAID
-  CANCELLED
-  FAILED
-  REFUNDED
-}
-
-enum PaymentProvider {
-  PAYME
-  CLICK
-}
-
 enum EnrollmentSource {
-  PURCHASE
-  FREE
   ADMIN
+  ACCESS_REQUEST
+}
+
+enum AccessRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum ExamAttemptStatus {
@@ -81,7 +73,8 @@ enum OtpPurpose {
 }
 
 enum NotificationType {
-  PAYMENT_SUCCESS
+  ACCESS_GRANTED
+  ACCESS_REJECTED
   CERTIFICATE_ISSUED
   SYSTEM
 }
@@ -111,7 +104,8 @@ model User {
   practiceAttempts PracticeAttempt[]
   examAttempts     ExamAttempt[]
   certificates     Certificate[]
-  orders           Order[]
+  accessRequests   AccessRequest[]
+  decidedRequests  AccessRequest[]   @relation("AccessRequestDecidedBy")
   auditLogs        AuditLog[]        @relation("AuditActor")
   notifications    Notification[]
   createdCourses   Course[]          @relation("CourseCreatedBy")
@@ -211,14 +205,10 @@ model Course {
   description           String       @default("")
   goals                 String[]     @default([])
   coverImageUrl         String?
-  /// Promo video on the public course page (YouTube / Vimeo / direct link), watchable before buying.
+  /// Promo video on the public course page (YouTube / Vimeo / direct link), watchable before enrolling.
   introVideoUrl         String?
   level                 CourseLevel  @default(BEGINNER)
   status                CourseStatus @default(DRAFT)
-  isFree                Boolean      @default(false)
-  /// Price in tiyin (1 UZS = 100 tiyin). 0 for free courses.
-  price                 Int          @default(0)
-  currency              String       @default("UZS")
   /// Per-course admin setting: lessons/modules unlock one after another.
   sequentialUnlock      Boolean      @default(true)
   directionId           String?
@@ -236,7 +226,7 @@ model Course {
   enrollments         Enrollment[]
   exam                Exam?
   certificates        Certificate[]
-  orders              Order[]
+  accessRequests      AccessRequest[]
 
   @@index([status, createdAt])
   @@index([directionId])
@@ -381,15 +371,12 @@ model Enrollment {
   userId      String
   courseId    String
   source      EnrollmentSource
-  /// The paid order that granted access (PURCHASE only).
-  orderId     String?          @unique
   enrolledAt  DateTime         @default(now())
   completedAt DateTime?
   revokedAt   DateTime?
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  order  Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
   @@unique([userId, courseId])
   @@index([courseId])
@@ -557,66 +544,37 @@ model Certificate {
   @@index([courseId])
 }
 
-// ───────────────────────── payments ─────────────────────────
+// ───────────────────────── course access ─────────────────────────
 
-model Order {
-  id          String           @id @default(cuid())
-  /// Human-friendly sequential number shown to students and sent to providers.
-  number      Int              @unique @default(autoincrement())
-  userId      String
-  courseId    String
-  /// Copied from Course.price at creation (tiyin). Never taken from the client.
-  amount      Int
-  currency    String           @default("UZS")
-  status      PaymentStatus    @default(PENDING)
-  provider    PaymentProvider?
-  paidAt      DateTime?
-  cancelledAt DateTime?
-  expiresAt   DateTime?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+/// A student's request for a course. One row per (student, course): asking again after a
+/// rejection or a revoked enrollment reopens the same row as PENDING. Approving grants the
+/// enrollment (source ACCESS_REQUEST); every decision is also written to the audit log.
+model AccessRequest {
+  id             String              @id @default(cuid())
+  userId         String
+  courseId       String
+  status         AccessRequestStatus @default(PENDING)
+  /// Optional note from the student.
+  message        String?
+  /// Admin's reason when rejected (shown to the student).
+  decisionReason String?
+  decidedById    String?
+  decidedAt      DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
 
-  user       User        @relation(fields: [userId], references: [id], onDelete: Restrict)
-  course     Course      @relation(fields: [courseId], references: [id], onDelete: Restrict)
-  payments   Payment[]
-  enrollment Enrollment?
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  decidedBy User?  @relation("AccessRequestDecidedBy", fields: [decidedById], references: [id], onDelete: SetNull)
 
-  @@index([userId, createdAt])
+  @@unique([userId, courseId])
+  @@index([status, createdAt])
   @@index([courseId])
-  @@index([status, createdAt])
-}
-
-/// One row per provider transaction. Unique (provider, providerTransactionId) makes
-/// callbacks idempotent.
-model Payment {
-  id                    String          @id @default(cuid())
-  orderId               String
-  provider              PaymentProvider
-  providerTransactionId String
-  amount                Int
-  currency              String          @default("UZS")
-  status                PaymentStatus   @default(PENDING)
-  /// Provider-side create time in ms (Payme `time`).
-  providerCreatedAt     BigInt?
-  performedAt           DateTime?
-  cancelledAt           DateTime?
-  /// Provider-specific cancel reason code.
-  cancelReason          Int?
-  /// Last raw provider payload, for support/debugging (no secrets).
-  raw                   Json?
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
-
-  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
-
-  @@unique([provider, providerTransactionId])
-  @@index([orderId])
-  @@index([status, createdAt])
 }
 
 // ───────────────────────── platform ─────────────────────────
 
-/// Every admin change to payments (and other sensitive entities) is recorded here.
+/// Every admin change to course access (and other sensitive entities) is recorded here.
 model AuditLog {
   id         String   @id @default(cuid())
   actorId    String?

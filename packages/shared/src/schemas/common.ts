@@ -34,9 +34,6 @@ export interface Paginated<T> {
   pageSize: number;
 }
 
-/** Positive integer amount in tiyin. */
-export const tiyinSchema = z.number().int().min(0);
-
 /** Body for reordering children: ids in their new order. */
 export const reorderSchema = z.object({ ids: z.array(idSchema).min(1) });
 export type ReorderInput = z.infer<typeof reorderSchema>;

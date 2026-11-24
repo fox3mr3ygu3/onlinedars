@@ -56,21 +56,23 @@ test.describe('accounts @fullstack', () => {
     baseURL,
   }) => {
     const admin = await loginApi(request, ADMIN);
-    const paid = await createPublishedCourse(request, admin, { price: 10_000_000 });
+    const course = await createPublishedCourse(request, admin);
     const owner = await registerStudent(request, 'Egasi');
     const intruder = await registerStudent(request, 'Begona');
 
-    const order = await call(request, 'POST', '/orders', {
+    const asked = await call(request, 'POST', '/access-requests', {
       token: owner.token,
-      data: { courseId: paid.id, provider: 'PAYME' },
+      data: { courseId: course.id },
       expect: 201,
     });
 
-    // Another student's order → 403; the list of "my" orders never contains it.
-    const other = await raw(request, 'GET', `/orders/${order.orderId}`, { token: intruder.token });
-    expect([403, 404]).toContain(other.status());
-    const mine = await call(request, 'GET', '/me/orders', { token: intruder.token });
-    expect(mine.total).toBe(0);
+    // Another student's request never shows up in "my" requests, and only admins decide.
+    const mine = await call(request, 'GET', '/me/access-requests', { token: intruder.token });
+    expect(mine).toEqual([]);
+    const approve = await raw(request, 'POST', `/admin/access-requests/${asked.id}/approve`, {
+      token: intruder.token,
+    });
+    expect(approve.status()).toBe(403);
 
     // Not enrolled → no course tree, no lessons.
     const demo = await call(request, 'GET', `/courses/${DEMO_COURSE.slug}`);
@@ -83,7 +85,11 @@ test.describe('accounts @fullstack', () => {
     expect(lesson.status()).toBe(403);
 
     // Admin routes about other users → 403 for a student; anonymous → 401.
-    for (const path of ['/admin/students', `/admin/students/${owner.id}`, '/admin/payments']) {
+    for (const path of [
+      '/admin/students',
+      `/admin/students/${owner.id}`,
+      '/admin/access-requests',
+    ]) {
       expect((await raw(request, 'GET', path, { token: intruder.token })).status(), path).toBe(403);
     }
     expect((await raw(request, 'GET', '/me/dashboard')).status()).toBe(401);
@@ -103,17 +109,14 @@ test.describe('accounts @fullstack', () => {
   }) => {
     const demo = await call(request, 'GET', `/courses/${DEMO_COURSE.slug}`);
     const admin = await loginApi(request, ADMIN);
-    await call(request, 'POST', '/orders', {
+    await call(request, 'POST', '/access-requests', {
       token: admin,
-      data: { courseId: demo.id, provider: 'PAYME' },
+      data: { courseId: demo.id },
       expect: 403,
     });
     await signInBrowser(context, baseURL!, ADMIN);
     await gotoReady(page, `/courses/${DEMO_COURSE.slug}`);
     await expect(page.getByTestId('staff-enrol-notice')).toBeVisible();
     await expect(page.getByTestId('course-cta')).toHaveCount(0);
-    await gotoReady(page, `/checkout/${demo.id}`);
-    await expect(page.getByTestId('staff-enrol-notice')).toBeVisible();
-    await expect(page.getByTestId('checkout-submit')).toHaveCount(0);
   });
 });

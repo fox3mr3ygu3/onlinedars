@@ -1,38 +1,15 @@
 /**
  * Typed client for the student's own account data: profile (`/users/me`, `/auth/me`),
- * payment history (`/me/orders`) and in-app notifications (`/me/notifications`).
+ * and in-app notifications (`/me/notifications`).
  */
 import type {
   AuthUser,
   ChangePasswordInput,
   NotificationType,
   Paginated,
-  PaymentProvider,
-  PaymentStatus,
   UpdateProfileInput,
 } from '@onlinedars/shared';
 import { studentFetch, toQuery } from './student-fetch';
-
-/**
- * Item of GET /me/orders. TODO(merge): backend-payments exports `OrderView` from
- * `@onlinedars/shared` (schemas/payments.ts); switch to it once merged. Amounts in tiyin.
- */
-export interface MyOrder {
-  orderId: string;
-  number: number;
-  status: PaymentStatus;
-  courseId: string;
-  courseTitle: string;
-  courseSlug: string;
-  amount: number;
-  currency: string;
-  provider: PaymentProvider | null;
-  enrolled: boolean;
-  paidAt: string | null;
-  cancelledAt: string | null;
-  expiresAt: string | null;
-  createdAt: string;
-}
 
 /** TODO(merge): `NotificationView` / `NotificationList` from `@onlinedars/shared`. */
 export interface MyNotification {
@@ -47,12 +24,6 @@ export interface MyNotification {
 
 export interface MyNotificationList extends Paginated<MyNotification> {
   unreadCount: number;
-}
-
-export interface OrdersQuery {
-  page?: number;
-  pageSize?: number;
-  status?: PaymentStatus;
 }
 
 export interface NotificationsQuery {
@@ -71,9 +42,6 @@ export const meApi = {
     studentFetch<AuthUser>('/users/me', { method: 'PATCH', body: input }),
   changePassword: (input: ChangePasswordInput) =>
     studentFetch<void>('/users/me/password', { method: 'POST', body: input }),
-
-  orders: (q: OrdersQuery = {}) =>
-    studentFetch<Paginated<MyOrder>>(`/me/orders${toQuery({ ...q })}`),
 
   notifications: (q: NotificationsQuery = {}) =>
     studentFetch<MyNotificationList>(

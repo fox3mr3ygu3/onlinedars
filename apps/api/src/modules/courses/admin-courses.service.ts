@@ -52,9 +52,6 @@ function baseItem(
     title: c.title,
     status: c.status,
     level: c.level,
-    isFree: c.isFree,
-    price: c.price,
-    currency: c.currency,
     sequentialUnlock: c.sequentialUnlock,
     coverImageUrl: c.coverImageUrl,
     direction: c.direction,
@@ -97,27 +94,6 @@ export function toAdminCourseDetail(c: DetailRow): AdminCourseDetail {
       lessons: m.lessons.map(toAdminLessonSummary),
     })),
   };
-}
-
-/** Free courses cost 0; paid courses cost > 0 (also a DB CHECK). */
-export function resolvePrice(
-  current: { isFree: boolean; price: number },
-  input: { isFree?: boolean; price?: number },
-): { isFree: boolean; price: number } {
-  const isFree = input.isFree ?? current.isFree;
-  // Switching to free without a price resets the price to 0.
-  const price = input.price ?? (input.isFree === true ? 0 : current.price);
-  if (isFree && price !== 0) {
-    throw AppException.badRequest(ErrorCode.VALIDATION_FAILED, 'Free course price must be 0', [
-      { path: ['price'], message: 'validation.freeCoursePrice' },
-    ]);
-  }
-  if (!isFree && price <= 0) {
-    throw AppException.badRequest(ErrorCode.VALIDATION_FAILED, 'Paid course needs a price', [
-      { path: ['price'], message: 'validation.paidCoursePrice' },
-    ]);
-  }
-  return { isFree, price };
 }
 
 /**
@@ -174,13 +150,10 @@ export class AdminCoursesService {
   /** New courses always start as DRAFT. */
   async create(input: CourseInput, actor: AuthPrincipal): Promise<AdminCourseDetail> {
     const { teacherIds, directionId, certificateTemplateId, ...rest } = input;
-    const { isFree, price } = resolvePrice({ isFree: false, price: 0 }, input);
     return withContentErrors(async () => {
       const row = await this.prisma.course.create({
         data: {
           ...rest,
-          isFree,
-          price,
           status: CourseStatus.DRAFT,
           ...(directionId ? { direction: { connect: { id: directionId } } } : {}),
           ...(certificateTemplateId
@@ -196,27 +169,14 @@ export class AdminCoursesService {
   }
 
   async update(id: string, input: CourseUpdateInput): Promise<AdminCourseDetail> {
-    const current = await this.prisma.course.findUnique({
-      where: { id },
-      select: { isFree: true, price: true },
-    });
+    const current = await this.prisma.course.findUnique({ where: { id }, select: { id: true } });
     if (!current) throw AppException.notFound();
-    const {
-      teacherIds,
-      directionId,
-      certificateTemplateId,
-      isFree: _f,
-      price: _p,
-      ...rest
-    } = input;
-    const pricing =
-      input.isFree !== undefined || input.price !== undefined ? resolvePrice(current, input) : {};
+    const { teacherIds, directionId, certificateTemplateId, ...rest } = input;
     return withContentErrors(async () => {
       const row = await this.prisma.course.update({
         where: { id },
         data: {
           ...rest,
-          ...pricing,
           ...(directionId !== undefined
             ? { direction: directionId ? { connect: { id: directionId } } : { disconnect: true } }
             : {}),
@@ -271,24 +231,24 @@ export class AdminCoursesService {
   }
 
   /**
-   * Only courses nobody has bought, enrolled in or been certified for can be deleted;
+   * Only courses nobody has been enrolled in or certified for can be deleted;
    * otherwise archive them (409 COURSE_NOT_DELETABLE).
    */
   async remove(id: string): Promise<void> {
     const course = await this.prisma.course.findUnique({
       where: { id },
-      select: { _count: { select: { enrollments: true, orders: true, certificates: true } } },
+      select: { _count: { select: { enrollments: true, certificates: true } } },
     });
     if (!course) throw AppException.notFound();
-    const { enrollments, orders, certificates } = course._count;
-    if (enrollments + orders + certificates > 0) {
+    const { enrollments, certificates } = course._count;
+    if (enrollments + certificates > 0) {
       throw AppException.conflict(ErrorCode.COURSE_NOT_DELETABLE);
     }
     await withContentErrors(async () => {
       try {
         await this.prisma.course.delete({ where: { id } });
       } catch (e) {
-        // A concurrent order/certificate (FK Restrict) also means "not deletable".
+        // A concurrent certificate (FK Restrict) also means "not deletable".
         if ((e as { code?: string }).code === 'P2003') {
           throw AppException.conflict(ErrorCode.COURSE_NOT_DELETABLE);
         }

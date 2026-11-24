@@ -9,7 +9,6 @@ import {
   resolveRange,
   toCourseReportRow,
 } from './reports.logic';
-import { withoutMoney } from './reports.controller';
 import { ReportsService } from './reports.service';
 
 describe('report ranges', () => {
@@ -66,10 +65,10 @@ describe('course report math', () => {
 });
 
 describe('ReportsService', () => {
-  it('dashboard aggregates totals and revenue (tiyin)', async () => {
+  it('dashboard aggregates totals and pending access requests', async () => {
     const { mock, prisma } = createMockPrisma();
     mock.user.count.mockResolvedValue(7);
-    mock.order.aggregate.mockResolvedValue({ _count: { _all: 2 }, _sum: { amount: 150_000_00 } });
+    mock.accessRequest.count.mockResolvedValue(3);
     mock.examAttempt.findMany.mockResolvedValue([
       {
         id: 'a1',
@@ -81,7 +80,8 @@ describe('ReportsService', () => {
       },
     ]);
     const d = await new ReportsService(prisma).dashboard();
-    expect(d).toMatchObject({ students: 7, paidOrders: 2, revenue: 15_000_000 });
+    expect(d).toMatchObject({ students: 7, pendingAccessRequests: 3 });
+    expect(d).not.toHaveProperty('revenue');
     expect(d.recentResults[0]).toMatchObject({
       studentName: 'Ali',
       courseTitle: 'Kurs',
@@ -140,25 +140,5 @@ describe('ReportsService', () => {
     const { prisma } = createMockPrisma();
     const r = await new ReportsService(prisma).activity({ from: '2026-11-01', to: '2026-11-07' });
     expect(r.days).toHaveLength(7);
-  });
-});
-
-describe('withoutMoney (dashboard for CONTENT_MANAGER)', () => {
-  it('zeroes revenue and paid orders and keeps everything else', () => {
-    const stats = {
-      students: 5,
-      newStudents30d: 2,
-      activeCourses: 1,
-      enrollments: 4,
-      completedLessons: 9,
-      practiceAttempts: 30,
-      examAttempts: 3,
-      examsPassed: 2,
-      certificates: 2,
-      paidOrders: 3,
-      revenue: 150_000_000,
-      recentResults: [],
-    };
-    expect(withoutMoney(stats)).toEqual({ ...stats, revenue: 0, paidOrders: 0 });
   });
 });

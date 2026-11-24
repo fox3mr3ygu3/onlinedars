@@ -1,5 +1,4 @@
 import type {
-  AdminPaymentView,
   AdminStudentProfile,
   CourseLevel,
   CourseStatus,
@@ -44,9 +43,6 @@ export interface AdminCourse {
   introVideoUrl?: string | null;
   level: CourseLevel;
   status: CourseStatus;
-  isFree: boolean;
-  /** tiyin */
-  price: number;
   sequentialUnlock: boolean;
   directionId: string | null;
   direction?: { id: string; name: string } | null;
@@ -213,8 +209,6 @@ export type {
 export type AdminStudentDetail = AdminStudentProfile;
 export type AdminStudentEnrollment = AdminStudentProfile['enrollments'][number];
 export type AdminStudentResult = AdminStudentProfile['results'][number];
-/** Items of GET /admin/payments (`orderId` is the id used by the status-change route). */
-export type AdminPayment = AdminPaymentView;
 
 export interface AdminAuditLog {
   id: string;

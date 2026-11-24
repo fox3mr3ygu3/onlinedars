@@ -1,12 +1,9 @@
 import type { CatalogParams } from '@/lib/api/public';
 
-export type PriceFilter = 'free' | 'paid' | '';
-
-/** URL state of /courses (`?search=&directionId=&price=free|paid&page=`). */
+/** URL state of /courses (`?search=&directionId=&page=`). */
 export interface CatalogUrlState {
   search: string;
   directionId: string;
-  price: PriceFilter;
   page: number;
 }
 
@@ -17,12 +14,10 @@ function first(v: string | string[] | undefined): string {
 }
 
 export function parseCatalogParams(raw: RawParams): CatalogUrlState {
-  const price = first(raw.price);
   const page = Number.parseInt(first(raw.page), 10);
   return {
     search: first(raw.search).slice(0, 100),
     directionId: first(raw.directionId).slice(0, 64),
-    price: price === 'free' || price === 'paid' ? price : '',
     page: Number.isFinite(page) && page > 0 ? Math.min(page, 10_000) : 1,
   };
 }
@@ -31,7 +26,6 @@ export function toApiParams(s: CatalogUrlState, pageSize: number): CatalogParams
   return {
     search: s.search || undefined,
     directionId: s.directionId || undefined,
-    isFree: s.price === 'free' ? true : s.price === 'paid' ? false : undefined,
     page: s.page,
     pageSize,
   };
@@ -42,7 +36,6 @@ export function catalogHref(s: Partial<CatalogUrlState>): string {
   const sp = new URLSearchParams();
   if (s.search) sp.set('search', s.search);
   if (s.directionId) sp.set('directionId', s.directionId);
-  if (s.price) sp.set('price', s.price);
   if (s.page && s.page > 1) sp.set('page', String(s.page));
   const q = sp.toString();
   return q ? `/courses?${q}` : '/courses';

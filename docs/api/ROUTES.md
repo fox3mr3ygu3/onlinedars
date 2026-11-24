@@ -10,20 +10,20 @@ and the code disagree, the code wins — fix this file.
 - Lists return `{ items, total, page, pageSize }` (query `page`, `pageSize` ≤ 100).
 - Errors return `{ statusCode, code, message, details? }`; `code` is from
   `packages/shared/src/errors.ts` and maps to `errors.<CODE>` in `apps/web/messages/uz.json`.
-- Money is in **tiyin** (1 so'm = 100 tiyin).
+- Courses have no price: access is granted only by an ADMIN (directly or by approving an access request).
 - Auth: `Authorization: Bearer <accessToken>`; the refresh token is an httpOnly cookie scoped to
   `/api/v1/auth`. Roles: `ADMIN`, `CONTENT_MANAGER`, `STUDENT`, always checked on the server.
 - Response types live in `packages/shared/src/schemas/` (`content.ts`, `content-admin.ts`,
-  `learning.ts`, `payments.ts`, `catalog.ts`, `files.ts`). The web uses the same types.
+  `learning.ts`, `access-requests.ts`, `platform.ts`, `catalog.ts`, `files.ts`). The web uses the same types.
 
 ## Owners
 
-| Area                                                                                                           | Owner            |
-| -------------------------------------------------------------------------------------------------------------- | ---------------- |
-| `/auth/*`, `/users/me*`, `/health*`                                                                            | architect        |
-| `/courses*`, `/directions`, `/teachers`, `/faq`, `/settings/public`, `/files/*`, admin content CRUD            | backend-content  |
-| `/me/*` learning, `/certificates/verify`, exams, certificate templates, dashboard, reports, `/admin/students*` | backend-learning |
-| `/orders*`, `/me/orders`, `/payments/*`, `/admin/payments*`, `/admin/audit-logs`, `/me/notifications*`         | backend-payments |
+| Area                                                                                                                                   | Owner                            |
+| -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| `/auth/*`, `/users/me*`, `/health*`                                                                                                    | architect                        |
+| `/courses*`, `/directions`, `/teachers`, `/faq`, `/settings/public`, `/files/*`, admin content CRUD                                    | backend-content                  |
+| `/me/*` learning, `/certificates/verify`, exams, certificate templates, dashboard, reports, `/admin/students*`                         | backend-learning                 |
+| `/access-requests`, `/me/access-requests`, `/me/course-access/*`, `/admin/access-requests*`, `/admin/audit-logs`, `/me/notifications*` | backend-payments (course access) |
 
 ## Health
 
@@ -50,16 +50,16 @@ and the code disagree, the code wins — fix this file.
 
 ## Public (no sign-in)
 
-| Method | Path                                    | Notes                                                                                                                                                                                        |
-| ------ | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET    | `/courses`                              | published catalog. Query: `search` (or `q`), `directionId` or `direction` (slug), `teacherId`, `level`, `isFree`, `sort` (`newest\|popular\|priceAsc\|priceDesc\|title`), `page`, `pageSize` |
-| GET    | `/courses/:slugOrId`                    | course page by slug **or** id (checkout passes the id)                                                                                                                                       |
-| GET    | `/directions`                           | active directions                                                                                                                                                                            |
-| GET    | `/teachers`                             | active teachers                                                                                                                                                                              |
-| GET    | `/faq`                                  | active FAQ items                                                                                                                                                                             |
-| GET    | `/settings/public`                      | footer / contacts                                                                                                                                                                            |
-| GET    | `/files/:year/:month/:name`             | uploads when the local-disk (dev) or memory (test) storage driver is active; S3 serves its own                                                                                               |
-| GET    | `/certificates/verify/:certificateCode` | rate-limited 60/min/IP; input normalised (case, dashes, O→0, I/L→1) → `{ certificateId, fullName, courseTitle, issuedAt, isValid }`; 404 `CERTIFICATE_NOT_FOUND`                             |
+| Method | Path                                    | Notes                                                                                                                                                            |
+| ------ | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/courses`                              | published catalog. Query: `search` (or `q`), `directionId` or `direction` (slug), `teacherId`, `level`, `sort` (`newest\|popular\|title`), `page`, `pageSize`    |
+| GET    | `/courses/:slugOrId`                    | course page by slug **or** id (no price)                                                                                                                         |
+| GET    | `/directions`                           | active directions                                                                                                                                                |
+| GET    | `/teachers`                             | active teachers                                                                                                                                                  |
+| GET    | `/faq`                                  | active FAQ items                                                                                                                                                 |
+| GET    | `/settings/public`                      | footer / contacts                                                                                                                                                |
+| GET    | `/files/:year/:month/:name`             | uploads when the local-disk (dev) or memory (test) storage driver is active; S3 serves its own                                                                   |
+| GET    | `/certificates/verify/:certificateCode` | rate-limited 60/min/IP; input normalised (case, dashes, O→0, I/L→1) → `{ certificateId, fullName, courseTitle, issuedAt, isValid }`; 404 `CERTIFICATE_NOT_FOUND` |
 
 ## Student learning (STUDENT, own data only)
 
@@ -86,23 +86,20 @@ Answer shape (`QuestionAnswer`):
 `blanks[i]` answers placeholder `{{i}}` in the prompt; for MATCHING, `matchText` is one of
 `matchTargets`. Correct answers are never sent before submission.
 
-## Orders and payments
+## Course access (STUDENT)
 
-Details, allowed status transitions and provider error codes: `docs/api/payments.md`.
+Courses are never bought or self-enrolled. A student asks; an ADMIN approves (grants the course) or
+rejects (with a reason the student sees). Staff get 403 on these routes.
 
-| Method | Path                       | Roles              | Notes                                                                                                                                                                                                                                                                                            |
-| ------ | -------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| POST   | `/orders`                  | STUDENT            | `{ courseId, provider: "PAYME"\|"CLICK" }`; the amount always comes from the DB. Paid → `{ enrolled: false, orderId, number, amount, currency, provider, status, redirectUrl }`; free → `{ enrolled: true, courseId }`. 409 `ALREADY_ENROLLED`, 503 `PAYMENT_PROVIDER_UNAVAILABLE`. Staff → 403. |
-| GET    | `/orders/:orderId`         | owner, ADMIN       | `orderSchema`; the web polls it after the provider redirect until `PAID` (`enrolled: true`) or `CANCELLED`/`FAILED`                                                                                                                                                                              |
-| GET    | `/me/orders`               | signed in          | own payment history (`orderSchema` items)                                                                                                                                                                                                                                                        |
-| POST   | `/payments/payme`          | Payme (Basic auth) | Merchant API JSON-RPC: CheckPerform/Create/Perform/Cancel/CheckTransaction/GetStatement; account field `order_id` = order **number**                                                                                                                                                             |
-| POST   | `/payments/click/prepare`  | Click (MD5 sign)   | Prepare                                                                                                                                                                                                                                                                                          |
-| POST   | `/payments/click/complete` | Click (MD5 sign)   | Complete                                                                                                                                                                                                                                                                                         |
+| Method | Path                          | Notes                                                                                                                                             |
+| ------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| POST   | `/access-requests`            | `{ courseId, message? }` → `MyAccessRequest` (201). 409 `ALREADY_ENROLLED` / `ACCESS_REQUEST_PENDING`; 400 `COURSE_NOT_AVAILABLE` (not published) |
+| GET    | `/me/access-requests`         | own requests, newest first (`MyAccessRequest[]`)                                                                                                  |
+| GET    | `/me/course-access/:courseId` | `{ enrolled, request \| null }` for the course page                                                                                               |
 
-`orderSchema`: `orderId, number, status, courseId, courseTitle, courseSlug, amount, currency,
-provider, enrolled, paidAt, cancelledAt, expiresAt, createdAt`. Provider return URL:
-`WEB_URL/checkout/{courseId}?orderId={orderId}` — the browser redirect never grants access; only the
-provider's server callback does (idempotent).
+`MyAccessRequest`: `id, courseId, courseTitle, courseSlug, status (PENDING|APPROVED|REJECTED), message,
+decisionReason, decidedAt, createdAt, updatedAt`. One row per student + course: asking again after a
+rejection or a revoked enrolment reopens it as `PENDING`.
 
 ## Notifications (signed in)
 
@@ -117,7 +114,7 @@ provider's server callback does (idempotent).
 | Method                        | Path                                         | Notes                                                                                                                  |
 | ----------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | GET, POST                     | `/admin/courses`                             | list items carry `moduleCount`, `lessonCount`, `publishedLessonCount`, `enrollmentCount`                               |
-| GET, PATCH, DELETE            | `/admin/courses/:id`                         | delete is refused when orders exist (`COURSE_NOT_DELETABLE`)                                                           |
+| GET, PATCH, DELETE            | `/admin/courses/:id`                         | delete is refused when enrolments or certificates exist (`COURSE_NOT_DELETABLE`)                                       |
 | POST                          | `/admin/courses/:id/status`                  | `{ status }` (DRAFT / PUBLISHED / HIDDEN / ARCHIVED)                                                                   |
 | GET, POST                     | `/admin/courses/:id/modules`                 | modules include their `lessons`                                                                                        |
 | PATCH                         | `/admin/courses/:id/modules/reorder`         | `{ ids[] }`                                                                                                            |
@@ -141,34 +138,35 @@ provider's server callback does (idempotent).
 | GET, POST; GET, PATCH, DELETE | `/admin/directions`, `/admin/directions/:id` |                                                                                                                        |
 | GET, POST; GET, PATCH, DELETE | `/admin/teachers`, `/admin/teachers/:id`     |                                                                                                                        |
 | GET, POST; GET, PATCH, DELETE | `/admin/faq`, `/admin/faq/:id`               |                                                                                                                        |
-| GET, PATCH                    | `/admin/settings`                            | ADMIN only; changes are audit-logged (includes `refundPolicy`, `orderTtlMinutes`)                                      |
+| GET, PATCH                    | `/admin/settings`                            | ADMIN only; changes are audit-logged                                                                                   |
 
 ## Admin learning
 
-| Method           | Path                                                  | Roles                  | Notes                                                                                                                    |
-| ---------------- | ----------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| GET              | `/admin/courses/:courseId/exam`                       | ADMIN, CONTENT_MANAGER | `{ courseId, exam \| null, poolSize, poolTooSmall, attempts }`                                                           |
-| PUT              | `/admin/courses/:courseId/exam`                       | ADMIN, CONTENT_MANAGER | `examConfigSchema` (title, questionCount, timeLimitMinutes, passScore, maxAttempts?, shuffleQuestions, isActive); upsert |
-| GET              | `/admin/courses/:courseId/exam/questions`             | ADMIN, CONTENT_MANAGER | paginated, with correct answers                                                                                          |
-| POST             | `/admin/courses/:courseId/exam/questions`             | ADMIN, CONTENT_MANAGER | `questionInputSchema`; 404 `EXAM_NOT_AVAILABLE` if the exam isn't configured yet                                         |
-| PUT              | `/admin/courses/:courseId/exam/questions/:questionId` | ADMIN, CONTENT_MANAGER | replaces question + options                                                                                              |
-| DELETE           | `/admin/courses/:courseId/exam/questions/:questionId` | ADMIN, CONTENT_MANAGER | 204                                                                                                                      |
-| GET, POST        | `/admin/certificate-templates`                        | ADMIN                  | list / create (`isDefault` clears the old default)                                                                       |
-| GET, PUT, DELETE | `/admin/certificate-templates/:id`                    | ADMIN                  |                                                                                                                          |
-| POST             | `/admin/certificate-templates/preview`                | ADMIN                  | `{ html, backgroundImageUrl? }` → `{ html }` with sample data; show in a sandboxed iframe                                |
-| GET              | `/admin/dashboard`                                    | ADMIN, CONTENT_MANAGER | `AdminDashboardStats` (counts, revenue in tiyin, `recentResults`); `revenue` / `paidOrders` are 0 for CONTENT_MANAGER    |
-| GET              | `/admin/reports/courses`                              | ADMIN                  | `CourseReportRow[]` (`?courseId=`)                                                                                       |
-| GET              | `/admin/reports/exams`                                | ADMIN                  | `{ from, to, items: ExamReportRow[] }` (`?from=&to=` ISO dates, default last 30 days, `?courseId=`)                      |
-| GET              | `/admin/reports/activity`                             | ADMIN                  | `{ from, to, days: ActivityReportDay[] }` (Asia/Tashkent days)                                                           |
-| GET              | `/admin/students`                                     | ADMIN                  | `Paginated<AdminStudentListItem>`; `?search=` (name / email / phone)                                                     |
-| GET              | `/admin/students/:id`                                 | ADMIN                  | `AdminStudentProfile` `{ student, enrollments (with progress), results, certificates, practiceStats }`                   |
-| POST             | `/admin/students/:id/enrollments`                     | ADMIN                  | `{ courseId, reason? }`; grant or restore access, AuditLog `ENROLLMENT_GRANTED`; 409 `ALREADY_ENROLLED`                  |
-| DELETE           | `/admin/students/:id/enrollments/:courseId`           | ADMIN                  | revoke (progress kept), AuditLog `ENROLLMENT_REVOKED`; 204; 404 `NOT_ENROLLED`                                           |
+| Method           | Path                                                  | Roles                  | Notes                                                                                                                                     |
+| ---------------- | ----------------------------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| GET              | `/admin/courses/:courseId/exam`                       | ADMIN, CONTENT_MANAGER | `{ courseId, exam \| null, poolSize, poolTooSmall, attempts }`                                                                            |
+| PUT              | `/admin/courses/:courseId/exam`                       | ADMIN, CONTENT_MANAGER | `examConfigSchema` (title, questionCount, timeLimitMinutes, passScore, maxAttempts?, shuffleQuestions, isActive); upsert                  |
+| GET              | `/admin/courses/:courseId/exam/questions`             | ADMIN, CONTENT_MANAGER | paginated, with correct answers                                                                                                           |
+| POST             | `/admin/courses/:courseId/exam/questions`             | ADMIN, CONTENT_MANAGER | `questionInputSchema`; 404 `EXAM_NOT_AVAILABLE` if the exam isn't configured yet                                                          |
+| PUT              | `/admin/courses/:courseId/exam/questions/:questionId` | ADMIN, CONTENT_MANAGER | replaces question + options                                                                                                               |
+| DELETE           | `/admin/courses/:courseId/exam/questions/:questionId` | ADMIN, CONTENT_MANAGER | 204                                                                                                                                       |
+| GET, POST        | `/admin/certificate-templates`                        | ADMIN                  | list / create (`isDefault` clears the old default)                                                                                        |
+| GET, PUT, DELETE | `/admin/certificate-templates/:id`                    | ADMIN                  |                                                                                                                                           |
+| POST             | `/admin/certificate-templates/preview`                | ADMIN                  | `{ html, backgroundImageUrl? }` → `{ html }` with sample data; show in a sandboxed iframe                                                 |
+| GET              | `/admin/dashboard`                                    | ADMIN, CONTENT_MANAGER | `AdminDashboardStats` (counts, `pendingAccessRequests`, `recentResults`)                                                                  |
+| GET              | `/admin/reports/courses`                              | ADMIN                  | `CourseReportRow[]` (`?courseId=`)                                                                                                        |
+| GET              | `/admin/reports/exams`                                | ADMIN                  | `{ from, to, items: ExamReportRow[] }` (`?from=&to=` ISO dates, default last 30 days, `?courseId=`)                                       |
+| GET              | `/admin/reports/activity`                             | ADMIN                  | `{ from, to, days: ActivityReportDay[] }` (Asia/Tashkent days)                                                                            |
+| GET              | `/admin/students`                                     | ADMIN                  | `Paginated<AdminStudentListItem>`; `?search=` (name / email / phone)                                                                      |
+| GET              | `/admin/students/:id`                                 | ADMIN                  | `AdminStudentProfile` `{ student, enrollments (with progress), results, certificates, practiceStats }`                                    |
+| POST             | `/admin/students/:id/enrollments`                     | ADMIN                  | `{ courseId, reason? }`; grant or restore access, AuditLog `ENROLLMENT_GRANTED`, closes an open request, notifies; 409 `ALREADY_ENROLLED` |
+| DELETE           | `/admin/students/:id/enrollments/:courseId`           | ADMIN                  | revoke (progress kept), AuditLog `ENROLLMENT_REVOKED`; 204; 404 `NOT_ENROLLED`                                                            |
 
-## Admin payments and audit (ADMIN)
+## Admin access requests and audit (ADMIN)
 
-| Method | Path                         | Notes                                                                                                                                                         |
-| ------ | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET    | `/admin/payments`            | one row per order (`orderSchema` + `student`, `transactions[]`); filters `status, provider, courseId, userId, search, from, to, minAmount, maxAmount` (tiyin) |
-| PATCH  | `/admin/payments/:id/status` | `:id` is the **orderId**; `{ status, reason ≥ 5 chars }`; only allowed transitions (else 409 `INVALID_STATUS_TRANSITION`); written to the audit log           |
-| GET    | `/admin/audit-logs`          | filters `entityType, entityId, actorId, action, from, to`                                                                                                     |
+| Method | Path                                 | Notes                                                                                                                   |
+| ------ | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/admin/access-requests`             | `AdminAccessRequestList` (`items` with `student`, `decidedBy`; `pendingCount`); filters `status, courseId, search`      |
+| POST   | `/admin/access-requests/:id/approve` | grants the course (source `ACCESS_REQUEST`), AuditLog `ACCESS_REQUEST_APPROVED`, notifies; 409 `ACCESS_REQUEST_DECIDED` |
+| POST   | `/admin/access-requests/:id/reject`  | `{ reason ≥ 3 chars }` shown to the student, AuditLog `ACCESS_REQUEST_REJECTED`, notifies; 409 `ACCESS_REQUEST_DECIDED` |
+| GET    | `/admin/audit-logs`                  | filters `entityType, entityId, actorId, action, from, to`                                                               |

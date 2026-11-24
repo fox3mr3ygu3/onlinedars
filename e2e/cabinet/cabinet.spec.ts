@@ -111,7 +111,7 @@ test.describe('cabinet shell, dashboard, courses @smoke', () => {
     ]);
     await page.goto('/cabinet');
     await expect(page.getByText('Davom etish uchun tizimga kiring')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Kirish' })).toHaveAttribute(
+    await expect(page.getByRole('link', { name: 'Kirish', exact: true })).toHaveAttribute(
       'href',
       '/login?next=/cabinet',
     );

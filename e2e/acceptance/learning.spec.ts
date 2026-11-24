@@ -8,6 +8,7 @@ import {
   createModule,
   completeLesson,
   gotoReady,
+  grantAccess,
   itemsOf,
   loginApi,
   perfectAnswer,
@@ -69,14 +70,10 @@ test.describe('learning, exam and certificate @fullstack', () => {
       data: { status: 'PUBLISHED' },
     });
 
-    // ── student joins the free course (no payment) ──
+    // ── student asks for the course; an admin approves (the only way in) ──
     const student = await registerStudent(request, "O'quvchi");
     const token = student.token;
-    const joined = await call(request, 'POST', '/orders', {
-      token,
-      data: { courseId: course.id, provider: 'PAYME' },
-    });
-    expect(joined).toMatchObject({ enrolled: true, courseId: course.id });
+    await grantAccess(request, token, course.id);
 
     // ── locks before any progress ──
     let tree = await call(request, 'GET', `/me/courses/${course.id}`, { token });

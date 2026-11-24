@@ -128,8 +128,6 @@ async function main(): Promise<void> {
       data: {
         ...DEMO_COURSE,
         status: CourseStatus.PUBLISHED,
-        isFree: true,
-        price: 0,
         sequentialUnlock: true,
         publishedAt: new Date(),
         directionId: direction.id,
@@ -194,13 +192,14 @@ async function main(): Promise<void> {
   await prisma.enrollment.upsert({
     where: { userId_courseId: { userId: student.id, courseId: course.id } },
     update: {},
-    create: { userId: student.id, courseId: course.id, source: EnrollmentSource.FREE },
+    create: { userId: student.id, courseId: course.id, source: EnrollmentSource.ADMIN },
   });
 
   const faqs = [
     {
-      question: 'Kursni qanday sotib olaman?',
-      answer: "Kurs sahifasida «Sotib olish» tugmasini bosing va Payme yoki Click orqali to'lang.",
+      question: 'Kursga qanday yozilaman?',
+      answer:
+        "Kurs sahifasida «Kirish so'rash» tugmasini bosing. Administrator so'rovingizni tasdiqlagach, kurs kabinetingizda paydo bo'ladi.",
     },
     {
       question: 'Sertifikat qachon beriladi?',
@@ -219,7 +218,6 @@ async function main(): Promise<void> {
   const settings: Record<string, Prisma.InputJsonValue> = {
     'platform.name': 'OnlineDars',
     'platform.supportPhone': '+998 71 000 00 00',
-    'payments.orderTtlMinutes': 30,
   };
   for (const [key, value] of Object.entries(settings)) {
     await prisma.setting.upsert({ where: { key }, update: {}, create: { key, value } });

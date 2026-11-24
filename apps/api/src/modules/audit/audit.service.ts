@@ -9,7 +9,7 @@ export type AuditDb = Pick<Prisma.TransactionClient, 'auditLog'>;
 export interface AuditEntry {
   /** The user who made the change; omit for system/provider actions. */
   actorId?: string | null;
-  /** Dotted verb, e.g. `payment.status.change`, `enrollment.grant`. */
+  /** Dotted verb, e.g. `enrollment.grant`, `settings.update`. */
   action: string;
   /** Model name, e.g. `Order`, `Enrollment`. */
   entityType: string;
@@ -31,7 +31,7 @@ export function toAuditJson(value: unknown): Prisma.InputJsonValue | undefined {
 
 /**
  * Writes and reads the audit log. Exported globally so any module can record sensitive changes
- * (payments, enrollments, settings). Pass the transaction client as `db` so the audit row
+ * (access requests, enrollments, settings). Pass the transaction client as `db` so the audit row
  * commits or rolls back together with the change it describes.
  */
 @Injectable()

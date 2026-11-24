@@ -19,7 +19,7 @@ test.describe('course preview @fullstack', () => {
     request,
   }) => {
     const admin = await loginApi(request, ADMIN);
-    const course = await createPublishedCourse(request, admin, { price: 9_900_000 });
+    const course = await createPublishedCourse(request, admin);
 
     // ── admin UI: intro video on the course form, "free preview" on the lesson editor ──
     await signInBrowser(context, baseURL!, ADMIN);

@@ -2,11 +2,11 @@
 
 ## Environments
 
-| Env        | URL (example)              | Deployed when              | Data             | Payments                  |
-| ---------- | -------------------------- | -------------------------- | ---------------- | ------------------------- |
-| local      | `localhost:3000` / `:4000` | `pnpm dev`                 | seed data        | none (mocked)             |
-| staging    | `staging.onlinedars.uz`    | every merge to `main`      | seed + test data | Payme/Click **test mode** |
-| production | `onlinedars.uz`            | tag `v*` + manual approval | real             | live merchant keys        |
+| Env        | URL (example)              | Deployed when              | Data             |
+| ---------- | -------------------------- | -------------------------- | ---------------- |
+| local      | `localhost:3000` / `:4000` | `pnpm dev`                 | seed data        |
+| staging    | `staging.onlinedars.uz`    | every merge to `main`      | seed + test data |
+| production | `onlinedars.uz`            | tag `v*` + manual approval | real             |
 
 Staging and production are separate servers (or at least separate databases, storage buckets and secrets).
 
@@ -16,7 +16,6 @@ Staging and production are separate servers (or at least separate databases, sto
 - Start with **one Linux VPS** (Ubuntu LTS, 4–8 vCPU, 8–16 GB RAM, SSD) per environment.
 - Run everything with **Docker Compose**: `caddy` (HTTPS reverse proxy, automatic Let's Encrypt), `web`, `api`, `worker` (BullMQ jobs), `postgres`, `redis`, `minio`.
 - DNS: `onlinedars.uz` → the server. Caddy serves web and API on the **same origin** (`/api/*` → api container), and `files.onlinedars.uz` → MinIO for presigned downloads. Same-origin keeps auth cookies first-party and lets one web image serve staging and production (`NEXT_PUBLIC_API_URL=/api/v1`).
-- Payme/Click callbacks need a public HTTPS URL. Register the staging and production callback URLs in each merchant cabinet.
 
 ## CI (GitHub Actions — `.github/workflows/ci.yml`)
 
@@ -80,10 +79,10 @@ Deploy jobs are **skipped** until the repo variable for that environment exists,
 ## Monitoring & alerts
 
 - **Sentry** (web + api + worker): errors with release tags.
-- **Uptime monitor** (e.g. UptimeRobot or Better Stack) on `/`, `/health` and the payment callback endpoints. Alerts go to Telegram.
+- **Uptime monitor** (e.g. UptimeRobot or Better Stack) on `/` and `/health`. Alerts go to Telegram.
 - **Server metrics:** CPU, RAM, disk, DB connections (Netdata, or Grafana + Prometheus later).
 - **Logs:** pino JSON → `docker logs` with rotation. Centralize (Loki) once there is more than one server.
-- **Business alerts:** payment stuck in PENDING over 15 min, certificate job failures, 5xx rate above 1%.
+- **Business alerts:** access requests waiting over 1 working day, certificate job failures, 5xx rate above 1%.
 
 ## Security checklist
 
@@ -104,14 +103,14 @@ Deploy jobs are **skipped** until the repo variable for that environment exists,
 
 \*Estimates only. **Load-test with k6 before launch** (e.g. 1,000 students submitting an exam at the same minute) and set the real numbers here.
 
-The app is designed to scale out: stateless API (JWT + Redis), files in S3, heavy work (PDF, SMS, payment re-checks) in BullMQ queues.
+The app is designed to scale out: stateless API (JWT + Redis), files in S3, heavy work (PDF, SMS) in BullMQ queues.
 
 ## Maintenance routine
 
 | When              | Task                                                                       |
 | ----------------- | -------------------------------------------------------------------------- |
 | Daily (automatic) | backups, error alerts, uptime                                              |
-| Weekly            | review Sentry, Dependabot PRs, stuck payments                              |
+| Weekly            | review Sentry, Dependabot PRs, old pending access requests                 |
 | Monthly           | restore test, dependency updates, disk and DB size check, security patches |
 | Each release      | changelog (`CHANGELOG.md`), tag, staging check, prod deploy, smoke test    |
 | Yearly            | rotate secrets and merchant keys, review hosting size and cost             |

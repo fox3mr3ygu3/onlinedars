@@ -147,7 +147,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   );
 }
 
-/** Wraps ADMIN-only pages (settings, payments, students, reports, audit). UX only. */
+/** Wraps ADMIN-only pages (settings, access requests, students, reports, audit). UX only. */
 export function AdminOnly({ children }: { children: ReactNode }) {
   const t = useTranslations('admin.shell');
   const me = useAdminMe();

@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { listCourses } from '@/lib/api/admin/content';
 import { Pagination } from '../common/controls';
-import { formatDate, formatMoney } from '../common/format';
+import { formatDate } from '../common/format';
 import {
   EmptyState,
   ErrorState,
@@ -25,7 +25,6 @@ const PAGE_SIZE = 20;
 
 export function CoursesList() {
   const t = useTranslations('admin');
-  const tc = useTranslations('common');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<CourseStatus | ''>('');
   const [page, setPage] = useState(1);
@@ -90,7 +89,6 @@ export function CoursesList() {
               <tr>
                 <th>{t('courses.fields.title')}</th>
                 <th>{t('courses.fields.status')}</th>
-                <th>{t('courses.fields.price_column')}</th>
                 <th>{t('courses.fields.lessons')}</th>
                 <th>{t('courses.fields.students')}</th>
                 <th>{t('courses.fields.updatedAt')}</th>
@@ -110,9 +108,6 @@ export function CoursesList() {
                   </td>
                   <td>
                     <CourseStatusBadge status={c.status} />
-                  </td>
-                  <td className="tabular-nums">
-                    {c.isFree ? tc('free') : formatMoney(c.price, t('common.som'))}
                   </td>
                   <td className="tabular-nums">{c.lessonCount ?? '—'}</td>
                   <td className="tabular-nums">{c.enrollmentCount ?? '—'}</td>

@@ -116,7 +116,7 @@ describe.skipIf(!hasDb)('learning e2e', () => {
       if (who !== 'admin') ids[who] = res.body.user.id;
     }
     await prisma.user.update({ where: { email: email('admin') }, data: { role: Role.ADMIN } });
-    await prisma.enrollment.create({ data: { userId: ids.s1, courseId, source: 'FREE' } });
+    await prisma.enrollment.create({ data: { userId: ids.s1, courseId, source: 'ADMIN' } });
   });
 
   afterAll(async () => {
@@ -319,14 +319,12 @@ describe.skipIf(!hasDb)('learning e2e', () => {
     await http.get('/api/v1/admin/dashboard').set(auth('s1')).expect(403);
     const dash = await http.get('/api/v1/admin/dashboard').set(auth('admin')).expect(200);
     expect(dash.body.certificates).toBeGreaterThanOrEqual(1);
-    // A content manager sees the dashboard too, but never the money figures.
+    expect(dash.body).toHaveProperty('pendingAccessRequests');
+    expect(dash.body).not.toHaveProperty('revenue');
+    // A content manager sees the same dashboard (their admin home).
     await prisma.user.update({ where: { id: ids.s2 }, data: { role: Role.CONTENT_MANAGER } });
     const cm = await http.get('/api/v1/admin/dashboard').set(auth('s2')).expect(200);
-    expect(cm.body).toMatchObject({
-      certificates: dash.body.certificates,
-      revenue: 0,
-      paidOrders: 0,
-    });
+    expect(cm.body).toMatchObject({ certificates: dash.body.certificates });
     await http.get('/api/v1/admin/reports/courses').set(auth('s2')).expect(403);
     await prisma.user.update({ where: { id: ids.s2 }, data: { role: Role.STUDENT } });
     await http.get('/api/v1/admin/reports/courses').set(auth('admin')).expect(200);

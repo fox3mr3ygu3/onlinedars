@@ -53,14 +53,7 @@ export const adminListQuerySchema = paginationQuerySchema.extend({
 export type AdminListQuery = z.infer<typeof adminListQuerySchema>;
 
 // ---------- PATCH bodies ----------
-export const courseUpdateSchema = toPatchSchema(courseInputSchema.shape).superRefine((v, ctx) => {
-  if (v.isFree === true && v.price !== undefined && v.price !== 0) {
-    ctx.addIssue({ code: 'custom', path: ['price'], message: 'validation.freeCoursePrice' });
-  }
-  if (v.isFree === false && v.price !== undefined && v.price <= 0) {
-    ctx.addIssue({ code: 'custom', path: ['price'], message: 'validation.paidCoursePrice' });
-  }
-});
+export const courseUpdateSchema = toPatchSchema(courseInputSchema.shape);
 export type CourseUpdateInput = z.infer<typeof courseUpdateSchema>;
 
 export const moduleUpdateSchema = toPatchSchema(moduleInputSchema.shape);
@@ -163,9 +156,6 @@ export interface AdminCourseListItem {
   title: string;
   status: CourseStatus;
   level: CourseLevel;
-  isFree: boolean;
-  price: number;
-  currency: string;
   sequentialUnlock: boolean;
   coverImageUrl: string | null;
   direction: { id: string; slug: string; name: string } | null;

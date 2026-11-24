@@ -217,7 +217,7 @@ export function StudentDetail({ studentId }: { studentId: string }) {
             <TableWrap>
               <thead>
                 <tr>
-                  <th>{t('payments.fields.course')}</th>
+                  <th>{t('common.course')}</th>
                   <th>{t('students.fields.createdAt')}</th>
                   <th>{t('students.progress')}</th>
                   <th className="text-right">{t('common.actions')}</th>
@@ -270,11 +270,11 @@ export function StudentDetail({ studentId }: { studentId: string }) {
             <TableWrap>
               <thead>
                 <tr>
-                  <th>{t('payments.fields.course')}</th>
+                  <th>{t('common.course')}</th>
                   <th>{t('students.fields.resultTitle')}</th>
                   <th className="text-right">{t('students.fields.score')}</th>
                   <th>{t('students.fields.status')}</th>
-                  <th>{t('payments.fields.createdAt')}</th>
+                  <th>{t('common.date')}</th>
                 </tr>
               </thead>
               <tbody>

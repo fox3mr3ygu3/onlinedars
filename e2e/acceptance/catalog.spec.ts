@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { call, DEMO_COURSE, gotoReady, registerStudent, signInBrowser } from './support';
+import { call, DEMO_COURSE, gotoReady } from './support';
 
 /** §13.2 browse the catalog, open a course page (server-rendered from the real API). */
 test.describe('catalog @fullstack', () => {
@@ -29,19 +29,10 @@ test.describe('catalog @fullstack', () => {
     ).toBeVisible();
   });
 
-  test('checkout opens by course id (GET /courses/:slugOrId)', async ({
-    page,
-    context,
-    baseURL,
-    request,
-  }) => {
+  test('a course can be read by id too (GET /courses/:slugOrId); no price', async ({ request }) => {
     const demo = await call(request, 'GET', `/courses/${DEMO_COURSE.slug}`);
     const byId = await call(request, 'GET', `/courses/${demo.id}`);
     expect(byId.slug).toBe(DEMO_COURSE.slug);
-
-    const user = await registerStudent(request, 'Checkout');
-    await signInBrowser(context, baseURL!, user);
-    await gotoReady(page, `/checkout/${demo.id}`);
-    await expect(page.getByTestId('checkout-course-title')).toHaveText(DEMO_COURSE.title);
+    expect(byId).not.toHaveProperty('price');
   });
 });

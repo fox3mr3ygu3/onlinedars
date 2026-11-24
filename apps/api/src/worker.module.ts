@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { ConfigModule } from './config/config.module';
-import { PaymentRecheckJobModule } from './jobs/payment-recheck.job';
 import { AppLoggerModule } from './config/logger.module';
 import { CertificatesWorkerModule } from './modules/certificates/certificates.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 /**
- * Background worker (BullMQ processors: certificate-pdf, payment-recheck, notify).
+ * Background worker (BullMQ processors: certificate-pdf, notify).
  * Phase 1 agents register their processors here.
  */
 @Module({
@@ -16,7 +15,6 @@ import { PrismaModule } from './prisma/prisma.module';
     ConfigModule,
     AppLoggerModule,
     PrismaModule,
-    PaymentRecheckJobModule,
 
     // backend-learning: certificate-pdf
     CertificatesWorkerModule,
