@@ -12,7 +12,7 @@ const cert = {
   pdfReady: true,
 };
 
-test.describe('results, certificates, payments, notifications, profile @smoke', () => {
+test.describe('results, certificates, access requests, notifications, profile @smoke', () => {
   test('results list', async ({ page }) => {
     await mockApi(page, [
       ...baseHandlers,
@@ -61,36 +61,44 @@ test.describe('results, certificates, payments, notifications, profile @smoke', 
     expect((await download).suggestedFilename()).toBe('sertifikat-OD-2026-000001.pdf');
   });
 
-  test('payment history shows amount in so‘m and status', async ({ page }) => {
+  test('access requests list shows status and the rejection reason', async ({ page }) => {
+    const base = {
+      courseId: 'c1',
+      courseTitle: 'HTML asoslari',
+      courseSlug: 'html-asoslari',
+      message: null,
+      decidedAt: null,
+      createdAt: '2026-11-20T09:59:00.000Z',
+      updatedAt: '2026-11-20T09:59:00.000Z',
+    };
     await mockApi(page, [
       ...baseHandlers,
       {
         method: 'GET',
-        path: /^\/me\/orders$/,
-        body: page1([
+        path: /^\/me\/access-requests$/,
+        body: [
+          { ...base, id: 'r1', status: 'PENDING', decisionReason: null },
           {
-            orderId: 'ord1',
-            number: 1001,
-            status: 'PAID',
-            courseId: 'c1',
-            courseTitle: 'HTML asoslari',
-            courseSlug: 'html-asoslari',
-            amount: 49_900_000,
-            currency: 'UZS',
-            provider: 'PAYME',
-            enrolled: true,
-            paidAt: '2026-11-20T10:00:00.000Z',
-            cancelledAt: null,
-            expiresAt: null,
-            createdAt: '2026-11-20T09:59:00.000Z',
+            ...base,
+            id: 'r2',
+            courseId: 'c2',
+            courseTitle: 'SQL',
+            courseSlug: 'sql',
+            status: 'REJECTED',
+            decisionReason: "Guruh to'lgan",
+            decidedAt: '2026-11-21T10:00:00.000Z',
           },
-        ]),
+        ],
       },
     ]);
-    await page.goto('/cabinet/payments');
-    await expect(page.getByText("499 000 so'm").filter({ visible: true }).first()).toBeVisible();
-    await expect(page.getByText("To'langan").filter({ visible: true }).first()).toBeVisible();
-    await expect(page.getByText('Payme').filter({ visible: true }).first()).toBeVisible();
+    await page.goto('/cabinet/requests');
+    await expect(page.getByRole('heading', { name: "Kirish so'rovlari" })).toBeVisible();
+    await expect(page.getByTestId('access-request-r1')).toContainText('Kutilmoqda');
+    await expect(page.getByTestId('access-request-r2')).toContainText("Sabab: Guruh to'lgan");
+    await expect(page.getByRole('link', { name: "Qayta so'rash" })).toHaveAttribute(
+      'href',
+      '/courses/sql',
+    );
   });
 
   test('notifications: mark as read', async ({ page }) => {
@@ -104,8 +112,8 @@ test.describe('results, certificates, payments, notifications, profile @smoke', 
           items: [
             {
               id: 'n1',
-              type: 'PAYMENT_SUCCESS',
-              title: "To'lov qabul qilindi",
+              type: 'ACCESS_GRANTED',
+              title: 'Kursga kirish berildi',
               body: 'HTML asoslari kursi ochildi',
               data: null,
               readAt: read ? '2026-11-22T10:00:00.000Z' : null,

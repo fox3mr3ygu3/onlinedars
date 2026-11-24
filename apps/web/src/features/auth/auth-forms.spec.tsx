@@ -64,14 +64,14 @@ describe('LoginForm', () => {
   });
 
   it('logs in by phone and follows a safe ?next=', async () => {
-    search = new URLSearchParams('next=/checkout/c1');
+    search = new URLSearchParams('next=/cabinet/requests');
     const fetchMock = vi.fn(async () => jsonResponse(200, user()));
     vi.stubGlobal('fetch', fetchMock);
     renderWithIntl(<LoginForm />);
     await userEvent.type(screen.getByLabelText('Email yoki telefon raqam'), '90 123 45 67');
     await userEvent.type(screen.getByLabelText('Parol'), 'secret123');
     await userEvent.click(screen.getByRole('button', { name: 'Kirish' }));
-    await waitFor(() => expect(replace).toHaveBeenCalledWith('/checkout/c1'));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith('/cabinet/requests'));
     expect(readRoleHint()).toBe('STUDENT');
   });
 

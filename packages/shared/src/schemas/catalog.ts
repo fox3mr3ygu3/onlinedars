@@ -7,11 +7,6 @@ import { z } from 'zod';
 import { CourseLevel } from '../enums';
 import { idSchema, paginated, paginationQuerySchema } from './common';
 
-const boolParam = z
-  .enum(['true', 'false'])
-  .transform((v) => v === 'true')
-  .optional();
-
 /** GET /courses query. `search` is the documented name; `q` is accepted as an alias. */
 export const publicCourseListQuerySchema = paginationQuerySchema.extend({
   search: z.string().trim().max(100).optional(),
@@ -21,8 +16,7 @@ export const publicCourseListQuerySchema = paginationQuerySchema.extend({
   direction: z.string().trim().max(120).optional(),
   teacherId: idSchema.optional(),
   level: z.enum(CourseLevel).optional(),
-  isFree: boolParam,
-  sort: z.enum(['newest', 'popular', 'priceAsc', 'priceDesc', 'title']).default('newest'),
+  sort: z.enum(['newest', 'popular', 'title']).default('newest'),
 });
 export type PublicCourseListQuery = z.infer<typeof publicCourseListQuerySchema>;
 
@@ -78,7 +72,7 @@ const teacherRef = z.object({
   photoUrl: z.string().nullable(),
 });
 
-/** Catalog card. `price` is tiyin; `lessonCount` counts published lessons only. */
+/** Catalog card. `lessonCount` counts published lessons only. */
 export const publicCourseCardSchema = z.object({
   id: z.string(),
   slug: z.string(),
@@ -86,9 +80,6 @@ export const publicCourseCardSchema = z.object({
   shortDescription: z.string(),
   coverImageUrl: z.string().nullable(),
   level: z.enum(CourseLevel),
-  isFree: z.boolean(),
-  price: z.number().int(),
-  currency: z.string(),
   direction: directionRef.nullable(),
   teachers: z.array(teacherRef),
   moduleCount: z.number().int(),
@@ -118,7 +109,7 @@ export const publicModuleOutlineSchema = z.object({
   lessons: z.array(publicLessonOutlineSchema),
 });
 
-/** Course page: description, goals, program (modules → published lessons), price. */
+/** Course page: description, goals, program (modules → published lessons). */
 export const publicCourseDetailSchema = publicCourseCardSchema.extend({
   description: z.string(),
   goals: z.array(z.string()),
@@ -136,8 +127,6 @@ export const publicLessonPreviewSchema = z.object({
     id: z.string(),
     slug: z.string(),
     title: z.string(),
-    isFree: z.boolean(),
-    price: z.number().int(),
   }),
   lesson: z.object({
     id: z.string(),

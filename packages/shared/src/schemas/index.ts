@@ -2,7 +2,8 @@ export * from './auth';
 export * from './common';
 export * from './content';
 export * from './identity';
-export * from './payments';
+export * from './platform';
+export * from './access-requests';
 export * from './users';
 export * from './learning';
 

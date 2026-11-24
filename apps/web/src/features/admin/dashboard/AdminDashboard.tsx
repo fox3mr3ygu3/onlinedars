@@ -8,15 +8,15 @@ import {
   GraduationCap,
   Plus,
   TrendingUp,
+  KeyRound,
   Users,
-  Wallet,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { getDashboard } from '@/lib/api/admin/management';
-import { formatDateTime, formatMoney } from '../common/format';
+import { formatDateTime } from '../common/format';
 import { ErrorState, LoadingState, PageHeader, Section, TableWrap } from '../common/ui';
 import { useAdminMe } from '../useAdminMe';
 
@@ -91,11 +91,17 @@ export function AdminDashboard() {
               icon={<Award className="size-5" />}
             />
             {isAdmin && (
-              <Stat
-                label={t('dashboard.revenue')}
-                value={formatMoney(q.data.revenue, t('common.som'))}
-                icon={<Wallet className="size-5" />}
-              />
+              <Link
+                href="/admin/access-requests?status=PENDING"
+                className="focus-visible:ring-ring rounded-lg focus-visible:outline-none focus-visible:ring-2"
+                data-testid="dashboard-pending-requests"
+              >
+                <Stat
+                  label={t('dashboard.pendingRequests')}
+                  value={q.data.pendingAccessRequests}
+                  icon={<KeyRound className="size-5" />}
+                />
+              </Link>
             )}
           </div>
           {q.data.recentResults.length > 0 && (
@@ -103,10 +109,10 @@ export function AdminDashboard() {
               <TableWrap>
                 <thead>
                   <tr>
-                    <th>{t('payments.fields.student')}</th>
-                    <th>{t('payments.fields.course')}</th>
+                    <th>{t('common.student')}</th>
+                    <th>{t('common.course')}</th>
                     <th>{t('students.fields.score')}</th>
-                    <th>{t('payments.fields.createdAt')}</th>
+                    <th>{t('common.date')}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -13,7 +13,7 @@ export type NavKey =
   | 'teachers'
   | 'faq'
   | 'students'
-  | 'payments'
+  | 'accessRequests'
   | 'reports'
   | 'settings'
   | 'audit';
@@ -38,8 +38,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { key: 'directions', href: '/admin/directions', group: 'content', roles: CONTENT },
   { key: 'teachers', href: '/admin/teachers', group: 'content', roles: CONTENT },
   { key: 'faq', href: '/admin/faq', group: 'content', roles: CONTENT },
+  {
+    key: 'accessRequests',
+    href: '/admin/access-requests',
+    group: 'management',
+    roles: ADMIN_ONLY,
+  },
   { key: 'students', href: '/admin/students', group: 'management', roles: ADMIN_ONLY },
-  { key: 'payments', href: '/admin/payments', group: 'management', roles: ADMIN_ONLY },
   { key: 'reports', href: '/admin/reports', group: 'management', roles: ADMIN_ONLY },
   { key: 'settings', href: '/admin/settings', group: 'management', roles: ADMIN_ONLY },
   { key: 'audit', href: '/admin/audit', group: 'management', roles: ADMIN_ONLY },

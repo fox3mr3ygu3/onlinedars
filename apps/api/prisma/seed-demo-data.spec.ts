@@ -57,9 +57,7 @@ describe('demo seed data', () => {
     }
   });
 
-  it('has free and paid, every level and every course status', () => {
-    expect(DEMO_COURSES.some((c) => c.priceSom === 0)).toBe(true);
-    expect(DEMO_COURSES.some((c) => c.priceSom > 0)).toBe(true);
+  it('has every level and every course status', () => {
     expect(new Set(DEMO_COURSES.map((c) => c.level)).size).toBe(3);
     expect(new Set(DEMO_COURSES.map((c) => c.status))).toEqual(
       new Set(['PUBLISHED', 'DRAFT', 'HIDDEN']),

@@ -47,7 +47,6 @@ function under(pathname: string, prefix: string): boolean {
  * to let the request through.
  * - `/cabinet/**`  → STUDENT (staff are sent to /admin)
  * - `/admin/**`    → ADMIN | CONTENT_MANAGER (students are sent to /cabinet)
- * - `/checkout/**` → any signed-in user
  * - no / unknown role on a protected path → `/login?next=<path>`
  */
 export function resolveRouteAccess(
@@ -58,8 +57,7 @@ export function resolveRouteAccess(
   const role = parseRole(roleValue);
   const isCabinet = under(pathname, '/cabinet');
   const isAdmin = under(pathname, '/admin');
-  const isCheckout = under(pathname, '/checkout');
-  if (!isCabinet && !isAdmin && !isCheckout) return null;
+  if (!isCabinet && !isAdmin) return null;
 
   if (!role) return loginRedirect(`${pathname}${search}`);
   if (isCabinet && isStaff(role)) return '/admin';

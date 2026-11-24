@@ -1,5 +1,3 @@
-import { formatSom } from '@/lib/utils';
-
 const TZ = 'Asia/Tashkent';
 
 /** dd.mm.yyyy hh:mm in Tashkent time (locale-independent so SSR and client match). */
@@ -22,11 +20,6 @@ export function formatDateTime(iso: string | null | undefined): string {
 
 export function formatDate(iso: string | null | undefined): string {
   return formatDateTime(iso).split(' ')[0] ?? '—';
-}
-
-/** "1 250 000 so'm" — pass the translated suffix. */
-export function formatMoney(tiyin: number, suffix: string): string {
-  return `${formatSom(tiyin)} ${suffix}`;
 }
 
 /** yyyy-mm-dd (from a date input) → ISO datetime at start/end of the day in Tashkent (UTC+5). */

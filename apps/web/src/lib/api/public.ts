@@ -44,10 +44,6 @@ export interface CourseCard {
   shortDescription: string;
   coverImageUrl: string | null;
   level: CourseLevel;
-  isFree: boolean;
-  /** tiyin */
-  price: number;
-  currency?: string;
   lessonCount: number;
   moduleCount?: number;
   direction?: DirectionSummary | null;
@@ -86,7 +82,6 @@ export interface Faq {
 export interface CatalogParams {
   search?: string;
   directionId?: string;
-  isFree?: boolean;
   page?: number;
   pageSize?: number;
 }
@@ -110,7 +105,6 @@ export async function getCourses(params: CatalogParams = {}): Promise<Paginated<
     // The shared catalogQuerySchema names the search field `q`; send both until settled.
     q: params.search,
     directionId: params.directionId,
-    isFree: params.isFree === undefined ? undefined : String(params.isFree),
     page: params.page ?? 1,
     pageSize: params.pageSize ?? CATALOG_PAGE_SIZE,
   });
@@ -119,7 +113,7 @@ export async function getCourses(params: CatalogParams = {}): Promise<Paginated<
   );
 }
 
-/** `slugOrId`: the course page uses the slug; checkout passes the slug too when it has it. */
+/** `slugOrId`: the course page uses the slug; an id works too. */
 export function getCourse(slugOrId: string): Promise<CourseDetail> {
   return apiFetch<CourseDetail>(`/courses/${encodeURIComponent(slugOrId)}`, cached);
 }

@@ -5,5 +5,5 @@
 /.github/                         @fox3mr3ygu3
 /infra/                           @fox3mr3ygu3
 /apps/api/prisma/                 @fox3mr3ygu3
-/apps/api/src/modules/payments/   @fox3mr3ygu3
+/apps/api/src/modules/access-requests/ @fox3mr3ygu3
 /apps/api/src/modules/auth/       @fox3mr3ygu3

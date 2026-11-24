@@ -22,7 +22,7 @@
 	import security_headers
 	encode zstd gzip
 
-	# API (incl. Payme/Click callbacks at /api/v1/payments/...) on the same origin as the web app,
+	# API (/api/v1/...) on the same origin as the web app,
 	# so auth cookies stay first-party and the web image is environment-independent.
 	handle /api/* {
 		request_body {

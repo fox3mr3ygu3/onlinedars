@@ -17,12 +17,15 @@ describe('SettingsService', () => {
   it('merges stored values over defaults and ignores invalid/unknown rows', () => {
     const s = mergeSettings([
       { key: 'platformName', value: 'Dars.uz' },
-      { key: 'orderTtlMinutes', value: 'not a number' },
+      { key: 'maintenanceMode', value: 'not a boolean' },
       { key: 'somethingElse', value: 1 },
+      // left over from the removed payment settings
+      { key: 'orderTtlMinutes', value: 60 },
     ]);
     expect(s.platformName).toBe('Dars.uz');
-    expect(s.orderTtlMinutes).toBe(PLATFORM_SETTINGS_DEFAULTS.orderTtlMinutes);
+    expect(s.maintenanceMode).toBe(PLATFORM_SETTINGS_DEFAULTS.maintenanceMode);
     expect(s).not.toHaveProperty('somethingElse');
+    expect(s).not.toHaveProperty('orderTtlMinutes');
   });
 
   it('getPublic exposes only the public subset', async () => {

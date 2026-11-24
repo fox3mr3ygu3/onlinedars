@@ -129,7 +129,7 @@ describe('login / logout', () => {
 describe('authFetch', () => {
   it('throws UNAUTHORIZED when signed out', async () => {
     useFetch(() => jsonResponse(200, {}));
-    await expect(authFetch('/orders/1')).rejects.toMatchObject({
+    await expect(authFetch('/me/access-requests')).rejects.toMatchObject({
       status: 401,
       code: 'UNAUTHORIZED',
     });
@@ -155,11 +155,11 @@ describe('authFetch', () => {
         return jsonResponse(200, authBody('new'));
       }
       return authHeader(init) === 'Bearer new'
-        ? jsonResponse(200, { status: 'PAID' })
+        ? jsonResponse(200, { status: 'APPROVED' })
         : jsonResponse(401, { code: 'UNAUTHORIZED', message: 'expired' });
     });
     await login({ login: 'a@b.uz', password: 'secret123' });
-    await expect(authFetch('/orders/1')).resolves.toEqual({ status: 'PAID' });
+    await expect(authFetch('/me/access-requests')).resolves.toEqual({ status: 'APPROVED' });
     expect(refreshes).toBe(1);
     expect(getSessionState().session?.accessToken).toBe('new');
   });
@@ -189,7 +189,7 @@ describe('authFetch', () => {
       return jsonResponse(401, { code: 'UNAUTHORIZED' });
     });
     await login({ login: 'a@b.uz', password: 'secret123' });
-    await expect(authFetch('/orders/1')).rejects.toMatchObject({ status: 401 });
+    await expect(authFetch('/me/access-requests')).rejects.toMatchObject({ status: 401 });
     expect(readRoleHint()).toBeNull();
     expect(getSessionState().status).toBe('unauthenticated');
   });

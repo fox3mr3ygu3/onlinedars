@@ -21,7 +21,7 @@ platform/
 │   ├── HANDOFF.md                # session-by-session "where we stopped" log
 │   ├── DEPLOYMENT.md             # environments, CI/CD, backups, monitoring, scaling
 │   ├── DECISIONS.md              # architecture decisions log
-│   └── api/                      # exported OpenAPI, payment integration notes
+│   └── api/                      # exported OpenAPI, route list
 ├── apps/
 │   ├── web/                      # Next.js 15 — all three panels
 │   │   ├── messages/uz.json      # i18n strings
@@ -29,21 +29,20 @@ platform/
 │   │   └── src/
 │   │       ├── app/
 │   │       │   ├── (public)/             # /, /courses, /courses/[slug], /directions, /teachers, /faq
-│   │       │   │   ├── checkout/[courseId]/
 │   │       │   │   └── verify/[certificateId]/   # public certificate check
 │   │       │   ├── (auth)/               # /login, /register, /forgot-password
 │   │       │   ├── (student)/cabinet/    # dashboard, courses, courses/[id]/lessons/[lessonId],
 │   │       │   │                         # practice/[practiceId], exam, results, certificates,
-│   │       │   │                         # payments, profile
+│   │       │   │                         # requests, profile
 │   │       │   └── (admin)/admin/        # dashboard, courses, courses/[id]/modules, lessons/[id],
 │   │       │                             # lessons/[id]/practices, exams, certificates, students,
-│   │       │                             # payments, reports, settings, audit
+│   │       │                             # access-requests, reports, settings, audit
 │   │       ├── components/
 │   │       │   ├── ui/                   # shadcn primitives
 │   │       │   └── layout/               # headers, sidebars, footers per panel
 │   │       ├── features/                 # domain components
 │   │       │   ├── catalog/  course/  lesson/  practice/  exam/
-│   │       │   ├── certificate/  checkout/  profile/
+│   │       │   ├── certificate/  profile/
 │   │       │   └── admin/<domain>/
 │   │       ├── lib/
 │   │       │   ├── api/                  # typed API client
@@ -66,12 +65,9 @@ platform/
 │       │   │   ├── auth/  users/  directions/  teachers/  faq/
 │       │   │   ├── courses/  modules/  lessons/  practices/  questions/
 │       │   │   ├── progress/  exams/  certificates/
-│       │   │   ├── payments/
-│       │   │   │   ├── payme/            # JSON-RPC merchant endpoint
-│       │   │   │   ├── click/            # prepare / complete endpoints
-│       │   │   │   └── orders/
+│       │   │   ├── access-requests/      # student requests, admin approve/reject
 │       │   │   ├── files/  reports/  settings/  audit/  notifications/
-│       │   ├── jobs/                     # BullMQ processors (certificate-pdf, payment-recheck, notify)
+│       │   ├── jobs/                     # BullMQ processors (certificate-pdf, notify)
 │       │   └── templates/certificate/    # HTML template for PDF
 │       └── test/                         # e2e (supertest)
 ├── packages/
@@ -93,8 +89,9 @@ platform/
 ```
 
 ## Where things go
+
 - New DB model → `apps/api/prisma/schema.prisma` + migration.
-- Shared validation / enums (QuestionType, PaymentStatus, Role, CourseStatus) → `packages/shared`.
+- Shared validation / enums (QuestionType, AccessRequestStatus, Role, CourseStatus) → `packages/shared`.
 - New API endpoint → `apps/api/src/modules/<domain>/` (controller, service, dto, `*.spec.ts`).
 - New page → `apps/web/src/app/<group>/...`; its components → `apps/web/src/features/<domain>/`.
 - New UI text → `apps/web/messages/uz.json`.

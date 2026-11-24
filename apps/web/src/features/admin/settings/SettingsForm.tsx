@@ -27,7 +27,6 @@ const KNOWN = {
   supportEmail: 'text',
   supportTelegram: 'text',
   certificateVerifyBaseUrl: 'text',
-  refundPolicyDays: 'number',
   maintenanceMode: 'boolean',
 } as const;
 type KnownKey = keyof typeof KNOWN;
@@ -112,19 +111,9 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
                 {(id) => (
                   <Input
                     id={id}
-                    type={KNOWN[k] === 'number' ? 'number' : 'text'}
+                    type="text"
                     value={values[k] == null ? '' : String(values[k])}
-                    onChange={(e) =>
-                      setValues((v) => ({
-                        ...v,
-                        [k]:
-                          KNOWN[k] === 'number'
-                            ? e.target.value === ''
-                              ? null
-                              : Number(e.target.value)
-                            : e.target.value,
-                      }))
-                    }
+                    onChange={(e) => setValues((v) => ({ ...v, [k]: e.target.value }))}
                   />
                 )}
               </Field>

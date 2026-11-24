@@ -25,25 +25,42 @@ export interface NewNotification {
  * Server-generated Uzbek fallback texts. The web should prefer its own i18n strings keyed by
  * `type` (+ `data`), so this text is only shown if the client has no translation.
  */
-export function paymentSuccessNotification(input: {
+export function accessGrantedNotification(input: {
   userId: string;
   courseId: string;
   courseTitle: string;
   courseSlug: string;
-  orderId: string;
-  orderNumber: number;
 }): NewNotification {
   return {
     userId: input.userId,
-    type: NotificationType.PAYMENT_SUCCESS,
-    title: "To'lov qabul qilindi",
+    type: NotificationType.ACCESS_GRANTED,
+    title: 'Kursga kirish berildi',
     body: `"${input.courseTitle}" kursiga kirish ochildi.`,
     data: {
       courseId: input.courseId,
       courseTitle: input.courseTitle,
       courseSlug: input.courseSlug,
-      orderId: input.orderId,
-      orderNumber: input.orderNumber,
+    },
+  };
+}
+
+export function accessRejectedNotification(input: {
+  userId: string;
+  courseId: string;
+  courseTitle: string;
+  courseSlug: string;
+  reason: string;
+}): NewNotification {
+  return {
+    userId: input.userId,
+    type: NotificationType.ACCESS_REJECTED,
+    title: "Kursga kirish so'rovi rad etildi",
+    body: `"${input.courseTitle}": ${input.reason}`,
+    data: {
+      courseId: input.courseId,
+      courseTitle: input.courseTitle,
+      courseSlug: input.courseSlug,
+      reason: input.reason,
     },
   };
 }

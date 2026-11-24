@@ -72,9 +72,6 @@ function card(
     shortDescription: c.shortDescription,
     coverImageUrl: c.coverImageUrl,
     level: c.level,
-    isFree: c.isFree,
-    price: c.price,
-    currency: c.currency,
     direction: c.direction,
     teachers: c.teachers,
     moduleCount: nonEmpty.length,
@@ -129,7 +126,6 @@ export function catalogWhere(q: PublicCourseListQuery): Prisma.CourseWhereInput 
     ...(q.direction ? { direction: { slug: q.direction } } : {}),
     ...(q.teacherId ? { teachers: { some: { id: q.teacherId } } } : {}),
     ...(q.level ? { level: q.level } : {}),
-    ...(q.isFree !== undefined ? { isFree: q.isFree } : {}),
   };
 }
 
@@ -139,10 +135,6 @@ export function catalogOrder(
   switch (sort) {
     case 'popular':
       return [{ enrollments: { _count: 'desc' } }, { publishedAt: 'desc' }];
-    case 'priceAsc':
-      return [{ price: 'asc' }, { title: 'asc' }];
-    case 'priceDesc':
-      return [{ price: 'desc' }, { title: 'asc' }];
     case 'title':
       return [{ title: 'asc' }];
     case 'newest':
@@ -171,7 +163,7 @@ export class CoursesService {
   }
 
   /**
-   * Course page by slug; also resolves by id (checkout links carry the course id, see
+   * Course page by slug; also resolves by id (links may carry the course id, see
    * docs/api/ROUTES.md `GET /courses/:slugOrId`). Only PUBLISHED courses are visible.
    */
   async getPublicBySlug(slugOrId: string): Promise<PublicCourseDetail> {
@@ -208,7 +200,7 @@ export class CoursesService {
         durationMinutes: true,
         module: {
           select: {
-            course: { select: { id: true, slug: true, title: true, isFree: true, price: true } },
+            course: { select: { id: true, slug: true, title: true } },
           },
         },
         materials: {

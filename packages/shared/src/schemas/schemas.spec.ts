@@ -3,7 +3,7 @@ import { QuestionType } from '../enums';
 import { registerSchema, loginSchema } from './auth';
 import { courseInputSchema, questionInputSchema, blankIndexesIn } from './content';
 import { normalizeUzPhone, parseLoginIdentifier } from './identity';
-import { createOrderSchema } from './payments';
+import { createAccessRequestSchema, rejectAccessRequestSchema } from './access-requests';
 
 describe('identity helpers', () => {
   it('normalises Uzbek phone numbers', () => {
@@ -63,13 +63,15 @@ describe('auth schemas', () => {
 });
 
 describe('content schemas', () => {
-  it('enforces free/paid price rules', () => {
-    const base = { slug: 'js-asoslari', title: 'JS asoslari' };
-    expect(courseInputSchema.safeParse({ ...base, isFree: true, price: 100 }).success).toBe(false);
-    expect(courseInputSchema.safeParse({ ...base, isFree: false, price: 0 }).success).toBe(false);
-    expect(courseInputSchema.safeParse({ ...base, isFree: false, price: 50_000_00 }).success).toBe(
-      true,
-    );
+  it('courses have no price: price fields are stripped', () => {
+    const parsed = courseInputSchema.parse({
+      slug: 'js-asoslari',
+      title: 'JS asoslari',
+      isFree: false,
+      price: 100,
+    });
+    expect(parsed).not.toHaveProperty('price');
+    expect(parsed).not.toHaveProperty('isFree');
   });
 
   it('validates single-choice questions have exactly one correct option', () => {
@@ -131,9 +133,22 @@ describe('content schemas', () => {
   });
 });
 
-describe('payments schemas', () => {
-  it('never accepts a client amount', () => {
-    const parsed = createOrderSchema.parse({ courseId: 'c1', provider: 'PAYME', amount: 1 });
-    expect(parsed).not.toHaveProperty('amount');
+describe('access request schemas', () => {
+  it('accepts an optional trimmed message', () => {
+    expect(createAccessRequestSchema.parse({ courseId: 'c1' })).toEqual({ courseId: 'c1' });
+    expect(createAccessRequestSchema.parse({ courseId: 'c1', message: '  salom ' })).toEqual({
+      courseId: 'c1',
+      message: 'salom',
+    });
+    expect(createAccessRequestSchema.safeParse({}).success).toBe(false);
+    expect(
+      createAccessRequestSchema.safeParse({ courseId: 'c1', message: 'x'.repeat(1001) }).success,
+    ).toBe(false);
+  });
+
+  it('requires a rejection reason', () => {
+    expect(rejectAccessRequestSchema.safeParse({}).success).toBe(false);
+    expect(rejectAccessRequestSchema.safeParse({ reason: '  ' }).success).toBe(false);
+    expect(rejectAccessRequestSchema.safeParse({ reason: 'Guruh to`ldi' }).success).toBe(true);
   });
 });

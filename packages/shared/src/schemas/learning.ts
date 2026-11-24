@@ -365,9 +365,8 @@ export interface AdminDashboardStats {
   examAttempts: number;
   examsPassed: number;
   certificates: number;
-  paidOrders: number;
-  /** Sum of PAID orders, tiyin. */
-  revenue: number;
+  /** Access requests waiting for an admin decision. */
+  pendingAccessRequests: number;
   recentResults: {
     attemptId: string;
     studentId: string;

@@ -137,7 +137,7 @@ services:
     image: redis:7-alpine
     restart: unless-stopped
     logging: *logging
-    # AOF so queued BullMQ jobs (certificates, payment re-checks) survive a restart.
+    # AOF so queued BullMQ jobs (certificate PDFs) survive a restart.
     command:
       [
         'redis-server',

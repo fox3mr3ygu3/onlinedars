@@ -6,7 +6,7 @@ import { renderAdmin } from '../test-utils';
 import { AdminNav } from './AdminNav';
 import { activeNavKey, canAccessAdmin, visibleNavItems } from './nav';
 
-const ADMIN_ONLY = ['students', 'payments', 'reports', 'settings', 'audit'];
+const ADMIN_ONLY = ['accessRequests', 'students', 'reports', 'settings', 'audit'];
 const CONTENT = ['dashboard', 'courses', 'exams', 'certificates', 'directions', 'teachers', 'faq'];
 
 describe('role-based admin menu', () => {
@@ -32,13 +32,13 @@ describe('role-based admin menu', () => {
     expect(activeNavKey('/admin')).toBe('dashboard');
     expect(activeNavKey('/admin/courses/abc/modules')).toBe('courses');
     expect(activeNavKey('/admin/lessons/x/practices')).toBe('courses');
-    expect(activeNavKey('/admin/payments')).toBe('payments');
+    expect(activeNavKey('/admin/access-requests')).toBe('accessRequests');
   });
 
-  it('renders the CONTENT_MANAGER menu without payments/settings links', () => {
+  it('renders the CONTENT_MANAGER menu without access-request/settings links', () => {
     renderAdmin(<AdminNav role={Role.CONTENT_MANAGER} activeKey="courses" />);
     expect(screen.getByRole('link', { name: 'Kurslar' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.queryByRole('link', { name: "To'lovlar" })).toBeNull();
+    expect(screen.queryByRole('link', { name: "Kirish so'rovlari" })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Sozlamalar' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Audit jurnali' })).toBeNull();
     expect(screen.queryByText('Boshqaruv')).toBeNull();
@@ -46,9 +46,9 @@ describe('role-based admin menu', () => {
 
   it('renders the ADMIN menu with management links', () => {
     renderAdmin(<AdminNav role={Role.ADMIN} activeKey={null} />);
-    expect(screen.getByRole('link', { name: "To'lovlar" })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: "Kirish so'rovlari" })).toHaveAttribute(
       'href',
-      '/admin/payments',
+      '/admin/access-requests',
     );
     expect(screen.getByRole('link', { name: 'Sozlamalar' })).toHaveAttribute(
       'href',

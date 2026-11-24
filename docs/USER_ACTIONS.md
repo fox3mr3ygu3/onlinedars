@@ -9,8 +9,6 @@ They keep working on everything else and mock or stub what's blocked. Tick an it
 
 ## Credentials & accounts (agents use mocks/test stubs until these exist)
 
-- [ ] **Payme** merchant ID + test key (sandbox), then live key → GitHub Environment secrets, never in files
-- [ ] **Click** service ID, merchant ID, secret key (test, then live)
 - [ ] **Eskiz.uz** SMS account (email + password/token) for phone OTP
 - [ ] **Sentry** project DSNs (web + api), optional until staging
 - [ ] SMTP/email provider (optional, for email notifications)
@@ -19,10 +17,11 @@ They keep working on everything else and mock or stub what's blocked. Tick an it
 
 ## Decisions
 
+- [x] 2026-11-24: courses are opened only by admin permission (access requests); online payments removed. Payme/Click accounts are no longer needed.
+
 - [ ] Confirm the stack in `.claude/skills/onlinedars-stack/SKILL.md` with the client
 - [ ] Hosting provider for staging + production (check Uzbek personal-data residency law with legal counsel)
 - [ ] Domain name (e.g. onlinedars.uz) and DNS access
-- [ ] Refund policy: on refund, revoke course access or keep it?
 
 ## Admin actions on your PCs / GitHub
 
@@ -42,14 +41,6 @@ They keep working on everything else and mock or stub what's blocked. Tick an it
 ## Dependency advisories (pnpm audit, prod deps, 2026-11-23) — owner: architect (root `package.json` / versions)
 
 - [x] Fixed with `pnpm.overrides` in the root `package.json` (2026-11-23): `postcss`, `effect`, `deepmerge-ts` (8, Prisma CLI verified), `basic-ftp`. Remaining 3 highs (`extract-zip`, `zod` 3 via chromium-bidi) sit in puppeteer's browser-download code, which we never run; see `docs/DECISIONS.md`. Nothing to do unless a fix appears.
-
-## Payments (added by backend-payments, 2026-11-23)
-
-- [ ] **Refund policy**: the code defaults to `revoke` (access removed after a refund). To keep access instead, set the platform setting `REFUND_POLICY` to `"keep"`. Please confirm which one the client wants.
-- [ ] Register callback URLs once staging exists: Payme endpoint `https://<api-domain>/api/v1/payments/payme` with account field `order_id`; Click Prepare `…/api/v1/payments/click/prepare`, Complete `…/api/v1/payments/click/complete` (details: `docs/api/payments.md`).
-- [ ] Run the Payme sandbox test suite (test.paycom.uz) and a Click test payment against staging with the test credentials; then switch to live keys and `PAYME_TEST_MODE=false` for production.
-- [ ] Fiscal receipts (Payme): get the IKPU code and package code for "online course" from tasnif.soliq.uz and set `PAYME_IKPU_CODE` / `PAYME_PACKAGE_CODE` (optional until fiscalisation is required).
-- [ ] Payme "change key" in the merchant cabinet does not reach us automatically: update `PAYME_KEY` in the environment secrets and redeploy when the key changes.
 
 ## Certificates (added by backend-learning, 2026-11-23)
 

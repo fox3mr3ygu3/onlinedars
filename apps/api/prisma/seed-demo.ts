@@ -1,8 +1,9 @@
 /**
  * Demo seed (`pnpm db:seed:demo`, dev and staging only): fills every page with realistic data —
  * 10 courses (8 published, 1 draft, 1 hidden) across 5 directions, 6 teachers, FAQ, 30 students
- * with different progress, practice and exam attempts, certificates, orders in every status
- * (Payme and Click), notifications and audit-log entries, spread over the last 60 days.
+ * with different progress, practice and exam attempts, certificates, access requests in every
+ * status (pending, approved, rejected), notifications and audit-log entries, spread over the last
+ * 60 days. Courses have no price: every enrolment was granted by an admin.
  *
  * Idempotent: courses are matched by slug and students by email; anything that already exists is
  * left alone (and a student's activity is only generated when the student is created), so running
@@ -10,14 +11,13 @@
  */
 import { QuestionType } from '@onlinedars/shared';
 import {
+  AccessRequestStatus,
   CourseLevel,
   CourseStatus,
   EnrollmentSource,
   ExamAttemptStatus,
   LessonMaterialType,
   NotificationType,
-  PaymentProvider,
-  PaymentStatus,
   Prisma,
   PrismaClient,
   Role,
@@ -58,14 +58,11 @@ function mulberry32(seed: number) {
 }
 const rand = mulberry32(20261123);
 const randInt = (min: number, max: number) => min + Math.floor(rand() * (max - min + 1));
-const pick = <T>(arr: readonly T[]): T => arr[Math.floor(rand() * arr.length)] as T;
 /** A date `daysAgo` days back plus a random time of day, never in the future. */
 const daysAgo = (d: number) =>
   new Date(Math.min(NOW - d * DAY + randInt(0, 10) * 3_600_000, NOW - 60_000));
 const after = (base: Date, hours: number) =>
   new Date(Math.min(base.getTime() + hours * 3_600_000, NOW - 30_000));
-const hex = (n: number) =>
-  Array.from({ length: n }, () => Math.floor(rand() * 16).toString(16)).join('');
 
 function escapeHtml(s: string): string {
   return s
@@ -106,7 +103,6 @@ interface CourseInfo {
   id: string;
   slug: string;
   title: string;
-  price: number;
   status: CourseStatus;
   lessons: { id: string; practiceIds: string[]; questionsPerPractice: number }[];
   exam: {
@@ -131,8 +127,6 @@ async function createCourse(c: DemoCourse, adminId: string, templateId: string):
       goals: c.goals,
       coverImageUrl: `https://placehold.co/800x450/${c.color}/ffffff/png?text=${encodeURIComponent(c.title)}`,
       level: c.level as CourseLevel,
-      isFree: c.priceSom === 0,
-      price: c.priceSom * 100,
       sequentialUnlock: true,
       status: c.status as CourseStatus,
       publishedAt: published ? after(createdAt, 48) : null,
@@ -243,7 +237,6 @@ async function loadCourse(slug: string): Promise<CourseInfo> {
     id: c.id,
     slug: c.slug,
     title: c.title,
-    price: c.price,
     status: c.status,
     lessons: c.modules.flatMap((m) =>
       m.lessons.map((l) => ({
@@ -263,68 +256,58 @@ async function loadCourse(slug: string): Promise<CourseInfo> {
   };
 }
 
-const counters = { orders: 0, certificates: 0, attempts: 0, enrollments: 0 };
+const counters = { requests: 0, certificates: 0, attempts: 0, enrollments: 0 };
+let adminId = '';
 
-/** Paid course → PAID order + provider transaction + notification; free → FREE enrolment. */
-async function enrol(
-  user: { id: string },
-  course: CourseInfo,
-  at: Date,
-  source: EnrollmentSource = course.price > 0 ? EnrollmentSource.PURCHASE : EnrollmentSource.FREE,
-): Promise<void> {
-  let orderId: string | null = null;
-  if (source === EnrollmentSource.PURCHASE) {
-    const provider = pick([PaymentProvider.PAYME, PaymentProvider.CLICK]);
-    const order = await prisma.order.create({
-      data: {
-        userId: user.id,
-        courseId: course.id,
-        amount: course.price,
-        status: PaymentStatus.PAID,
-        provider,
-        paidAt: after(at, 0.05),
-        expiresAt: after(at, 0.5),
-        createdAt: at,
-        payments: {
-          create: {
-            provider,
-            providerTransactionId:
-              provider === PaymentProvider.PAYME
-                ? hex(24)
-                : String(randInt(100_000_000, 999_999_999)),
-            amount: course.price,
-            status: PaymentStatus.PAID,
-            providerCreatedAt: provider === PaymentProvider.PAYME ? BigInt(at.getTime()) : null,
-            performedAt: after(at, 0.05),
-            createdAt: at,
-          },
-        },
-      },
-    });
-    orderId = order.id;
-    counters.orders++;
-    await prisma.notification.create({
-      data: {
-        userId: user.id,
-        type: NotificationType.PAYMENT_SUCCESS,
-        title: "To'lov qabul qilindi",
-        body: `"${course.title}" kursiga kirish ochildi.`,
-        data: {
-          courseId: course.id,
-          courseTitle: course.title,
-          courseSlug: course.slug,
-          orderId: order.id,
-          orderNumber: order.number,
-        },
-        readAt: rand() < 0.7 ? after(at, randInt(1, 30)) : null,
-        createdAt: after(at, 0.05),
-      },
-    });
-  }
+/**
+ * The student asked for the course and an admin approved it a few hours later: an APPROVED
+ * access request, the enrolment (source ACCESS_REQUEST), an audit row and a notification.
+ */
+async function enrol(user: { id: string }, course: CourseInfo, at: Date): Promise<void> {
+  const approvedAt = after(at, randInt(1, 20));
+  const request = await prisma.accessRequest.create({
+    data: {
+      userId: user.id,
+      courseId: course.id,
+      status: AccessRequestStatus.APPROVED,
+      message: rand() < 0.4 ? 'Kursga kirish berishingizni so‘rayman.' : null,
+      decidedById: adminId,
+      decidedAt: approvedAt,
+      createdAt: at,
+    },
+  });
+  counters.requests++;
   await prisma.enrollment.create({
-    data: { userId: user.id, courseId: course.id, source, orderId, enrolledAt: after(at, 0.06) },
+    data: {
+      userId: user.id,
+      courseId: course.id,
+      source: EnrollmentSource.ACCESS_REQUEST,
+      enrolledAt: approvedAt,
+    },
   });
   counters.enrollments++;
+  await prisma.auditLog.create({
+    data: {
+      actorId: adminId,
+      action: 'ACCESS_REQUEST_APPROVED',
+      entityType: 'AccessRequest',
+      entityId: request.id,
+      before: { status: 'PENDING' },
+      after: { status: 'APPROVED' },
+      createdAt: approvedAt,
+    },
+  });
+  await prisma.notification.create({
+    data: {
+      userId: user.id,
+      type: NotificationType.ACCESS_GRANTED,
+      title: 'Kursga kirish berildi',
+      body: `"${course.title}" kursiga kirish ochildi.`,
+      data: { courseId: course.id, courseTitle: course.title, courseSlug: course.slug },
+      readAt: rand() < 0.7 ? after(approvedAt, randInt(1, 30)) : null,
+      createdAt: approvedAt,
+    },
+  });
 }
 
 /** Completes the first `done` lessons (viewed + every practice passed) and views the next one. */
@@ -429,22 +412,56 @@ async function examAttempt(
   return passed;
 }
 
-/** An order that did not end in access: PENDING, CANCELLED or FAILED. */
-async function unpaidOrder(userId: string, course: CourseInfo, status: PaymentStatus, at: Date) {
-  const provider = pick([PaymentProvider.PAYME, PaymentProvider.CLICK]);
-  await prisma.order.create({
+/** A request that did not (yet) grant access: waiting in the admin queue, or rejected. */
+async function openRequest(
+  userId: string,
+  course: CourseInfo,
+  status: typeof AccessRequestStatus.PENDING | typeof AccessRequestStatus.REJECTED,
+  at: Date,
+): Promise<void> {
+  const rejected = status === AccessRequestStatus.REJECTED;
+  const request = await prisma.accessRequest.create({
     data: {
       userId,
       courseId: course.id,
-      amount: course.price,
       status,
-      provider,
-      cancelledAt: status === PaymentStatus.PENDING ? null : after(at, 0.5),
-      expiresAt: status === PaymentStatus.PENDING ? new Date(NOW + 30 * 60_000) : after(at, 0.5),
+      message: rand() < 0.5 ? 'Shu kursni o‘qimoqchiman.' : null,
+      decisionReason: rejected ? 'Guruh to‘lgan, keyingi oqimda qayta so‘rang (demo).' : null,
+      decidedById: rejected ? adminId : null,
+      decidedAt: rejected ? after(at, 6) : null,
       createdAt: at,
     },
   });
-  counters.orders++;
+  counters.requests++;
+  if (rejected) {
+    await prisma.auditLog.create({
+      data: {
+        actorId: adminId,
+        action: 'ACCESS_REQUEST_REJECTED',
+        entityType: 'AccessRequest',
+        entityId: request.id,
+        before: { status: 'PENDING' },
+        after: { status: 'REJECTED' },
+        reason: request.decisionReason,
+        createdAt: after(at, 6),
+      },
+    });
+    await prisma.notification.create({
+      data: {
+        userId,
+        type: NotificationType.ACCESS_REJECTED,
+        title: "Kursga kirish so'rovi rad etildi",
+        body: `"${course.title}": ${request.decisionReason}`,
+        data: {
+          courseId: course.id,
+          courseTitle: course.title,
+          courseSlug: course.slug,
+          reason: request.decisionReason,
+        },
+        createdAt: after(at, 6),
+      },
+    });
+  }
 }
 
 async function main(): Promise<void> {
@@ -455,6 +472,7 @@ async function main(): Promise<void> {
   const template = await prisma.certificateTemplate.findFirst({ where: { isDefault: true } });
   if (!admin || !template)
     throw new Error('Run `pnpm db:seed` first (admin + certificate template)');
+  adminId = admin.id;
 
   for (const [i, d] of DEMO_DIRECTIONS.entries()) {
     await prisma.direction.upsert({
@@ -538,50 +556,36 @@ async function main(): Promise<void> {
       }
     }
 
-    // Orders that did not grant access, on a course the student does not have.
-    const other = courses.find((c) => c.price > 0 && !mine.includes(c));
+    // Requests that did not grant access, on a course the student does not have.
+    const other = courses.find((c) => !mine.includes(c));
     if (other && i % 3 === 0) {
-      const status = [PaymentStatus.PENDING, PaymentStatus.CANCELLED, PaymentStatus.FAILED][
-        (i / 3) % 3
-      ]!;
-      await unpaidOrder(
+      const status = (i / 3) % 2 === 0 ? AccessRequestStatus.PENDING : AccessRequestStatus.REJECTED;
+      await openRequest(
         user.id,
         other,
         status,
-        status === PaymentStatus.PENDING ? daysAgo(0) : after(joined, 5),
+        status === AccessRequestStatus.PENDING ? daysAgo(randInt(0, 2)) : after(joined, 5),
       );
     }
 
     // A few special cases for the admin pages.
     if (i === 4 && other) {
-      // Refunded purchase: access revoked (default refund policy), recorded in the audit log.
+      // Access granted, then revoked by an admin (progress is kept), recorded in the audit log.
       await enrol(user, other, after(joined, 3));
-      const order = await prisma.order.findFirstOrThrow({
-        where: { userId: user.id, courseId: other.id },
-      });
-      const refundedAt = after(joined, 8);
-      await prisma.order.update({
-        where: { id: order.id },
-        data: { status: PaymentStatus.REFUNDED, cancelledAt: refundedAt },
-      });
-      await prisma.payment.updateMany({
-        where: { orderId: order.id },
-        data: { status: PaymentStatus.REFUNDED, cancelledAt: refundedAt },
-      });
-      await prisma.enrollment.update({
+      const revokedAt = after(joined, 8);
+      const enr = await prisma.enrollment.update({
         where: { userId_courseId: { userId: user.id, courseId: other.id } },
-        data: { revokedAt: refundedAt },
+        data: { revokedAt },
       });
       await prisma.auditLog.create({
         data: {
           actorId: admin.id,
-          action: 'payment.status.change',
-          entityType: 'Order',
-          entityId: order.id,
-          before: { status: 'PAID', enrolled: true },
-          after: { status: 'REFUNDED', enrolled: false, refundPolicy: 'REVOKE_ACCESS' },
-          reason: "Mijoz so'rovi bilan qaytarildi (demo)",
-          createdAt: refundedAt,
+          action: 'ENROLLMENT_REVOKED',
+          entityType: 'Enrollment',
+          entityId: enr.id,
+          before: { revokedAt: null },
+          after: { revokedAt: revokedAt.toISOString() },
+          createdAt: revokedAt,
         },
       });
     }
@@ -614,7 +618,7 @@ async function main(): Promise<void> {
 
   console.log(
     `Demo seed OK: +${createdCourses} courses, +${createdStudents} students, ` +
-      `${counters.enrollments} enrolments, ${counters.orders} orders, ` +
+      `${counters.enrollments} enrolments, ${counters.requests} access requests, ` +
       `${counters.attempts} practice attempts, ${counters.certificates} certificates. ` +
       `Students: talaba01…talaba30@demo.onlinedars.uz (same password as the base seed).`,
   );

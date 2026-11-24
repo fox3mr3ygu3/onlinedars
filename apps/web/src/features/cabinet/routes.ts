@@ -10,7 +10,7 @@ export const cabinetRoutes = {
   exam: (courseId: string) => `/cabinet/courses/${courseId}/exam`,
   results: '/cabinet/results',
   certificates: '/cabinet/certificates',
-  payments: '/cabinet/payments',
+  requests: '/cabinet/requests',
   notifications: '/cabinet/notifications',
   profile: '/cabinet/profile',
 } as const;
@@ -24,7 +24,7 @@ export const qk = {
   exam: (courseId: string) => ['me', 'exam', courseId] as const,
   results: (page: number) => ['me', 'results', page] as const,
   certificates: ['me', 'certificates'] as const,
-  orders: (page: number) => ['me', 'orders', page] as const,
+  accessRequests: ['me', 'access-requests'] as const,
   notifications: (unreadOnly: boolean) => ['me', 'notifications', unreadOnly] as const,
   me: ['me', 'user'] as const,
 };

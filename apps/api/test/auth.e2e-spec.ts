@@ -285,7 +285,7 @@ describe.skipIf(!hasDb)('auth e2e', () => {
   describe('DB-level 4×6 rule (triggers in migration 0001_init)', () => {
     it('rejects a 5th practice, a 7th question, and publishing an incomplete lesson', async () => {
       const course = await prisma.course.create({
-        data: { slug: `rule-${RUN}`, title: 'Rule test', isFree: true },
+        data: { slug: `rule-${RUN}`, title: 'Rule test' },
       });
       try {
         const mod = await prisma.module.create({

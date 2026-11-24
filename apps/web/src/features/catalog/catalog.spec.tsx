@@ -17,14 +17,12 @@ const course: CourseCardData = {
   shortDescription: "Noldan boshlab JS o'rganing",
   coverImageUrl: null,
   level: 'BEGINNER',
-  isFree: false,
-  price: 49_900_000,
   lessonCount: 12,
   direction: { id: 'd1', slug: 'dasturlash', name: 'Dasturlash' },
 };
 
 describe('CourseCard', () => {
-  it('shows name, short description, lesson count, price and links to the course', () => {
+  it('shows name, short description, lesson count and links to the course; no price', () => {
     renderWithIntl(<CourseCard course={course} />);
     expect(screen.getByRole('link', { name: 'JavaScript asoslari' })).toHaveAttribute(
       'href',
@@ -32,13 +30,8 @@ describe('CourseCard', () => {
     );
     expect(screen.getByText("Noldan boshlab JS o'rganing")).toBeInTheDocument();
     expect(screen.getByTestId('lesson-count')).toHaveTextContent('12 ta dars');
-    expect(screen.getByText("499 000 so'm")).toBeInTheDocument();
     expect(screen.getByText('Dasturlash')).toBeInTheDocument();
-  });
-
-  it('shows "Bepul" for free courses', () => {
-    renderWithIntl(<CourseCard course={{ ...course, isFree: true, price: 0 }} />);
-    expect(screen.getByText('Bepul')).toBeInTheDocument();
+    expect(screen.queryByText(/so'm|Bepul/)).toBeNull();
   });
 });
 
@@ -49,23 +42,20 @@ describe('catalog URL state', () => {
     ).toEqual({
       search: 'js',
       directionId: 'd1',
-      price: 'free',
       page: 3,
     });
-    expect(parseCatalogParams({ price: 'cheap', page: '-2' })).toEqual({
+    expect(parseCatalogParams({ page: '-2' })).toEqual({
       search: '',
       directionId: '',
-      price: '',
       page: 1,
     });
   });
 
-  it('maps to API params (price → isFree)', () => {
+  it('maps to API params (an old ?price= link is ignored)', () => {
     const s = parseCatalogParams({ price: 'paid', page: '2' });
     expect(toApiParams(s, 12)).toEqual({
       search: undefined,
       directionId: undefined,
-      isFree: false,
       page: 2,
       pageSize: 12,
     });
@@ -73,9 +63,7 @@ describe('catalog URL state', () => {
 
   it('builds hrefs without empty values or page 1', () => {
     expect(catalogHref({ search: '', page: 1 })).toBe('/courses');
-    expect(catalogHref({ search: 'react', price: 'free', page: 2 })).toBe(
-      '/courses?search=react&price=free&page=2',
-    );
+    expect(catalogHref({ search: 'react', page: 2 })).toBe('/courses?search=react&page=2');
     expect(pageCount(25, 12)).toBe(3);
     expect(pageCount(0, 12)).toBe(1);
   });
@@ -83,7 +71,7 @@ describe('catalog URL state', () => {
   it('pagination keeps filters', () => {
     renderWithIntl(
       <CatalogPagination
-        state={{ search: 'js', directionId: '', price: '', page: 2 }}
+        state={{ search: 'js', directionId: '', page: 2 }}
         total={30}
         pageSize={12}
       />,
@@ -111,8 +99,8 @@ describe('api helpers', () => {
   });
 
   it('errorMessageKey maps API codes and falls back', () => {
-    expect(errorMessageKey(new ApiError(404, 'ORDER_NOT_FOUND', 'x'))).toBe(
-      'errors.ORDER_NOT_FOUND',
+    expect(errorMessageKey(new ApiError(409, 'ACCESS_REQUEST_PENDING', 'x'))).toBe(
+      'errors.ACCESS_REQUEST_PENDING',
     );
     expect(errorMessageKey(new Error('x'))).toBe('errors.INTERNAL_ERROR');
   });
