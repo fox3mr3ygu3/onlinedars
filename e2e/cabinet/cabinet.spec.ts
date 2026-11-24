@@ -80,6 +80,7 @@ test.describe('cabinet shell, dashboard, courses @smoke', () => {
     const log = await mockApi(page, [
       ...baseHandlers,
       { method: 'GET', path: /^\/me\/lessons\/l2$/, body: lesson },
+      { method: 'GET', path: /^\/me\/courses\/c1$/, body: courseTree },
       {
         method: 'POST',
         path: /^\/me\/lessons\/l2\/viewed$/,
@@ -97,6 +98,20 @@ test.describe('cabinet shell, dashboard, courses @smoke', () => {
     expect(log.calls.some((c) => c.method === 'POST' && c.path === '/me/lessons/l2/viewed')).toBe(
       true,
     );
+
+    // Course player sidebar: every section, the current lesson highlighted, locked ones unlinked.
+    const sidebar = page.getByRole('complementary', { name: 'Kurs mazmuni' });
+    await expect(sidebar.getByRole('link', { name: /2\. Dars l2/ })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    await expect(sidebar.getByTestId('player-lesson-l1')).toHaveAttribute(
+      'data-status',
+      'completed',
+    );
+    await sidebar.getByRole('button', { name: /2-bo'lim: Teglar/ }).click();
+    await expect(sidebar.getByTestId('player-lesson-l3')).toHaveAttribute('data-status', 'locked');
+    await expect(sidebar.getByTestId('player-lesson-l3').getByRole('link')).toHaveCount(0);
   });
 
   test('a 401 shows the login prompt', async ({ page }) => {

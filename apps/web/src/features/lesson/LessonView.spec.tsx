@@ -117,6 +117,12 @@ describe('LessonView', () => {
     expect(screen.getByRole('img', { name: 'Sxema' })).toBeInTheDocument();
   });
 
+  it('skips the video shown on the player stage', () => {
+    renderWithProviders(<LessonView lesson={lesson} stageMaterialId="mt2" />);
+    expect(screen.queryByTitle('Video')).not.toBeInTheDocument();
+    expect(screen.getByText('dunyo')).toBeInTheDocument();
+  });
+
   it('lists the 4 practices with status and links', () => {
     renderWithProviders(<LessonView lesson={lesson} />);
     for (const n of [1, 2, 3, 4]) expect(screen.getByTestId(`practice-p${n}`)).toBeInTheDocument();
