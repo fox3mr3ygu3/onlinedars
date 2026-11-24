@@ -4,10 +4,20 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Price } from '@/features/catalog/price';
 import type { CourseDetail } from '@/lib/api/public';
+import { AdminAccessNotice } from './admin-access';
 import { StudentOnly } from './student-only';
 
-/** Sticky side card on the course page: price + Buy (paid) or Start (free). */
-export function CoursePurchaseCard({ course }: { course: CourseDetail }) {
+/**
+ * Sticky side card on the course page: price + Buy (paid) or Start (free). With admin-only
+ * enrolment it shows no price and no checkout, only how access is given.
+ */
+export function CoursePurchaseCard({
+  course,
+  adminOnly = false,
+}: {
+  course: CourseDetail;
+  adminOnly?: boolean;
+}) {
   const t = useTranslations('course');
   const free = course.isFree || course.price === 0;
   const href = `/checkout/${encodeURIComponent(course.id)}?course=${encodeURIComponent(course.slug)}`;
@@ -15,17 +25,23 @@ export function CoursePurchaseCard({ course }: { course: CourseDetail }) {
 
   return (
     <aside className="bg-card space-y-5 rounded-xl border p-5 shadow-sm lg:sticky lg:top-24">
-      <div>
-        <p className="text-muted-foreground text-sm">{t('price')}</p>
-        <Price isFree={free} price={course.price} className="text-2xl" />
-      </div>
-      <StudentOnly>
-        <Button asChild size="lg" className="w-full">
-          <Link href={href} data-testid="course-cta">
-            {free ? t('start') : t('buy')}
-          </Link>
-        </Button>
-      </StudentOnly>
+      {adminOnly ? (
+        <AdminAccessNotice courseSlug={course.slug} />
+      ) : (
+        <>
+          <div>
+            <p className="text-muted-foreground text-sm">{t('price')}</p>
+            <Price isFree={free} price={course.price} className="text-2xl" />
+          </div>
+          <StudentOnly>
+            <Button asChild size="lg" className="w-full">
+              <Link href={href} data-testid="course-cta">
+                {free ? t('start') : t('buy')}
+              </Link>
+            </Button>
+          </StudentOnly>
+        </>
+      )}
       <dl className="grid grid-cols-2 gap-3 text-sm">
         <div className="bg-muted/50 rounded-lg p-3">
           <dt className="text-muted-foreground">{t('modules')}</dt>

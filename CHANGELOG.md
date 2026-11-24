@@ -12,6 +12,7 @@ commit `chore(release): vX.Y.Z` via PR, then tag `main` (`git tag vX.Y.Z && git 
 
 ### Added
 
+- Admin-only course access (new default): students get a course only when an admin grants it; prices and checkout are hidden. Admin → Settings → "Kursga kirish tartibi" can switch back to self-service (free enrolment and Payme/Click).
 - CI on every push and pull request: lint, typecheck, unit tests, API e2e against Postgres 16 + Redis 7, migration and drift check, build, Docker image build check, Playwright smoke (once `e2e/` exists), dependency audit.
 - Deploy pipeline: images for web, api and worker pushed to GHCR; staging deploy on merge to `main`; production deploy on `v*` tags with manual approval; health check and automatic rollback; manual redeploy of any tag.
 - Production Docker images (multi-stage, non-root) and a Docker Compose stack with Caddy (HTTPS), Postgres, Redis and MinIO on an internal network.

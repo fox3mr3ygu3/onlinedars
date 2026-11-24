@@ -4,6 +4,7 @@ import {
   CourseStatus,
   type CreateOrderInput,
   type CreateOrderResponse,
+  EnrollmentMode,
   EnrollmentSource,
   ErrorCode,
   type MyOrdersQuery,
@@ -17,7 +18,7 @@ import { AppException } from '../../../common/errors/app.exception';
 import { assertOwnerOrRoles } from '../../../common/ownership/ownership.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { CheckoutUrlService } from '../core/checkout-url';
-import { ORDER_TTL_MS } from '../core/payments-db';
+import { getEnrollmentMode, ORDER_TTL_MS } from '../core/payments-db';
 
 export const orderViewInclude = {
   course: { select: { title: true, slug: true } },
@@ -56,12 +57,17 @@ export class OrdersService {
    * Starts a purchase. Amount and currency are copied from the course in the DB (the client
    * sends only courseId + provider). A free course enrolls the student directly, no order.
    * An open order for the same course/provider/price with no provider transaction yet is reused.
+   * Only allowed when the platform is in SELF_SERVICE mode; in ADMIN_ONLY mode (the default) access
+   * comes from an admin grant only (Admin → Students), so this answers 403 ENROLLMENT_ADMIN_ONLY.
    */
   async create(
     principal: AuthPrincipal,
     input: CreateOrderInput,
     now: Date = new Date(),
   ): Promise<CreateOrderResponse> {
+    if ((await getEnrollmentMode(this.prisma)) !== EnrollmentMode.SELF_SERVICE) {
+      throw AppException.forbidden(ErrorCode.ENROLLMENT_ADMIN_ONLY);
+    }
     const course = await this.prisma.course.findUnique({
       where: { id: input.courseId },
       select: { id: true, status: true, isFree: true, price: true, currency: true },

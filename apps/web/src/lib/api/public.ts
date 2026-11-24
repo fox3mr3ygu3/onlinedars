@@ -1,6 +1,7 @@
 import {
   type CertificateVerify,
   type CourseLevel,
+  EnrollmentMode,
   type Paginated,
   type PublicLessonPreview,
 } from '@onlinedars/shared';
@@ -103,6 +104,23 @@ export function toPaginated<T>(data: Paginated<T> | T[]): Paginated<T> {
 const cached: ApiRequestOptions = { next: { revalidate: 60 } };
 
 export const CATALOG_PAGE_SIZE = 12;
+
+/**
+ * Platform enrolment mode from GET /settings/public. Not cached, so an admin's switch shows at
+ * once. If the API cannot be reached, assume ADMIN_ONLY (shows no checkout; the API decides anyway).
+ */
+export async function getEnrollmentMode(): Promise<EnrollmentMode> {
+  try {
+    const s = await apiFetch<{ enrollmentMode?: unknown }>('/settings/public', {
+      cache: 'no-store',
+    });
+    return s.enrollmentMode === EnrollmentMode.SELF_SERVICE
+      ? EnrollmentMode.SELF_SERVICE
+      : EnrollmentMode.ADMIN_ONLY;
+  } catch {
+    return EnrollmentMode.ADMIN_ONLY;
+  }
+}
 
 export async function getCourses(params: CatalogParams = {}): Promise<Paginated<CourseCard>> {
   const query = buildQuery({

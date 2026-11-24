@@ -151,7 +151,17 @@
     "previewCtaText": "Bu dars hamma uchun ochiq. Amaliyotlar, yakuniy imtihon va sertifikat kursga yozilgandan so'ng ochiladi.",
     "previewCtaButton": "Kursga yozilish",
     "previewNotFound": "Bu dars bepul ko'rish uchun ochiq emas",
-    "staffCannotEnrol": "Administrator va kontent menejer hisoblari kursga yozila olmaydi. Kursni o'qish uchun talaba hisobi bilan kiring."
+    "staffCannotEnrol": "Administrator va kontent menejer hisoblari kursga yozila olmaydi. Kursni o'qish uchun talaba hisobi bilan kiring.",
+    "adminAccess": {
+      "title": "Kursga kirish administrator orqali",
+      "guest": "Bu kursga kirishni administrator beradi. Ro'yxatdan o'ting va hisobingiz uchun kirish so'rang — ruxsat berilgach, kurs \"Kurslarim\" bo'limida paydo bo'ladi.",
+      "register": "Ro'yxatdan o'tish",
+      "login": "Kirish",
+      "student": "Kirishni administrator beradi. Ruxsat berilgan kurslaringiz \"Kurslarim\" bo'limida.",
+      "myCourses": "Kurslarimga o'tish",
+      "staff": "Talabaga kursga kirishni Talabalar bo'limida, talaba profilidan bering.",
+      "toStudents": "Talabalar bo'limi"
+    }
   },
   "teachers": {
     "title": "O'qituvchilar",
@@ -814,11 +824,16 @@
         "supportTelegram": "Telegram havolasi",
         "refundPolicyDays": "To'lovni qaytarish muddati (kun)",
         "certificateVerifyBaseUrl": "Sertifikatni tekshirish manzili (asosiy URL)",
-        "maintenanceMode": "Texnik ishlar rejimi"
+        "maintenanceMode": "Texnik ishlar rejimi",
+        "enrollmentMode": "Kursga kirish tartibi"
       },
       "other": "Boshqa sozlamalar",
       "otherHint": "Qolgan sozlamalar JSON ko'rinishida",
-      "invalidJson": "JSON noto'g'ri"
+      "invalidJson": "JSON noto'g'ri",
+      "enrollmentModes": {
+        "ADMIN_ONLY": "Faqat administrator beradi (to'lovsiz)",
+        "SELF_SERVICE": "Talaba o'zi yoziladi (bepul yoki Payme/Click orqali)"
+      }
     },
     "audit": {
       "title": "Audit jurnali",
@@ -941,7 +956,8 @@
     "ALREADY_ENROLLED": "Siz bu kursga allaqachon yozilgansiz",
     "COURSE_NOT_PURCHASABLE": "Bu kursni hozircha sotib olib bo'lmaydi",
     "PAYMENT_PROVIDER_UNAVAILABLE": "Bu to'lov usuli hozircha ishlamayapti. Boshqa usulni tanlang.",
-    "INVALID_STATUS_TRANSITION": "To'lov holatini bunday o'zgartirib bo'lmaydi"
+    "INVALID_STATUS_TRANSITION": "To'lov holatini bunday o'zgartirib bo'lmaydi",
+    "ENROLLMENT_ADMIN_ONLY": "Kursga kirishni faqat administrator beradi"
   },
   "lesson": {
     "back": "Kursga qaytish",

@@ -8,6 +8,7 @@ import { defineConfig, devices } from '@playwright/test';
  * - The mobile project skips e2e/public/** until those specs are checked at 375px (qa).
  * - e2e/acceptance/** (`@fullstack`) runs on desktop only, except acceptance/mobile-*.spec.ts,
  *   which runs on mobile only (spec §13.10).
+ * - With `E2E_API=1`, global-setup.ts switches enrolment to SELF_SERVICE (checkout/Payme specs).
  */
 const PORT = Number(process.env.E2E_PORT ?? 3000);
 const baseURL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`;
@@ -27,6 +28,7 @@ const apiEnv = {
 export default defineConfig({
   testDir: '.',
   testMatch: '**/*.spec.ts',
+  globalSetup: './global-setup.ts',
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 1 : 0,

@@ -64,8 +64,30 @@ describe('checkout URLs', () => {
 describe('OrdersService', () => {
   let kit: PaymentsKit;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     kit = createPaymentsKit();
+    await kit.db.setting.create({ data: { key: 'enrollmentMode', value: 'SELF_SERVICE' } });
+  });
+
+  it('refuses self-enrolment unless the platform is in SELF_SERVICE mode (default ADMIN_ONLY)', async () => {
+    const s = await kit.student();
+    const paid = await kit.course({ price: 1_000_000 });
+    const free = await kit.course({ price: 0, isFree: true });
+    for (const value of ['ADMIN_ONLY', 'garbage', null]) {
+      kit.db.setting.rows[0]!.value = value;
+      expect(await codeOf(kit.orders.create(s, { courseId: paid.id, provider: 'PAYME' }))).toBe(
+        ErrorCode.ENROLLMENT_ADMIN_ONLY,
+      );
+      expect(await codeOf(kit.orders.create(s, { courseId: free.id, provider: 'PAYME' }))).toBe(
+        ErrorCode.ENROLLMENT_ADMIN_ONLY,
+      );
+    }
+    kit.db.setting.rows.length = 0;
+    expect(await codeOf(kit.orders.create(s, { courseId: free.id, provider: 'PAYME' }))).toBe(
+      ErrorCode.ENROLLMENT_ADMIN_ONLY,
+    );
+    expect(kit.db.enrollment.rows).toHaveLength(0);
+    expect(kit.db.order.rows).toHaveLength(0);
   });
 
   it('creates an order with the amount from the DB (client cannot send one) and a redirect URL', async () => {
@@ -141,6 +163,7 @@ describe('OrdersService', () => {
     );
 
     const noClick = createPaymentsKit({ CLICK_SECRET_KEY: '' });
+    await noClick.db.setting.create({ data: { key: 'enrollmentMode', value: 'SELF_SERVICE' } });
     const s2 = await noClick.student();
     const c2 = await noClick.course();
     expect(await codeOf(noClick.orders.create(s2, { courseId: c2.id, provider: 'CLICK' }))).toBe(

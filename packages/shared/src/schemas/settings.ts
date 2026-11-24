@@ -13,6 +13,14 @@ export const RefundPolicy = {
 } as const;
 export type RefundPolicy = (typeof RefundPolicy)[keyof typeof RefundPolicy];
 
+export const EnrollmentMode = {
+  /** Only an admin grants course access (Admin → Students); no checkout, no self-enrolment. */
+  ADMIN_ONLY: 'ADMIN_ONLY',
+  /** Students enrol themselves: free courses directly, paid courses via Payme/Click. */
+  SELF_SERVICE: 'SELF_SERVICE',
+} as const;
+export type EnrollmentMode = (typeof EnrollmentMode)[keyof typeof EnrollmentMode];
+
 const nullableText = (max: number) => z.string().trim().max(max).nullable();
 
 export const platformSettingsSchema = z.object({
@@ -35,6 +43,8 @@ export const platformSettingsSchema = z.object({
     .default(60),
   /** What happens to access when a payment is refunded (used by backend-payments). */
   refundPolicy: z.enum(RefundPolicy).default(RefundPolicy.REVOKE_ACCESS),
+  /** Who gives students course access. Default: admins only (no payments, no self-enrolment). */
+  enrollmentMode: z.enum(EnrollmentMode).default(EnrollmentMode.ADMIN_ONLY),
 });
 export type PlatformSettings = z.infer<typeof platformSettingsSchema>;
 export type PlatformSettingKey = keyof PlatformSettings;
@@ -56,5 +66,6 @@ export const PUBLIC_SETTING_KEYS = [
   'address',
   'logoUrl',
   'maintenanceMode',
+  'enrollmentMode',
 ] as const satisfies readonly PlatformSettingKey[];
 export type PublicPlatformSettings = Pick<PlatformSettings, (typeof PUBLIC_SETTING_KEYS)[number]>;

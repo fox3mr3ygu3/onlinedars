@@ -18,9 +18,12 @@ const selectClass =
 export function CatalogFilters({
   state,
   directions,
+  showPrice = true,
 }: {
   state: CatalogUrlState;
   directions: DirectionSummary[];
+  /** false with admin-only enrolment: prices are not shown anywhere. */
+  showPrice?: boolean;
 }) {
   const t = useTranslations('catalog');
   const submitOnChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -71,22 +74,24 @@ export function CatalogFilters({
           ))}
         </select>
       </div>
-      <div>
-        <label htmlFor="catalog-price" className="sr-only">
-          {t('price')}
-        </label>
-        <select
-          id="catalog-price"
-          name="price"
-          defaultValue={state.price}
-          onChange={submitOnChange}
-          className={selectClass}
-        >
-          <option value="">{t('priceAll')}</option>
-          <option value="free">{t('priceFree')}</option>
-          <option value="paid">{t('pricePaid')}</option>
-        </select>
-      </div>
+      {showPrice ? (
+        <div>
+          <label htmlFor="catalog-price" className="sr-only">
+            {t('price')}
+          </label>
+          <select
+            id="catalog-price"
+            name="price"
+            defaultValue={state.price}
+            onChange={submitOnChange}
+            className={selectClass}
+          >
+            <option value="">{t('priceAll')}</option>
+            <option value="free">{t('priceFree')}</option>
+            <option value="paid">{t('pricePaid')}</option>
+          </select>
+        </div>
+      ) : null}
       <div className="flex gap-2 sm:col-span-2 lg:col-span-1">
         <Button type="submit" className="flex-1 lg:flex-none">
           {t('searchButton')}

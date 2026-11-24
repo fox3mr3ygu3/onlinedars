@@ -9,6 +9,8 @@ import { CourseIntroVideo } from '@/features/course/course-intro-video';
 import { CourseProgram } from '@/features/course/course-program';
 import { CourseGoals, CoursePurchaseCard } from '@/features/course/course-purchase-card';
 import { loadCourse } from '@/features/course/load-course';
+import { getEnrollmentMode } from '@/lib/api/public';
+import { EnrollmentMode } from '@onlinedars/shared';
 import { TeacherAvatar } from '@/features/course/teacher-avatar';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -39,7 +41,7 @@ export default async function CoursePage({ params }: Props) {
   const { slug } = await params;
   const t = await getTranslations('course');
   const tc = await getTranslations('catalog');
-  const res = await loadCourse(slug);
+  const [res, mode] = await Promise.all([loadCourse(slug), getEnrollmentMode()]);
   if (res.kind === 'notFound') notFound();
   if (res.kind === 'error') {
     return (
@@ -49,6 +51,7 @@ export default async function CoursePage({ params }: Props) {
     );
   }
   const { course } = res;
+  const adminOnly = mode !== EnrollmentMode.SELF_SERVICE;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Course',
@@ -56,12 +59,17 @@ export default async function CoursePage({ params }: Props) {
     description: excerpt(course.shortDescription || course.description, 300),
     provider: { '@type': 'Organization', name: 'OnlineDars' },
     inLanguage: 'uz',
-    offers: {
-      '@type': 'Offer',
-      price: course.isFree ? 0 : Math.round(course.price / 100),
-      priceCurrency: 'UZS',
-      category: course.isFree ? 'Free' : 'Paid',
-    },
+    // No public offer when access is admin-only (nothing can be bought).
+    ...(adminOnly
+      ? {}
+      : {
+          offers: {
+            '@type': 'Offer',
+            price: course.isFree ? 0 : Math.round(course.price / 100),
+            priceCurrency: 'UZS',
+            category: course.isFree ? 'Free' : 'Paid',
+          },
+        }),
   };
 
   return (
@@ -164,7 +172,7 @@ export default async function CoursePage({ params }: Props) {
           )}
         </div>
         <div className="order-1 lg:order-2">
-          <CoursePurchaseCard course={course} />
+          <CoursePurchaseCard course={course} adminOnly={adminOnly} />
         </div>
       </Container>
     </>
