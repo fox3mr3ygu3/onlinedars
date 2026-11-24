@@ -30,6 +30,7 @@ const request = (over: Partial<MyAccessRequest> = {}): MyAccessRequest => ({
   courseTitle: 'Python',
   courseSlug: 'python',
   status: 'PENDING',
+  hasAccess: false,
   message: null,
   decisionReason: null,
   decidedAt: null,

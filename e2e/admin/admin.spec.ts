@@ -109,6 +109,7 @@ test.describe('admin panel @smoke', () => {
       courseTitle: 'Python',
       courseSlug: 'python',
       status: 'PENDING',
+      hasAccess: false,
       message: 'Iltimos',
       decisionReason: null,
       decidedAt: null,

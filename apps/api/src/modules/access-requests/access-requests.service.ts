@@ -53,13 +53,14 @@ const include = {
 
 const json = (v: unknown) => JSON.parse(JSON.stringify(v)) as Prisma.InputJsonValue;
 
-export function toMyAccessRequest(r: RequestRow): MyAccessRequest {
+export function toMyAccessRequest(r: RequestRow, hasAccess: boolean): MyAccessRequest {
   return {
     id: r.id,
     courseId: r.courseId,
     courseTitle: r.course?.title ?? '',
     courseSlug: r.course?.slug ?? '',
     status: r.status,
+    hasAccess,
     message: r.message,
     decisionReason: r.decisionReason,
     decidedAt: r.decidedAt?.toISOString() ?? null,
@@ -68,9 +69,9 @@ export function toMyAccessRequest(r: RequestRow): MyAccessRequest {
   };
 }
 
-export function toAdminAccessRequest(r: RequestRow): AdminAccessRequest {
+export function toAdminAccessRequest(r: RequestRow, hasAccess: boolean): AdminAccessRequest {
   return {
-    ...toMyAccessRequest(r),
+    ...toMyAccessRequest(r, hasAccess),
     student: {
       id: r.user?.id ?? r.userId,
       fullName: r.user?.fullName ?? '',
@@ -163,7 +164,8 @@ export class AccessRequestsService {
             select: { id: true },
           })
         ).id;
-    return toMyAccessRequest(await this.load(id));
+    // Asking is refused while the student has the course, so a new request never has access.
+    return toMyAccessRequest(await this.load(id), false);
   }
 
   /** What the course page shows a signed-in student: enrolled, or the state of their request. */
@@ -178,10 +180,8 @@ export class AccessRequestsService {
         include,
       }),
     ]);
-    return {
-      enrolled: Boolean(enrollment && !enrollment.revokedAt),
-      request: request ? toMyAccessRequest(request) : null,
-    };
+    const enrolled = Boolean(enrollment && !enrollment.revokedAt);
+    return { enrolled, request: request ? toMyAccessRequest(request, enrolled) : null };
   }
 
   async listOwn(principal: AuthPrincipal): Promise<MyAccessRequest[]> {
@@ -190,7 +190,8 @@ export class AccessRequestsService {
       orderBy: { updatedAt: 'desc' },
       include,
     });
-    return rows.map(toMyAccessRequest);
+    const access = await this.accessFor(rows);
+    return rows.map((r) => toMyAccessRequest(r, access(r)));
   }
 
   // ── admin ──
@@ -208,8 +209,9 @@ export class AccessRequestsService {
       this.prisma.accessRequest.count({ where }),
       this.prisma.accessRequest.count({ where: { status: AccessRequestStatus.PENDING } }),
     ]);
+    const access = await this.accessFor(rows);
     return {
-      items: rows.map(toAdminAccessRequest),
+      items: rows.map((r) => toAdminAccessRequest(r, access(r))),
       total,
       page: q.page,
       pageSize: q.pageSize,
@@ -264,7 +266,8 @@ export class AccessRequestsService {
       return n.id;
     });
     await this.notifications.deliver(notificationId);
-    return toAdminAccessRequest(await this.load(id));
+    const row = await this.load(id);
+    return toAdminAccessRequest(row, (await this.accessFor([row]))(row));
   }
 
   /** Rejects a pending request with a reason the student sees. Audited; notifies. */
@@ -303,7 +306,8 @@ export class AccessRequestsService {
       return n.id;
     });
     await this.notifications.deliver(notificationId);
-    return toAdminAccessRequest(await this.load(id));
+    const row = await this.load(id);
+    return toAdminAccessRequest(row, (await this.accessFor([row]))(row));
   }
 
   /**
@@ -323,6 +327,23 @@ export class AccessRequestsService {
   }
 
   // ── helpers ──
+
+  /** Which (student, course) pairs of `rows` currently have an active enrollment. */
+  private async accessFor(
+    rows: { userId: string; courseId: string }[],
+  ): Promise<(r: { userId: string; courseId: string }) => boolean> {
+    const key = (r: { userId: string; courseId: string }) => `${r.userId}:${r.courseId}`;
+    if (rows.length === 0) return () => false;
+    const active = await this.prisma.enrollment.findMany({
+      where: {
+        revokedAt: null,
+        OR: rows.map((r) => ({ userId: r.userId, courseId: r.courseId })),
+      },
+      select: { userId: true, courseId: true },
+    });
+    const set = new Set(active.map(key));
+    return (r) => set.has(key(r));
+  }
 
   private async load(id: string): Promise<RequestRow> {
     const row = await this.prisma.accessRequest.findUnique({ where: { id }, include });

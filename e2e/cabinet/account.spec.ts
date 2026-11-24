@@ -77,7 +77,7 @@ test.describe('results, certificates, access requests, notifications, profile @s
         method: 'GET',
         path: /^\/me\/access-requests$/,
         body: [
-          { ...base, id: 'r1', status: 'PENDING', decisionReason: null },
+          { ...base, id: 'r1', status: 'PENDING', hasAccess: false, decisionReason: null },
           {
             ...base,
             id: 'r2',
@@ -85,6 +85,7 @@ test.describe('results, certificates, access requests, notifications, profile @s
             courseTitle: 'SQL',
             courseSlug: 'sql',
             status: 'REJECTED',
+            hasAccess: false,
             decisionReason: "Guruh to'lgan",
             decidedAt: '2026-11-21T10:00:00.000Z',
           },

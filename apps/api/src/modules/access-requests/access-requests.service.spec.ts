@@ -132,6 +132,24 @@ describe('admin decides', () => {
     expect((await svc.courseAccess(student, courseId)).enrolled).toBe(true);
   });
 
+  it('hasAccess follows the enrollment: true after approval, false once access is revoked', async () => {
+    const r = await svc.request(student, { courseId });
+    expect(r.hasAccess).toBe(false);
+    expect((await svc.approve(r.id, meta)).hasAccess).toBe(true);
+    expect((await svc.listOwn(student))[0]).toMatchObject({ status: 'APPROVED', hasAccess: true });
+
+    await db.enrollment.updateMany({
+      where: { userId: student.id, courseId },
+      data: { revokedAt: new Date() },
+    });
+    expect((await svc.listOwn(student))[0]).toMatchObject({ status: 'APPROVED', hasAccess: false });
+    expect((await svc.list({ ...page })).items[0]?.hasAccess).toBe(false);
+    expect(await svc.courseAccess(student, courseId)).toMatchObject({
+      enrolled: false,
+      request: { status: 'APPROVED', hasAccess: false },
+    });
+  });
+
   it('approve restores a revoked enrollment', async () => {
     await db.enrollment.create({
       data: { userId: student.id, courseId, source: 'ADMIN', revokedAt: new Date() },

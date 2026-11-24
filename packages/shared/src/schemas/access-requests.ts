@@ -20,6 +20,11 @@ export const myAccessRequestSchema = z.object({
   courseTitle: z.string(),
   courseSlug: z.string(),
   status: z.enum(AccessRequestStatus),
+  /**
+   * The student has the course right now. Can be false for an APPROVED request when an admin
+   * later revoked the access (the web then shows "access removed" and lets them ask again).
+   */
+  hasAccess: z.boolean(),
   message: z.string().nullable(),
   /** Admin's reason when rejected. */
   decisionReason: z.string().nullable(),
