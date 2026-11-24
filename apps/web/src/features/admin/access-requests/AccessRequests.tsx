@@ -46,13 +46,17 @@ import {
 
 const PAGE_SIZE = 20;
 
-const TONES: Record<AccessRequestStatus, BadgeTone> = {
+type ShownStatus = AccessRequestStatus | 'REVOKED';
+
+const TONES: Record<ShownStatus, BadgeTone> = {
   PENDING: 'warning',
   APPROVED: 'success',
   REJECTED: 'danger',
+  REVOKED: 'neutral',
 };
 
-export function AccessStatusBadge({ status }: { status: AccessRequestStatus }) {
+/** An approved request whose enrollment was revoked later shows as "access removed". */
+export function AccessStatusBadge({ status }: { status: ShownStatus }) {
   const t = useTranslations('admin.accessRequests.statuses');
   return (
     <Badge tone={TONES[status]} data-status={status}>
@@ -219,7 +223,13 @@ export function AccessRequestsList() {
                   <td>{r.courseTitle}</td>
                   <td className="whitespace-nowrap">{formatDateTime(r.createdAt)}</td>
                   <td>
-                    <AccessStatusBadge status={r.status} />
+                    <AccessStatusBadge
+                      status={
+                        r.status === AccessRequestStatus.APPROVED && !r.hasAccess
+                          ? 'REVOKED'
+                          : r.status
+                      }
+                    />
                   </td>
                   <td>
                     {r.status === AccessRequestStatus.PENDING ? (

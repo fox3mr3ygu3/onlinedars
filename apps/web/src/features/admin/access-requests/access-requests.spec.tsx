@@ -24,6 +24,7 @@ const row = (over: Partial<AdminAccessRequest> = {}): AdminAccessRequest => ({
   courseTitle: 'Python',
   courseSlug: 'python',
   status: 'PENDING',
+  hasAccess: false,
   message: 'Iltimos',
   decisionReason: null,
   decidedAt: null,
@@ -89,6 +90,15 @@ describe('<AccessRequestsList />', () => {
     await userEvent.click(within(dialog).getByRole('button', { name: 'Rad etish' }));
     expect(api.rejectAccessRequest).toHaveBeenCalledWith('r1', "Guruh to'lgan");
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('an approved request whose access was revoked shows "Kirish bekor qilingan"', async () => {
+    api.listAccessRequests.mockResolvedValue(
+      list([row({ status: 'APPROVED', hasAccess: false, decidedAt: '2026-11-24T11:00:00.000Z' })]),
+    );
+    renderAdmin(<AccessRequestsList />);
+    const tr = await screen.findByTestId('access-request-r1');
+    expect(tr).toHaveTextContent('Kirish bekor qilingan');
   });
 
   it('decided requests show who decided and no buttons', async () => {

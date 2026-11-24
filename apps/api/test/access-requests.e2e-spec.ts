@@ -219,5 +219,16 @@ describe.skipIf(!hasDb)('access requests e2e', () => {
       .expect(201);
     const req = await prisma.accessRequest.findFirstOrThrow({ where: { userId: ids.s2 } });
     expect(req.status).toBe('APPROVED');
+    let mine = await http.get('/api/v1/me/access-requests').set(auth('s2')).expect(200);
+    expect(mine.body[0]).toMatchObject({ status: 'APPROVED', hasAccess: true });
+
+    // Revoked later: the request stays APPROVED but reports no access, and the student may ask again.
+    await http
+      .delete(`/api/v1/admin/students/${ids.s2}/enrollments/${courseId}`)
+      .set(auth('admin'))
+      .expect(204);
+    mine = await http.get('/api/v1/me/access-requests').set(auth('s2')).expect(200);
+    expect(mine.body[0]).toMatchObject({ status: 'APPROVED', hasAccess: false });
+    await http.post('/api/v1/access-requests').set(auth('s2')).send({ courseId }).expect(201);
   });
 });

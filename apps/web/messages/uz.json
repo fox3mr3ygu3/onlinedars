@@ -321,8 +321,10 @@
       "statuses": {
         "PENDING": "Kutilmoqda",
         "APPROVED": "Tasdiqlangan",
-        "REJECTED": "Rad etilgan"
-      }
+        "REJECTED": "Rad etilgan",
+        "REVOKED": "Kirish bekor qilingan"
+      },
+      "revokedNote": "Administrator bu kursga kirishni bekor qilgan. Xohlasangiz, qayta so'rashingiz mumkin."
     }
   },
   "admin": {
@@ -734,7 +736,8 @@
       "statuses": {
         "PENDING": "Kutilmoqda",
         "APPROVED": "Tasdiqlangan",
-        "REJECTED": "Rad etilgan"
+        "REJECTED": "Rad etilgan",
+        "REVOKED": "Kirish bekor qilingan"
       },
       "fields": {
         "student": "Talaba",
