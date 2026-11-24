@@ -9,6 +9,13 @@ Newest entry first. Each session adds one entry before ending, so work can conti
 - Blockers / questions: …
 -->
 
+## 2026-11-24 — frontend-student — feat/course-player
+
+- Done: the lesson page is now a course player (Udemy-style layout). Full width (on that route only, the cabinet side nav moves into the top-bar menu), dark top strip with "Kursga qaytish" + course title, the lesson's first video on a dark 16:9 stage (not repeated in the materials), in-page tabs (Umumiy / Amaliyotlar / Kurs mazmuni on mobile), and a "Kurs mazmuni" sidebar: progress, collapsible sections "N-bo'lim: title" with "done/total | 1 soat 32 daq", lessons numbered across the course with a completion box, duration and practices, current lesson highlighted, locked lessons unlinked, exam row. The sidebar collapses on desktop; on mobile it sits under the lesson. No API changes (`GET /me/courses/:id` + `GET /me/lessons/:id`).
+- Files: `features/lesson/CoursePlayer.tsx`, `features/lesson/player.ts`, `LessonVideo` in `LessonMaterials.tsx`, `LessonView` takes `stageMaterialId`, `CabinetShell` player mode, `cabinet.player` strings in uz.json.
+- Verified: web lint, typecheck, 170 unit tests; Playwright `e2e/cabinet` 30/30 (desktop + mobile) against this branch's dev server; checked in the browser against the real API (desktop, collapsed sidebar, 375px with no horizontal scroll).
+- Next: per-lesson material type icons (video vs text) need a field in the course tree API; optional notes tab.
+
 ## 2026-11-23 — coordinator — PRs #19, #20, #21 + feat/demo-seed (new PC: D:dev)
 
 - New PC setup: repo at `D:dev` (user's choice, not C:devonlinedars). A local Windows PostgreSQL holds 5432, so Docker Postgres runs on **5433** (`POSTGRES_PORT` in `.env`). MinIO image is gone → `STORAGE_DRIVER=local`. pnpm installed globally for the user.
