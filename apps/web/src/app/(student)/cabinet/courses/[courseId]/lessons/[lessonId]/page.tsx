@@ -1,4 +1,4 @@
-import { LessonScreen } from '@/features/lesson/LessonScreen';
+import { CoursePlayer } from '@/features/lesson/CoursePlayer';
 
 export default async function Page({
   params,
@@ -6,5 +6,5 @@ export default async function Page({
   params: Promise<{ courseId: string; lessonId: string }>;
 }) {
   const { courseId, lessonId } = await params;
-  return <LessonScreen courseId={courseId} lessonId={lessonId} />;
+  return <CoursePlayer courseId={courseId} lessonId={lessonId} />;
 }

@@ -18,6 +18,7 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { type ReactNode, useEffect, useState } from 'react';
 import { cabinetRoutes, qk } from '@/features/cabinet/routes';
+import { isPlayerRoute } from '@/features/lesson/player';
 import { useMe } from '@/features/profile/useMe';
 import { meApi } from '@/lib/api/me';
 import { cn } from '@/lib/utils';
@@ -101,6 +102,7 @@ export function CabinetShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const unread = useUnreadCount();
   const me = useMe();
+  const player = isPlayerRoute(pathname);
 
   useEffect(() => {
     setOpen(false);
@@ -118,7 +120,7 @@ export function CabinetShell({ children }: { children: ReactNode }) {
       <header className="bg-background sticky top-0 z-30 flex h-14 items-center gap-2 border-b px-4">
         <button
           type="button"
-          className="hover:bg-accent -ml-2 rounded-md p-2 lg:hidden"
+          className={cn('hover:bg-accent -ml-2 rounded-md p-2', !player && 'lg:hidden')}
           aria-label={t('nav.menu')}
           aria-expanded={open}
           aria-controls="cabinet-mobile-nav"
@@ -157,7 +159,7 @@ export function CabinetShell({ children }: { children: ReactNode }) {
       </header>
 
       {open ? (
-        <div className="fixed inset-0 z-40 lg:hidden">
+        <div className={cn('fixed inset-0 z-40', !player && 'lg:hidden')}>
           <div
             className="absolute inset-0 bg-black/40"
             aria-hidden="true"
@@ -184,14 +186,19 @@ export function CabinetShell({ children }: { children: ReactNode }) {
         </div>
       ) : null}
 
-      <div className="mx-auto flex w-full max-w-7xl gap-6 px-4 py-6">
-        <aside className="hidden w-60 shrink-0 lg:block">
-          <nav aria-label={t('nav.mainNav')} className="sticky top-20">
-            <NavLinks pathname={pathname} unread={unread} />
-          </nav>
-        </aside>
-        <main className="min-w-0 flex-1">{children}</main>
-      </div>
+      {player ? (
+        // Lesson player: full width, cabinet nav stays in the top-bar menu.
+        <main className="bg-background min-w-0">{children}</main>
+      ) : (
+        <div className="mx-auto flex w-full max-w-7xl gap-6 px-4 py-6">
+          <aside className="hidden w-60 shrink-0 lg:block">
+            <nav aria-label={t('nav.mainNav')} className="sticky top-20">
+              <NavLinks pathname={pathname} unread={unread} />
+            </nav>
+          </aside>
+          <main className="min-w-0 flex-1">{children}</main>
+        </div>
+      )}
     </div>
   );
 }

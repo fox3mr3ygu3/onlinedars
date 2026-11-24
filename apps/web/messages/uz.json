@@ -339,6 +339,23 @@
       "prev": "Oldingi",
       "next": "Keyingi",
       "page": "{page}/{pages}-sahifa"
+    },
+    "player": {
+      "title": "Kurs mazmuni",
+      "open": "Kurs mazmuni",
+      "close": "Kurs mazmunini yopish",
+      "progressLabel": "Kurs o'zlashtirilishi",
+      "progress": "{percent}% · {done}/{total} dars tugatildi",
+      "section": "{position}-bo'lim: {title}",
+      "sectionLessons": "{done}/{total}",
+      "lessonPractices": "{passed}/{total} amaliyot",
+      "locked": "Yopiq",
+      "minutes": "{minutes} daq",
+      "hours": "{hours} soat",
+      "hoursMinutes": "{hours} soat {minutes} daq",
+      "sectionsNav": "Dars bo'limlari",
+      "tabOverview": "Umumiy",
+      "tabPractices": "Amaliyotlar"
     }
   },
   "admin": {

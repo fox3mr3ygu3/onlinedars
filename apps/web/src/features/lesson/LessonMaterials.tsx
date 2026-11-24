@@ -4,6 +4,7 @@ import { LessonMaterialType } from '@onlinedars/shared';
 import { Download, FileText } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { LessonMaterialView } from '@/lib/api/learning-types';
+import { cn } from '@/lib/utils';
 import { formatBytes, toEmbedUrl } from './content';
 import { RichText } from './RichText';
 
@@ -53,35 +54,59 @@ export function LessonMaterial({ material: m }: { material: LessonMaterialView }
           </span>
         </a>
       ) : null;
-    case LessonMaterialType.VIDEO: {
-      if (!isSafeUrl(m.videoUrl)) return null;
-      const embed = toEmbedUrl(m.videoUrl);
-      return (
+    case LessonMaterialType.VIDEO:
+      return isSafeUrl(m.videoUrl) ? (
         <figure>
-          <div className="aspect-video overflow-hidden rounded-lg border bg-black">
-            {embed ? (
-              <iframe
-                src={embed}
-                title={m.title ?? t('videoTitle')}
-                className="size-full"
-                loading="lazy"
-                allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                allowFullScreen
-                referrerPolicy="strict-origin-when-cross-origin"
-              />
-            ) : (
-              <video src={m.videoUrl} controls preload="metadata" className="size-full">
-                {t('videoUnsupported')}
-              </video>
-            )}
-          </div>
+          <LessonVideo material={m} className="rounded-lg border" />
           {m.title ? (
             <figcaption className="text-muted-foreground mt-2 text-sm">{m.title}</figcaption>
           ) : null}
         </figure>
-      );
-    }
+      ) : null;
     default:
       return null;
   }
+}
+
+/** True when the material is a playable video (used to lift it onto the player stage). */
+export function isPlayableVideo(m: LessonMaterialView): boolean {
+  return m.type === LessonMaterialType.VIDEO && isSafeUrl(m.videoUrl);
+}
+
+/** 16:9 video frame: YouTube/Vimeo as a privacy-friendly embed, anything else as <video>. */
+export function LessonVideo({
+  material: m,
+  className,
+}: {
+  material: LessonMaterialView;
+  className?: string;
+}) {
+  const t = useTranslations('lesson');
+  if (!isSafeUrl(m.videoUrl)) return null;
+  const embed = toEmbedUrl(m.videoUrl);
+  return (
+    <div className={cn('aspect-video overflow-hidden bg-black', className)}>
+      {embed ? (
+        <iframe
+          src={embed}
+          title={m.title ?? t('videoTitle')}
+          className="size-full"
+          loading="lazy"
+          allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      ) : (
+        <video
+          src={m.videoUrl}
+          controls
+          preload="metadata"
+          className="size-full"
+          aria-label={m.title ?? t('videoTitle')}
+        >
+          {t('videoUnsupported')}
+        </video>
+      )}
+    </div>
+  );
 }

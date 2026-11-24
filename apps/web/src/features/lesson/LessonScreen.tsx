@@ -1,7 +1,7 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, ClipboardList } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { CheckCircle2, ChevronLeft, ChevronRight, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef } from 'react';
@@ -11,33 +11,23 @@ import { learningApi } from '@/lib/api/learning';
 import type { PracticeSummary, StudentLessonView } from '@/lib/api/learning-types';
 import { cn } from '@/lib/utils';
 import { cabinetRoutes, qk } from '../cabinet/routes';
-import { EmptyState, ProgressBar, QueryBoundary, useErrorMessage } from '../cabinet/ui';
+import { EmptyState, ProgressBar, useErrorMessage } from '../cabinet/ui';
 import { LessonMaterial } from './LessonMaterials';
 
 /** Minimum time on the page before reaching the end of the material counts as "viewed". */
 export const AUTO_VIEW_DWELL_MS = 5_000;
 
-export function LessonScreen({ courseId, lessonId }: { courseId: string; lessonId: string }) {
-  const t = useTranslations('lesson');
-  const query = useQuery({
-    queryKey: qk.lesson(lessonId),
-    queryFn: () => learningApi.lesson(lessonId),
-  });
-  return (
-    <div className="mx-auto max-w-3xl">
-      <Link
-        href={cabinetRoutes.course(courseId)}
-        className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1 text-sm"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        {t('back')}
-      </Link>
-      <QueryBoundary query={query}>{(lesson) => <LessonView lesson={lesson} />}</QueryBoundary>
-    </div>
-  );
-}
-
-export function LessonView({ lesson }: { lesson: StudentLessonView }) {
+/**
+ * Lesson body. `stageMaterialId` is a video already shown on the player stage, so it is not
+ * repeated among the materials.
+ */
+export function LessonView({
+  lesson,
+  stageMaterialId,
+}: {
+  lesson: StudentLessonView;
+  stageMaterialId?: string | null;
+}) {
   const t = useTranslations('lesson');
   const errorMessage = useErrorMessage();
   const queryClient = useQueryClient();
@@ -87,10 +77,13 @@ export function LessonView({ lesson }: { lesson: StudentLessonView }) {
 
   const { progress } = lesson;
   const practices = [...lesson.practices].sort((a, b) => a.position - b.position);
+  const materials = [...lesson.materials]
+    .sort((a, b) => a.position - b.position)
+    .filter((m) => m.id !== stageMaterialId);
 
   return (
     <article className="space-y-8">
-      <header>
+      <header id="lesson-overview" className="scroll-mt-20">
         <h1 className="text-2xl font-semibold">{lesson.title}</h1>
         {lesson.summary ? <p className="text-muted-foreground mt-1">{lesson.summary}</p> : null}
       </header>
@@ -105,9 +98,7 @@ export function LessonView({ lesson }: { lesson: StudentLessonView }) {
         {lesson.materials.length === 0 ? (
           <p className="text-muted-foreground">{t('noMaterials')}</p>
         ) : (
-          [...lesson.materials]
-            .sort((a, b) => a.position - b.position)
-            .map((m) => <LessonMaterial key={m.id} material={m} />)
+          materials.map((m) => <LessonMaterial key={m.id} material={m} />)
         )}
         <div ref={sentinel} aria-hidden="true" />
         <div className="border-t pt-4">
@@ -133,7 +124,11 @@ export function LessonView({ lesson }: { lesson: StudentLessonView }) {
         </div>
       </section>
 
-      <section aria-labelledby="practices-title" className="space-y-3">
+      <section
+        id="lesson-practices"
+        aria-labelledby="practices-title"
+        className="scroll-mt-20 space-y-3"
+      >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 id="practices-title" className="text-lg font-semibold">
             {t('practices')}
