@@ -7,6 +7,9 @@ import { Container, ErrorState, PageHeader } from '@/features/catalog/page-secti
 import { CheckoutForm } from '@/features/checkout/checkout-form';
 import { CheckoutResult } from '@/features/checkout/checkout-result';
 import { loadCourse } from '@/features/course/load-course';
+import { AdminAccessNotice } from '@/features/course/admin-access';
+import { getEnrollmentMode } from '@/lib/api/public';
+import { EnrollmentMode } from '@onlinedars/shared';
 
 type Props = {
   params: Promise<{ courseId: string }>;
@@ -47,8 +50,22 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
     );
   }
   const slug = firstParam(sp.course);
-  const res = await loadCourse(slug || courseId);
+  const [res, mode] = await Promise.all([loadCourse(slug || courseId), getEnrollmentMode()]);
   if (res.kind === 'notFound') notFound();
+
+  // Admin-only enrolment: no checkout at all (POST /orders answers 403 ENROLLMENT_ADMIN_ONLY).
+  if (mode !== EnrollmentMode.SELF_SERVICE && res.kind === 'ok') {
+    return (
+      <>
+        <PageHeader title={res.course.title} />
+        <Container className="max-w-md py-8">
+          <div className="bg-card rounded-xl border p-5 shadow-sm">
+            <AdminAccessNotice courseSlug={res.course.slug} />
+          </div>
+        </Container>
+      </>
+    );
+  }
 
   return (
     <>

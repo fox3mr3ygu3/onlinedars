@@ -9,6 +9,14 @@ Newest entry first. Each session adds one entry before ending, so work can conti
 - Blockers / questions: …
 -->
 
+## 2026-11-24 — coordinator — feat/admin-only-enrollment
+
+- Done (user's request: students get courses only from an admin, no payment): platform setting `enrollmentMode` (`ADMIN_ONLY` default | `SELF_SERVICE`) in `packages/shared` settings, public via `/settings/public`. `POST /orders` → 403 `ENROLLMENT_ADMIN_ONLY` unless SELF_SERVICE. Web: course page shows an "access via administrator" card (guest → register/login, student → Kurslarim, admin → Talabalar) instead of price + buy; catalog/home hide prices and the price filter; `/checkout/:id` shows the same notice; JSON-LD drops the offer. Admin → Settings has a "Kursga kirish tartibi" select. Granting access is the existing audited Admin → Students → student → grant course.
+- Tests: API unit (orders: ADMIN_ONLY/missing/invalid → 403, nothing created), API e2e `payments.e2e-spec.ts` admin-only case (runs SELF_SERVICE otherwise and restores the previous value), web unit (purchase card per role, card without price). Playwright full-stack: `e2e/global-setup.ts` sets SELF_SERVICE when `E2E_API=1`.
+- Verified: lint, typecheck, unit (api 417, web 164, shared 24), API e2e 77/77 against `onlinedars_test`; browser check of course page, catalog and checkout on this branch's web (against the older API, which falls back to ADMIN_ONLY).
+- Not checked in the browser: the admin Settings select against the new API.
+- Docs: CLAUDE.md rule 8 note, DECISIONS, CHANGELOG, ROUTES.
+
 ## 2026-11-23 — coordinator — PRs #19, #20, #21 + feat/demo-seed (new PC: D:dev)
 
 - New PC setup: repo at `D:dev` (user's choice, not C:devonlinedars). A local Windows PostgreSQL holds 5432, so Docker Postgres runs on **5433** (`POSTGRES_PORT` in `.env`). MinIO image is gone → `STORAGE_DRIVER=local`. pnpm installed globally for the user.

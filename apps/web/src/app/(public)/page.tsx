@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { CourseGrid } from '@/features/catalog/course-card';
 import { DirectionList } from '@/features/catalog/direction-list';
 import { Container, EmptyState } from '@/features/catalog/page-section';
-import { getCourses, getDirections, orNull } from '@/lib/api/public';
+import { EnrollmentMode } from '@onlinedars/shared';
+import { getCourses, getDirections, getEnrollmentMode, orNull } from '@/lib/api/public';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,9 +18,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const t = await getTranslations('home');
-  const [courses, directions] = await Promise.all([
+  const [courses, directions, mode] = await Promise.all([
     orNull(getCourses({ page: 1, pageSize: 6 })),
     orNull(getDirections()),
+    getEnrollmentMode(),
   ]);
   const steps = [
     { icon: BookOpen, title: t('step1Title'), text: t('step1Text') },
@@ -90,7 +92,7 @@ export default async function HomePage() {
             </Link>
           </div>
           {courses && courses.items.length > 0 ? (
-            <CourseGrid courses={courses.items} />
+            <CourseGrid courses={courses.items} showPrice={mode === EnrollmentMode.SELF_SERVICE} />
           ) : (
             <EmptyState>{t('coursesEmpty')}</EmptyState>
           )}

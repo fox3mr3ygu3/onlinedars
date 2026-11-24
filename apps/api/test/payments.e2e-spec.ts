@@ -58,6 +58,14 @@ describe.skipIf(!hasDb)('payments e2e', () => {
     return c.id;
   }
 
+  let previousMode: { value: unknown } | null = null;
+  const setMode = (value: string) =>
+    prisma.setting.upsert({
+      where: { key: 'enrollmentMode' },
+      create: { key: 'enrollmentMode', value },
+      update: { value },
+    });
+
   const rpc = (body: object, auth = paymeAuthHeader()) =>
     http.post('/api/v1/payments/payme').set('Authorization', auth).send(body).expect(200);
 
@@ -67,12 +75,17 @@ describe.skipIf(!hasDb)('payments e2e', () => {
     configureApp(app);
     await app.init();
     http = request(app.getHttpServer());
+    // These flows need self-service checkout; the platform default is ADMIN_ONLY.
+    previousMode = await prisma.setting.findUnique({ where: { key: 'enrollmentMode' } });
+    await setMode('SELF_SERVICE');
     paidCourseId = await course('payme', PRICE);
     clickCourseId = await course('click', PRICE);
     freeCourseId = await course('free', 0, true);
   });
 
   afterAll(async () => {
+    if (previousMode) await setMode(previousMode.value as string);
+    else await prisma.setting.deleteMany({ where: { key: 'enrollmentMode' } });
     const orders = await prisma.order.findMany({
       where: { courseId: { in: courseIds } },
       select: { id: true },
@@ -86,6 +99,27 @@ describe.skipIf(!hasDb)('payments e2e', () => {
     await prisma.user.deleteMany({ where: { email: { endsWith: `${RUN}@test.onlinedars.uz` } } });
     await prisma.$disconnect();
     await app?.close();
+  });
+
+  describe('admin-only enrolment (platform default)', () => {
+    it('POST /orders → 403 ENROLLMENT_ADMIN_ONLY for paid and free courses; nothing is created', async () => {
+      await setMode('ADMIN_ONLY');
+      try {
+        const student = await register('adminonly');
+        for (const courseId of [paidCourseId, freeCourseId]) {
+          const res = await http
+            .post('/api/v1/orders')
+            .set('Authorization', `Bearer ${student.token}`)
+            .send({ courseId, provider: 'PAYME' })
+            .expect(403);
+          expect(res.body.code).toBe('ENROLLMENT_ADMIN_ONLY');
+        }
+        expect(await prisma.enrollment.count({ where: { userId: student.id } })).toBe(0);
+        expect(await prisma.order.count({ where: { userId: student.id } })).toBe(0);
+      } finally {
+        await setMode('SELF_SERVICE');
+      }
+    });
   });
 
   describe('Payme flow', () => {

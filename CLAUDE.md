@@ -5,17 +5,20 @@ buys/joins a course, studies lessons, completes interactive practices, passes a 
 receives a verifiable PDF certificate. Full spec (Uzbek): `docs/SPEC_uz.txt`.
 
 ## Repo location (read first)
+
 - The working copy lives at **`C:\dev\onlinedars`** on every PC, cloned from `https://github.com/fox3mr3ygu3/onlinedars`. GitHub is the only sync and backup for code.
 - **Never work inside a OneDrive, Dropbox or Google Drive folder.** If the current directory path contains `OneDrive` (e.g. the old `C:\Users\…\OneDrive\Desktop\platform`), stop and tell the user to open `C:\dev\onlinedars` instead. Don't edit files there.
 - On a new PC without the repo, run `git clone https://github.com/fox3mr3ygu3/onlinedars.git C:\dev\onlinedars` and follow "Setting up a new PC" in `docs/GIT_WORKFLOW.md`.
 - The user keeps OneDrive for personal files. Don't suggest turning it off.
 
 ## Three parts
+
 - **Public Panel** — landing, course catalog (search/filter), directions, course page, teachers, FAQ, auth, checkout.
 - **Student Panel** — dashboard, my courses, lessons, interactive practice, exam, results, certificates (PDF), profile, payment history.
 - **Admin Panel** — dashboard, courses, modules, lessons, practices, questions, exams, certificate templates, students, payments, reports, settings, audit log.
 
 ## Hard business rules (never break these)
+
 1. Hierarchy: Course → Module → Lesson → Practice → Question.
 2. **Every lesson has exactly 4 practices, every practice has exactly 6 questions (24 per lesson).** Enforce in DB/service layer AND show counters in admin UI. A lesson cannot be published unless 4×6 is complete.
 3. Question types (v1): `MULTIPLE_CHOICE` (single or multi), `TRUE_FALSE`, `MATCHING`, `FILL_BLANK`, `IMAGE_BASED`.
@@ -24,12 +27,15 @@ receives a verifiable PDF certificate. Full spec (Uzbek): `docs/SPEC_uz.txt`.
 6. Passing the exam auto-issues a PDF certificate: full name, course name, issue date, unique certificate ID, public verify URL `/verify/{certificateId}`.
 7. Roles: `ADMIN`, `CONTENT_MANAGER`, `STUDENT`. **Authorization is always checked on the server**; hiding UI is not enough. A student can only read their own data.
 8. Payments (Payme, Click): access is granted **only** by a verified provider server-to-server callback — never by the browser "success" redirect. Amount/currency/order ID are validated on the server; client-sent amounts are never trusted. Callbacks are **idempotent** (one payment → access granted once). Statuses: `PENDING`, `PAID`, `CANCELLED`, `FAILED`, `REFUNDED`. Every manual admin change to a payment is written to the audit log.
+   **Enrolment mode** (platform setting `enrollmentMode`, decided by the user 2026-11-24): default `ADMIN_ONLY` — students get course access only when an admin grants it (Admin → Students → student → grant course); `POST /orders` answers 403 `ENROLLMENT_ADMIN_ONLY` and the web shows no prices or checkout. `SELF_SERVICE` (Admin → Settings) turns free enrolment and Payme/Click checkout back on; the payment rules above then apply.
 9. Correct answers are never sent to the client before submission.
 
 ## Out of scope (v1)
+
 Native mobile apps, live video/webinars, HR/ERP/warehouse/payroll, complex gamification, forum, chat.
 
 ## Conventions
+
 - UI language: Uzbek (Latin) only in v1, but **all UI strings go through i18n** (`messages/uz.json`) — no hard-coded text.
 - Code, identifiers, commits, comments: English.
 - Mobile-first responsive; minimal, clean design.
@@ -38,7 +44,9 @@ Native mobile apps, live video/webinars, HR/ERP/warehouse/payroll, complex gamif
 - Work split / ownership per agent: `docs/TASKS.md`. Before starting work, find your agent's section and stay inside its owned paths.
 
 ## Session routine (do this every session, on any PC)
+
 **At the start, before any edits:**
+
 1. `git status`. If there are uncommitted changes you didn't make, stop and ask the user what they are.
 2. `git fetch` then `git pull` on the current branch. If it's a feature branch, also check whether `main` moved (`git log HEAD..origin/main --oneline`) and offer to rebase.
 3. Read the latest entries in `docs/HANDOFF.md` to see where the last session stopped.
@@ -47,6 +55,7 @@ Native mobile apps, live video/webinars, HR/ERP/warehouse/payroll, complex gamif
 6. If `package.json`, the lockfile or `prisma/` changed in the pull, run `pnpm install` and `pnpm db:migrate`.
 
 **At the end, or when the user says they're stopping or switching PCs:**
+
 1. Run lint + typecheck + tests for what you touched.
 2. Commit with a Conventional Commit message. Unfinished work is fine as `wip: …` on the feature branch.
 3. `git push`. Nothing may be left only on this PC.
@@ -57,6 +66,7 @@ Native mobile apps, live video/webinars, HR/ERP/warehouse/payroll, complex gamif
 The user has approved this end-of-session commit + push to feature branches ("I'm done", "switching PCs" = run it). Pushing to `main`, merging PRs, or tagging releases still needs an explicit yes.
 
 ## Working rules (set by the user, 2026-11-22)
+
 - **Push after every finished feature**, not only at session end, so another PC or agent can continue any time.
 - **Every new function gets tests** (unit tests for services/utils, API e2e for endpoints, Playwright for key UI flows). A feature isn't done until its tests pass locally or in CI.
 - Use as many parallel agents as the ownership split allows. Each parallel agent works in its own git worktree and branch.
@@ -64,11 +74,13 @@ The user has approved this end-of-session commit + push to feature branches ("I'
 - Autonomous mode: when the user has said to carry on without confirmation, agents may open PRs and merge them into `main` **after CI is green**. Never force-push `main`, never tag releases, and never touch real payment or production systems.
 
 ## Local environment notes
+
 - Package manager: pnpm 9 (`npm i -g pnpm@9` if missing).
 - GitHub CLI on Windows: `"/c/Program Files/GitHub CLI/gh.exe"` from Git Bash if `gh` isn't on PATH.
 - If Docker isn't installed on the current PC, run unit tests, typecheck and build locally. DB/Redis-backed e2e tests then run in GitHub Actions; push and check with `gh run watch`.
 
 ## Git & delivery
+
 - GitHub is the source of truth; the user works from several PCs. Pull at the start of a session and push before ending.
 - Never commit directly to `main`. Use a branch (`feat/…`, `fix/…`, `chore/…`), Conventional Commits, and a PR that needs green CI. Details: `docs/GIT_WORKFLOW.md`.
 - `main` auto-deploys to staging; a `v*` tag deploys to production after approval. Environments, CI/CD, backups, monitoring and scaling: `docs/DEPLOYMENT.md`.

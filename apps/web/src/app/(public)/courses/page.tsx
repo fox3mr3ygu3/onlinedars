@@ -5,7 +5,14 @@ import { parseCatalogParams, toApiParams } from '@/features/catalog/catalog-para
 import { CourseGrid } from '@/features/catalog/course-card';
 import { Container, EmptyState, ErrorState, PageHeader } from '@/features/catalog/page-section';
 import { CatalogPagination } from '@/features/catalog/pagination';
-import { CATALOG_PAGE_SIZE, getCourses, getDirections, orNull } from '@/lib/api/public';
+import { EnrollmentMode } from '@onlinedars/shared';
+import {
+  CATALOG_PAGE_SIZE,
+  getCourses,
+  getDirections,
+  getEnrollmentMode,
+  orNull,
+} from '@/lib/api/public';
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('catalog');
@@ -23,16 +30,18 @@ export default async function CatalogPage({
 }) {
   const t = await getTranslations('catalog');
   const state = parseCatalogParams(await searchParams);
-  const [courses, directions] = await Promise.all([
+  const [courses, directions, mode] = await Promise.all([
     orNull(getCourses(toApiParams(state, CATALOG_PAGE_SIZE))),
     orNull(getDirections()),
+    getEnrollmentMode(),
   ]);
+  const showPrice = mode === EnrollmentMode.SELF_SERVICE;
 
   return (
     <>
       <PageHeader title={t('title')} subtitle={t('subtitle')} />
       <Container className="space-y-6 py-8">
-        <CatalogFilters state={state} directions={directions ?? []} />
+        <CatalogFilters state={state} directions={directions ?? []} showPrice={showPrice} />
         {!courses ? (
           <ErrorState>{t('loadError')}</ErrorState>
         ) : (
@@ -43,7 +52,7 @@ export default async function CatalogPage({
             {courses.items.length === 0 ? (
               <EmptyState>{t('empty')}</EmptyState>
             ) : (
-              <CourseGrid courses={courses.items} />
+              <CourseGrid courses={courses.items} showPrice={showPrice} />
             )}
             <CatalogPagination
               state={state}

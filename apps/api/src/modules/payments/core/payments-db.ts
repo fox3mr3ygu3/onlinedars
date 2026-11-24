@@ -1,5 +1,7 @@
 import {
+  EnrollmentMode,
   type PaymentStatus,
+  platformSettingsSchema,
   REFUND_POLICY_SETTING_KEY,
   PaymentRefundPolicy,
   paymentRefundPolicySchema,
@@ -35,6 +37,16 @@ export async function getRefundPolicy(db: Pick<Tx, 'setting'>): Promise<PaymentR
       : row?.value;
   const parsed = paymentRefundPolicySchema.safeParse(raw);
   return parsed.success ? parsed.data : PaymentRefundPolicy.REVOKE;
+}
+
+/**
+ * Reads the `enrollmentMode` platform setting. Missing or invalid → ADMIN_ONLY (the safe default:
+ * nobody gets access without an admin grant).
+ */
+export async function getEnrollmentMode(db: Pick<Tx, 'setting'>): Promise<EnrollmentMode> {
+  const row = await db.setting.findUnique({ where: { key: 'enrollmentMode' } });
+  const parsed = platformSettingsSchema.shape.enrollmentMode.safeParse(row?.value);
+  return parsed.success ? parsed.data : EnrollmentMode.ADMIN_ONLY;
 }
 
 /** Order number sent to providers (Payme `account.order_id`, Click `merchant_trans_id`). */

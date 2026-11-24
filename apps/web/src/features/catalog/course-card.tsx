@@ -5,7 +5,13 @@ import type { CourseCard as CourseCardData } from '@/lib/api/public';
 import { Price } from './price';
 
 /** Catalog card: cover, name, short description, lesson count, price, link to the course page. */
-export function CourseCard({ course }: { course: CourseCardData }) {
+export function CourseCard({
+  course,
+  showPrice = true,
+}: {
+  course: CourseCardData;
+  showPrice?: boolean;
+}) {
   const t = useTranslations('catalog');
   return (
     <article className="bg-card group relative flex w-full flex-col overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md">
@@ -46,19 +52,26 @@ export function CourseCard({ course }: { course: CourseCardData }) {
           <span className="text-muted-foreground" data-testid="lesson-count">
             {t('lessons', { count: course.lessonCount })}
           </span>
-          <Price isFree={course.isFree} price={course.price} />
+          {showPrice ? <Price isFree={course.isFree} price={course.price} /> : null}
         </div>
       </div>
     </article>
   );
 }
 
-export function CourseGrid({ courses }: { courses: CourseCardData[] }) {
+/** `showPrice` is false when enrolment is admin-only (no prices, no checkout). */
+export function CourseGrid({
+  courses,
+  showPrice = true,
+}: {
+  courses: CourseCardData[];
+  showPrice?: boolean;
+}) {
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {courses.map((c) => (
         <li key={c.id} className="flex">
-          <CourseCard course={c} />
+          <CourseCard course={c} showPrice={showPrice} />
         </li>
       ))}
     </ul>

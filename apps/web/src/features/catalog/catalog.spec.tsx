@@ -36,6 +36,12 @@ describe('CourseCard', () => {
     expect(screen.getByText('Dasturlash')).toBeInTheDocument();
   });
 
+  it('hides the price when enrolment is admin-only', () => {
+    renderWithIntl(<CourseCard course={course} showPrice={false} />);
+    expect(screen.queryByText("499 000 so'm")).not.toBeInTheDocument();
+    expect(screen.getByTestId('lesson-count')).toHaveTextContent('12 ta dars');
+  });
+
   it('shows "Bepul" for free courses', () => {
     renderWithIntl(<CourseCard course={{ ...course, isFree: true, price: 0 }} />);
     expect(screen.getByText('Bepul')).toBeInTheDocument();

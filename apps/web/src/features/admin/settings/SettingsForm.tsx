@@ -1,5 +1,6 @@
 'use client';
 
+import { EnrollmentMode } from '@onlinedars/shared';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -15,6 +16,7 @@ import {
   ErrorState,
   Field,
   LoadingState,
+  NativeSelect,
   PageHeader,
   Section,
   Textarea,
@@ -29,6 +31,7 @@ const KNOWN = {
   certificateVerifyBaseUrl: 'text',
   refundPolicyDays: 'number',
   maintenanceMode: 'boolean',
+  enrollmentMode: 'enrollmentMode',
 } as const;
 type KnownKey = keyof typeof KNOWN;
 
@@ -100,7 +103,23 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
       <Section title={t('settings.general')}>
         <div className="grid gap-4 md:grid-cols-2">
           {(Object.keys(KNOWN) as KnownKey[]).map((k) =>
-            KNOWN[k] === 'boolean' ? (
+            KNOWN[k] === 'enrollmentMode' ? (
+              <Field key={k} label={t(`settings.fields.${k}`)}>
+                {(id) => (
+                  <NativeSelect
+                    id={id}
+                    value={String(values[k] ?? EnrollmentMode.ADMIN_ONLY)}
+                    onChange={(e) => setValues((v) => ({ ...v, [k]: e.target.value }))}
+                  >
+                    {Object.values(EnrollmentMode).map((m) => (
+                      <option key={m} value={m}>
+                        {t(`settings.enrollmentModes.${m}`)}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                )}
+              </Field>
+            ) : KNOWN[k] === 'boolean' ? (
               <CheckboxField
                 key={k}
                 label={t(`settings.fields.${k}`)}
