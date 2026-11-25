@@ -9,6 +9,14 @@ Newest entry first. Each session adds one entry before ending, so work can conti
 - Blockers / questions: …
 -->
 
+## 2026-11-25 — coordinator — feat/header-profile-icon (PR #29, merged)
+
+- Done: public header shows a profile avatar (photo or initials) + first name when logged in; students → `/cabinet/profile`, staff → `/admin`. New key `publicLayout.profile`; tests in `public-header.spec.tsx`. Merged into `main`.
+- Clarified (no change needed): the course page already requires login before an access request (anonymous → `/login?next=…`, API returns 401). "So'rov yuborildi" only shows for a logged-in student; the user was still logged in through the refresh cookie.
+- This PC (D:\dev): Docker Desktop had to be started by hand; `minio/mc` image pull fails ("pull access denied"), so run only `docker compose … up -d postgres redis` (storage is `local`). Applied migration `0003_admin_access_only` to the dev DB.
+- Flaky: Playwright smoke `e2e/public/auth.spec.ts` "login … redirects to ?next" failed once on a push run (`od_role` cookie missing after redirect to `/cabinet/requests`; API proxy ECONNREFUSED in the log) and passed on re-run and on the PR run. Worth a look if it repeats.
+- Next: pick the next unchecked item in `docs/TASKS.md`; update `docs/TEST_FLOWS.md` for the access-request flow (still open from 2026-11-24).
+
 ## 2026-11-24 — coordinator — feat/admin-access-requests
 
 - Business change (user's decision): **courses open only by admin permission; online payments removed completely.** CLAUDE.md rule 8 rewritten; details in `docs/DECISIONS.md` (2026-11-24).
