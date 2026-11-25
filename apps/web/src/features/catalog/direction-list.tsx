@@ -18,7 +18,7 @@ export function DirectionList({
         <li key={d.id}>
           <Link
             href={catalogHref({ directionId: d.id })}
-            className="bg-card hover:border-primary/40 group flex h-full flex-col gap-3 rounded-xl border p-5 shadow-sm transition-colors"
+            className="bg-card surface-interactive group flex h-full flex-col gap-3 rounded-xl border p-5"
           >
             <span className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
               <Compass className="size-5" aria-hidden />

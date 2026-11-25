@@ -38,7 +38,7 @@ export function LessonMaterial({ material: m }: { material: LessonMaterialView }
           target="_blank"
           rel="noopener noreferrer"
           download
-          className="hover:border-primary flex items-center gap-3 rounded-lg border p-3 transition-colors"
+          className="bg-card surface-interactive flex items-center gap-3 rounded-lg border p-3"
         >
           <FileText className="text-primary size-6 shrink-0" aria-hidden="true" />
           <span className="min-w-0 flex-1">

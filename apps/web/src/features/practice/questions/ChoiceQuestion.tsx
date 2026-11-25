@@ -47,8 +47,9 @@ export function ChoiceQuestion({
               key={o.id}
               data-review={reviewState}
               className={cn(
-                'flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors',
+                'flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border p-3 transition-[color,background-color,border-color,box-shadow]',
                 'has-[:focus-visible]:ring-ring/50 has-[:focus-visible]:ring-[3px]',
+                !disabled && 'bg-card hover:border-primary/50 shadow-sm hover:shadow-md',
                 checked && 'border-primary bg-primary/5',
                 reviewState === 'correct' && 'border-green-600 bg-green-50',
                 reviewState === 'wrong' && 'border-red-600 bg-red-50',

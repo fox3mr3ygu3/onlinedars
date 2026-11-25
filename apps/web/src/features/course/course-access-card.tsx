@@ -9,7 +9,7 @@ export function CourseAccessCard({ course }: { course: CourseDetail }) {
   const modules = course.moduleCount ?? course.modules.length;
 
   return (
-    <aside className="bg-card space-y-5 rounded-xl border p-5 shadow-sm lg:sticky lg:top-24">
+    <aside className="bg-card space-y-5 rounded-xl border p-5 lg:sticky lg:top-24">
       <div className="space-y-2">
         <p className="flex items-center gap-2 font-semibold">
           <KeyRound className="text-primary size-4" aria-hidden />

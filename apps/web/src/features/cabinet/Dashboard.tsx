@@ -61,7 +61,7 @@ export function Dashboard() {
                       ? cabinetRoutes.lesson(d.lastActivity.courseId, d.lastActivity.lessonId)
                       : cabinetRoutes.course(d.lastActivity.courseId)
                   }
-                  className="bg-card hover:border-primary flex items-center gap-3 rounded-xl border p-4 transition-colors"
+                  className="bg-card surface-interactive flex items-center gap-3 rounded-xl border p-4"
                 >
                   <Activity className="text-primary size-5 shrink-0" aria-hidden="true" />
                   <span className="min-w-0 flex-1">

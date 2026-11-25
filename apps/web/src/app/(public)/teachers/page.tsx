@@ -32,7 +32,7 @@ export default async function TeachersPage() {
               <li
                 key={tch.id}
                 id={tch.slug}
-                className="bg-card flex flex-col gap-4 rounded-xl border p-5 shadow-sm"
+                className="bg-card flex flex-col gap-4 rounded-xl border p-5"
               >
                 <div className="flex items-center gap-4">
                   <TeacherAvatar name={tch.fullName} photoUrl={tch.photoUrl} className="size-16" />

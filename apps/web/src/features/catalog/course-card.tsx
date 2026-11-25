@@ -7,7 +7,7 @@ import type { CourseCard as CourseCardData } from '@/lib/api/public';
 export function CourseCard({ course }: { course: CourseCardData }) {
   const t = useTranslations('catalog');
   return (
-    <article className="bg-card group relative flex w-full flex-col overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md">
+    <article className="bg-card surface-interactive group relative flex w-full flex-col overflow-hidden rounded-xl border">
       <div className="bg-muted relative aspect-[16/9] overflow-hidden">
         {course.coverImageUrl ? (
           // Covers come from S3/MinIO on another host; plain <img> avoids next/image remote config.
