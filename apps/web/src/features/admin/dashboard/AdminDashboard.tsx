@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import {
   Award,
@@ -20,9 +21,25 @@ import { formatDateTime } from '../common/format';
 import { ErrorState, LoadingState, PageHeader, Section, TableWrap } from '../common/ui';
 import { useAdminMe } from '../useAdminMe';
 
-function Stat({ label, value, icon }: { label: string; value: ReactNode; icon: ReactNode }) {
+function Stat({
+  label,
+  value,
+  icon,
+  interactive = false,
+}: {
+  label: string;
+  value: ReactNode;
+  icon: ReactNode;
+  /** The tile is wrapped in a link: give it the clickable-surface shadow. */
+  interactive?: boolean;
+}) {
   return (
-    <div className="bg-card flex items-center gap-4 rounded-lg border p-4">
+    <div
+      className={cn(
+        'bg-card flex items-center gap-4 rounded-lg border p-4',
+        interactive && 'surface-interactive h-full',
+      )}
+    >
       <div className="bg-primary/10 text-primary rounded-md p-2.5" aria-hidden>
         {icon}
       </div>
@@ -100,6 +117,7 @@ export function AdminDashboard() {
                   label={t('dashboard.pendingRequests')}
                   value={q.data.pendingAccessRequests}
                   icon={<KeyRound className="size-5" />}
+                  interactive
                 />
               </Link>
             )}

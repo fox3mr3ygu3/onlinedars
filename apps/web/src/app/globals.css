@@ -80,3 +80,39 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+/*
+ * Clickable surfaces (cards, tiles, rows that are links or buttons) get a visible shadow that
+ * lifts on hover, so they stand apart from static boxes, which stay flat (border only).
+ * Rule of thumb: shadow = you can click it.
+ */
+@utility surface-interactive {
+  cursor: pointer;
+  box-shadow:
+    0 1px 2px 0 rgb(15 23 42 / 0.06),
+    0 2px 8px -1px rgb(15 23 42 / 0.1);
+  transition-property: box-shadow, transform, border-color;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    border-color: color-mix(in oklab, var(--primary) 45%, transparent);
+    box-shadow:
+      0 4px 6px -2px rgb(15 23 42 / 0.08),
+      0 12px 24px -6px rgb(15 23 42 / 0.16);
+    transform: translateY(-2px);
+  }
+  &:active {
+    transform: translateY(0);
+  }
+  .dark & {
+    box-shadow:
+      0 1px 2px 0 rgb(0 0 0 / 0.4),
+      0 2px 8px -1px rgb(0 0 0 / 0.5);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:hover {
+      transform: none;
+    }
+  }
+}

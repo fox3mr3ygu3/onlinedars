@@ -53,7 +53,7 @@ export default async function HomePage() {
           </h2>
           <ol className="grid gap-4 md:grid-cols-3">
             {steps.map((s) => (
-              <li key={s.title} className="bg-card rounded-xl border p-5 shadow-sm">
+              <li key={s.title} className="bg-card rounded-xl border p-5">
                 <s.icon className="text-primary mb-3 size-6" aria-hidden />
                 <h3 className="mb-1 font-semibold">{s.title}</h3>
                 <p className="text-muted-foreground text-sm">{s.text}</p>
