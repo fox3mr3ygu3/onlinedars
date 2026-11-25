@@ -211,6 +211,7 @@
     "cabinet": "Kabinet",
     "admin": "Boshqaruv paneli",
     "logout": "Chiqish",
+    "profile": "Profil: {name}",
     "openMenu": "Menyuni ochish",
     "closeMenu": "Menyuni yopish",
     "mainNav": "Asosiy menyu",

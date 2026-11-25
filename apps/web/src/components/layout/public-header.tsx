@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { TeacherAvatar } from '@/features/course/teacher-avatar';
 import { isStaff, logout, useSession } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 
@@ -38,6 +39,16 @@ export function PublicHeader() {
 
   const accountLinks = user ? (
     <>
+      <Link
+        href={isStaff(user.role) ? '/admin' : '/cabinet/profile'}
+        title={user.fullName}
+        aria-label={t('profile', { name: user.fullName })}
+        data-testid="header-profile"
+        className="hover:bg-accent flex items-center gap-2 rounded-full p-0.5 pr-3 text-sm font-medium transition-colors"
+      >
+        <TeacherAvatar name={user.fullName} photoUrl={user.avatarUrl} className="size-8 text-xs" />
+        <span className="max-w-32 truncate">{user.fullName.split(/\s+/)[0]}</span>
+      </Link>
       <Button asChild variant="outline" size="sm">
         <Link href={isStaff(user.role) ? '/admin' : '/cabinet'}>
           {isStaff(user.role) ? t('admin') : t('cabinet')}
